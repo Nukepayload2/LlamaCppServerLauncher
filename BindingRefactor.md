@@ -2,48 +2,37 @@
 
 ## 📋 项目现状分析
 
-### 当前架构
+### 当前配置
 - **项目配置**: 已启用 `<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>`
 - **UI框架**: Avalonia UI 11.0.9 + FluentAvaloniaUI
 - **当前绑定方式**: 手动代码绑定 (`UpdateUIFromSettings()`, `UpdateSettingsFromUI()`)
-- **属性通知**: 未实现 INotifyPropertyChanged
-- **代码生成**: 使用 Nukepayload2.SourceGenerators.AvaloniaUI
+- **属性通知**: AppSettings 未实现 INotifyPropertyChanged
 
-### 存在的问题
-1. **性能问题**: 使用运行时反射，编译时无类型检查
-2. **代码冗余**: 大量手动UI更新代码
-3. **维护困难**: 属性变更需要手动同步UI
-4. **扩展性差**: 添加新参数需要修改多个地方
-
-### 项目结构
-```
-LlamaCppServerLauncher/
-├── MainWindow.axaml           # 主窗口XAML
-├── MainWindow.axaml.vb        # 主窗口代码
-├── AppSettings.vb            # 配置类(221+属性)
-├── App.axaml.vb              # 应用程序类
-└── Program.vb                # 程序入口
-```
+### 现有架构问题
+1. **手动UI更新**: 需要手动调用 `UpdateUIFromSettings()` 和 `UpdateSettingsFromUI()`
+2. **无属性通知**: 属性更改不会自动通知UI
+3. **代码冗余**: 大量手动属性设置和获取代码
+4. **性能不佳**: 使用反射而非编译时绑定
 
 ## 🎯 重构目标
 
 ### 主要目标
 1. **实现属性通知**: AppSettings 类实现 INotifyPropertyChanged
-2. **采用编译绑定**: 使用 `{CompiledBinding}` 替代手动绑定
+2. **启用编译绑定**: 使用 `{Binding}` + `x:DataType`
 3. **简化代码架构**: 移除手动UI更新方法
-4. **提升性能**: 消除反射开销，启用编译时检查
+4. **提升性能**: 利用编译时绑定的性能优势
 
-### 技术选型
-- **基类选择**: 自定义 ObservableBase (轻量级，控制性好)
-- **绑定方式**: Compiled Bindings + x:DataType
-- **属性模式**: 字段支持 + SetProperty 方法
-- **代码风格**: 符合 VB.NET 编码规范
+### 技术方案
+- **属性通知**: 自定义 ObservableBase 基类
+- **绑定方式**: 标准 `{Binding}` 语法（自动编译）
+- **数据类型**: `x:DataType="local:AppSettings"`
+- **代码简化**: 移除手动同步代码
 
-## 📊 详细实施计划
+## 📊 简化实施计划
 
-### 阶段一：基础架构搭建
+### 阶段一：创建 ObservableBase 基类
 
-#### 1.1 创建 ObservableBase 基类
+#### 1.1 创建基础文件
 
 **文件**: `Helpers/ObservableBase.vb`
 
@@ -84,32 +73,9 @@ End Namespace
 </ItemGroup>
 ```
 
-#### 1.3 创建重构工具类
+### 阶段二：重构 AppSettings 类
 
-**文件**: `Helpers/BindingHelper.vb`
-
-```vb
-Imports System.ComponentModel
-Imports System.Runtime.CompilerServices
-
-Namespace Helpers
-    Public Module BindingHelper
-        <Extension()>
-        Public Sub SubscribeToPropertyChanged(source As INotifyPropertyChanged, handler As PropertyChangedEventHandler)
-            AddHandler source.PropertyChanged, handler
-        End Sub
-        
-        <Extension()>
-        Public Sub UnsubscribeFromPropertyChanged(source As INotifyPropertyChanged, handler As PropertyChangedEventHandler)
-            RemoveHandler source.PropertyChanged, handler
-        End Sub
-    End Module
-End Namespace
-```
-
-### 阶段二：AppSettings 重构
-
-#### 2.1 修改 AppSettings 基类
+#### 2.1 修改基类和属性模式
 
 **文件**: `AppSettings.vb`
 
@@ -125,7 +91,10 @@ Public Class AppSettings
     Private _modelPath As String = ""
     Private _threads As Integer = 4
     Private _ctxSize As Integer = 4096
-    Private _nPredict As Integer = -1
+    Private _nGpuLayers As Integer = 0
+    Private _host As String = "127.0.0.1"
+    Private _port As Integer = 8080
+    Private _timeout As Integer = 600
     
     ' Properties with notification
     Public Property ServerPath As String
@@ -155,13 +124,57 @@ Public Class AppSettings
         End Set
     End Property
     
-    ' ... 其他属性按相同模式重构
-End Class
+    Public Property CtxSize As Integer
+        Get
+            Return _ctxSize
+        End Get
+        Set(value As Integer)
+            SetProperty(_ctxSize, value)
+        End Set
+    End Property
+    
+    Public Property NGpuLayers As Integer
+        Get
+            Return _nGpuLayers
+        End Get
+        Set(value As Integer)
+            SetProperty(_nGpuLayers, value)
+        End Set
+    End Property
+    
+    Public Property Host As String
+        Get
+            Return _host
+        End Get
+        Set(value As String)
+            SetProperty(_host, value)
+        End Set
+    End Property
+    
+    Public Property Port As Integer
+        Get
+            Return _port
+        End Get
+        Set(value As Integer)
+            SetProperty(_port, value)
+        End Set
+    End Property
+    
+    Public Property Timeout As Integer
+        Get
+            Return _timeout
+        End Get
+        Set(value As Integer)
+            SetProperty(_timeout, value)
+        End Set
+    End Property
+    
+    ' ... 其他所有属性按相同模式重构
 ```
 
-#### 2.2 批量属性转换模式
+#### 2.2 其他属性类型示例
 
-**数值属性模式**:
+**数值属性**:
 ```vb
 Private _temperature As Double = 0.8
 Public Property Temperature As Double
@@ -174,7 +187,7 @@ Public Property Temperature As Double
 End Property
 ```
 
-**布尔属性模式**:
+**布尔属性**:
 ```vb
 Private _mlock As Boolean = False
 Public Property Mlock As Boolean
@@ -187,57 +200,9 @@ Public Property Mlock As Boolean
 End Property
 ```
 
-**字符串属性模式**:
-```vb
-Private _host As String = "127.0.0.1"
-Public Property Host As String
-    Get
-        Return _host
-    End Get
-    Set(value As String)
-        SetProperty(_host, value)
-    End Set
-End Property
-```
+### 阶段三：更新 MainWindow.axaml
 
-#### 2.3 集合属性特殊处理
-
-**LoRA 适配器处理**:
-```vb
-Private _lora As New List(Of String)()
-Public Property Lora As List(Of String)
-    Get
-        Return _lora
-    End Get
-    Set(value As List(Of String))
-        If SetProperty(_lora, value) Then
-            OnPropertyChanged(nameof(LoraCount))
-        End If
-    End Set
-End Property
-
-Public ReadOnly Property LoraCount As Integer
-    Get
-        Return _lora?.Count ?? 0
-    End Get
-End Property
-
-Public Sub AddLora(path As String)
-    _lora.Add(path)
-    OnPropertyChanged(nameof(Lora))
-    OnPropertyChanged(nameof(LoraCount))
-End Sub
-
-Public Sub RemoveLora(path As String)
-    _lora.Remove(path)
-    OnPropertyChanged(nameof(Lora))
-    OnPropertyChanged(nameof(LoraCount))
-End Sub
-```
-
-### 阶段三：XAML 绑定重构
-
-#### 3.1 更新 MainWindow.axaml 结构
+#### 3.1 添加 x:DataType 和数据绑定
 
 **文件**: `MainWindow.axaml`
 
@@ -264,18 +229,18 @@ End Sub
                        Margin="10"/>
         </Border>
         
-        <!-- Main Content with DataContext -->
+        <!-- Main Content -->
         <TabControl Grid.Row="1" Margin="10">
             <!-- Basic Settings Tab -->
             <TabItem Header="{x:Static res:Resources.BasicSettingsTabHeader}">
                 <ScrollViewer>
                     <StackPanel Margin="10" Spacing="10">
-                        <!-- Server Path with Binding (auto-compiled) -->
+                        <!-- Server Path -->
                         <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
                             <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ServerPathLabel}" 
                                      VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBox Grid.Column="1" Text="{Binding ServerPath}" Margin="0,0,10,0"/>
-                            <Button Grid.Column="2" Command="{Binding BrowseServerCommand}" 
+                            <Button Grid.Column="2" x:Name="BrowseServerButton" 
                                     Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
                         </Grid>
                         
@@ -284,7 +249,7 @@ End Sub
                             <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ModelPathLabel}" 
                                      VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBox Grid.Column="1" Text="{Binding ModelPath}" Margin="0,0,10,0"/>
-                            <Button Grid.Column="2" Command="{Binding BrowseModelCommand}" 
+                            <Button Grid.Column="2" x:Name="BrowseModelButton" 
                                     Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
                         </Grid>
                         
@@ -342,497 +307,577 @@ End Sub
                 </ScrollViewer>
             </TabItem>
             
-            <!-- 其他选项卡按相同模式重构 -->
+            <!-- Sampling Settings Tab -->
+            <TabItem Header="{x:Static res:Resources.SamplingSettingsTabHeader}">
+                <ScrollViewer>
+                    <StackPanel Margin="10" Spacing="10">
+                        <Expander Header="{x:Static res:Resources.SamplingParametersExpander}" IsExpanded="True">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TemperatureLabel}" 
+                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding Temperature}" 
+                                                  Minimum="0" Maximum="2" Increment="0.1" FormatString="0.0"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TopPLabel}" 
+                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding TopP}" 
+                                                  Minimum="0" Maximum="1" Increment="0.05" FormatString="0.00"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TopKLabel}" 
+                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding TopK}" 
+                                                  Minimum="0" Maximum="100" FormatString="0"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.RepeatPenaltyLabel}" 
+                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding RepeatPenalty}" 
+                                                  Minimum="0" Maximum="2" Increment="0.1" FormatString="0.0"/>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
             
+            <!-- Advanced Settings Tab -->
+            <TabItem Header="{x:Static res:Resources.AdvancedSettingsTabHeader}">
+                <ScrollViewer>
+                    <StackPanel Margin="10" Spacing="10">
+                        <Expander Header="{x:Static res:Resources.MemoryManagementExpander}" IsExpanded="True">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <CheckBox Content="{x:Static res:Resources.MlockCheckBox}" 
+                                          IsChecked="{Binding Mlock}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.NoMmapCheckBox}" 
+                                          IsChecked="{Binding NoMmap}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.NoKVOffloadCheckBox}" 
+                                          IsChecked="{Binding NoKVOffload}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.NoRepackCheckBox}" 
+                                          IsChecked="{Binding NoRepack}" Margin="0,3"/>
+                            </StackPanel>
+                        </Expander>
+                        
+                        <Expander Header="{x:Static res:Resources.CpuThreadManagementExpander}">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.BatchThreadsLabel}" 
+                                             VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding ThreadsBatch}" 
+                                                  Minimum="-1" Maximum="64" FormatString="0"/>
+                                </Grid>
+                                
+                                <CheckBox Content="{x:Static res:Resources.KVUnifiedCheckBox}" 
+                                          IsChecked="{Binding KVUnified}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.FlashAttentionCheckBox}" 
+                                          IsChecked="{Binding FlashAttention}" Margin="0,3"/>
+                            </StackPanel>
+                        </Expander>
+                        
+                        <Expander Header="{x:Static res:Resources.LoggingExpander}">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <CheckBox Content="{x:Static res:Resources.VerboseCheckBox}" 
+                                          IsChecked="{Binding Verbose}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.LogColorsCheckBox}" 
+                                          IsChecked="{Binding LogColors}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.LogTimestampsCheckBox}" 
+                                          IsChecked="{Binding LogTimestamps}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.MetricsCheckBox}" 
+                                          IsChecked="{Binding Metrics}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.SlotsCheckBox}" 
+                                          IsChecked="{Binding Slots}" Margin="0,3"/>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Command Preview Tab -->
+            <TabItem Header="{x:Static res:Resources.CommandPreviewTabHeader}">
+                <StackPanel Margin="10" Spacing="10">
+                    <TextBlock Text="{x:Static res:Resources.GeneratedCommandLineLabel}" FontWeight="Bold"/>
+                    
+                    <!-- Update Button -->
+                    <Button x:Name="UpdateCommandPreviewButton" 
+                            Content="Update Command Preview" 
+                            HorizontalAlignment="Left"
+                            MinWidth="180"
+                            Background="#2196F3" 
+                            Foreground="White"/>
+                    
+                    <!-- Command Preview Text Box -->
+                    <TextBox x:Name="CommandPreviewTextBox" 
+                             TextWrapping="Wrap" 
+                             VerticalAlignment="Stretch"
+                             MinHeight="150"
+                             IsReadOnly="True"
+                             FontFamily="Consolas, monospace"
+                             Background="#f8f8f8"/>
+                    
+                    <!-- Copy Button -->
+                    <Button x:Name="CopyCommandButton" 
+                            Content="{x:Static res:Resources.CopyCommandButton}" 
+                            HorizontalAlignment="Right"
+                            MinWidth="120"/>
+                </StackPanel>
+            </TabItem>
         </TabControl>
         
-        <!-- Command Preview with real-time updates -->
+        <!-- Footer with Controls -->
         <Border Grid.Row="2" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,1,0,0" Padding="10">
-            <StackPanel Spacing="10">
-                <Expander Header="Command Preview" IsExpanded="True">
-                    <TextBox Text="{CompiledBinding GeneratedCommand}" 
-                             IsReadOnly="True" FontFamily="Consolas, monospace"
-                             Height="100" TextWrapping="Wrap"/>
-                </Expander>
-                
-                <!-- Action Buttons -->
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                    <Button Command="{CompiledBinding StartServerCommand}" 
-                            Content="{x:Static res:Resources.StartServerButton}"
-                            Background="#4CAF50" Foreground="White" MinWidth="120"/>
-                    <Button Command="{CompiledBinding StopServerCommand}" 
-                            Content="{x:Static res:Resources.StopServerCommand}"
-                            Background="#f44336" Foreground="White" MinWidth="120"
-                            IsEnabled="{CompiledBinding ServerRunning}"/>
-                    <Button Command="{CompiledBinding SaveSettingsCommand}" 
-                            Content="{x:Static res:Resources.SaveSettingsButton}"
-                            Background="#2196F3" Foreground="White" MinWidth="120"/>
-                    <Button Command="{CompiledBinding LoadSettingsCommand}" 
-                            Content="{x:Static res:Resources.LoadSettingsButton}"
-                            Background="#FF9800" Foreground="White" MinWidth="120"/>
-                </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                <Button x:Name="StartServerButton" Content="{x:Static res:Resources.StartServerButton}" 
+                        Background="#4CAF50" Foreground="White"
+                        MinWidth="120" Height="35"/>
+                <Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}" 
+                        Background="#f44336" Foreground="White"
+                        IsEnabled="False"
+                        MinWidth="120" Height="35"/>
+                <Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}" 
+                        Background="#2196F3" Foreground="White"
+                        MinWidth="120" Height="35"/>
+                <Button x:Name="LoadSettingsButton" Content="{x:Static res:Resources.LoadSettingsButton}" 
+                        Background="#FF9800" Foreground="White"
+                        MinWidth="120" Height="35"/>
             </StackPanel>
         </Border>
     </Grid>
 </Window>
 ```
 
-### 阶段四：命令系统实现
+### 阶段四：简化 MainWindow 代码后端
 
-#### 4.1 创建命令基类
-
-**文件**: `Helpers/DelegateCommand.vb`
-
-```vb
-Imports System.Windows.Input
-
-Namespace Helpers
-    Public Class DelegateCommand
-        Implements ICommand
-        
-        Private ReadOnly _execute As Action
-        Private ReadOnly _canExecute As Func(Of Boolean)
-        Private _isExecuting As Boolean
-        
-        Public Event CanExecuteChanged As EventHandler Implements ICommand.CanExecuteChanged
-        
-        Public Sub New(execute As Action)
-            Me.New(execute, Nothing)
-        End Sub
-        
-        Public Sub New(execute As Action, canExecute As Func(Of Boolean))
-            _execute = execute
-            _canExecute = canExecute
-        End Sub
-        
-        Public Function CanExecute(parameter As Object) As Boolean Implements ICommand.CanExecute
-            If _isExecuting Then Return False
-            Return If(_canExecute IsNot Nothing, _canExecute(), True)
-        End Function
-        
-        Public Sub Execute(parameter As Object) Implements ICommand.Execute
-            If CanExecute(parameter) Then
-                _isExecuting = True
-                Try
-                    _execute()
-                    RaiseCanExecuteChanged()
-                Finally
-                    _isExecuting = False
-                End Try
-            End If
-        End Sub
-        
-        Public Sub RaiseCanExecuteChanged()
-            RaiseEvent CanExecuteChanged(Me, EventArgs.Empty)
-        End Sub
-    End Class
-End Namespace
-```
-
-#### 4.2 在 AppSettings 中添加命令
-
-**文件**: `AppSettings.vb`
-
-```vb
-Imports System.Windows.Input
-Imports LlamaCppServerLauncher.Helpers
-
-Public Class AppSettings
-    Inherits ObservableBase
-    
-    ' Commands
-    Private _browseServerCommand As ICommand
-    Private _browseModelCommand As ICommand
-    Private _startServerCommand As ICommand
-    Private _stopServerCommand As ICommand
-    Private _saveSettingsCommand As ICommand
-    Private _loadSettingsCommand As ICommand
-    
-    ' Command Properties
-    Public ReadOnly Property BrowseServerCommand As ICommand
-        Get
-            If _browseServerCommand Is Nothing Then
-                _browseServerCommand = New DelegateCommand(Sub() BrowseServer())
-            End If
-            Return _browseServerCommand
-        End Get
-    End Property
-    
-    Public ReadOnly Property BrowseModelCommand As ICommand
-        Get
-            If _browseModelCommand Is Nothing Then
-                _browseModelCommand = New DelegateCommand(Sub() BrowseModel())
-            End If
-            Return _browseModelCommand
-        End Get
-    End Property
-    
-    Public ReadOnly Property StartServerCommand As ICommand
-        Get
-            If _startServerCommand Is Nothing Then
-                _startServerCommand = New DelegateCommand(Sub() StartServer(), Function() CanStartServer())
-            End If
-            Return _startServerCommand
-        End Get
-    End Property
-    
-    ' 其他命令属性...
-    
-    ' Helper Methods
-    Private Sub BrowseServer()
-        ' 实现服务器文件选择逻辑
-        ' 通过事件或回调通知主窗口
-    End Sub
-    
-    Private Sub BrowseModel()
-        ' 实现模型文件选择逻辑
-    End Sub
-    
-    Private Sub StartServer()
-        ' 实现服务器启动逻辑
-    End Sub
-    
-    Private Function CanStartServer() As Boolean
-        Return Not String.IsNullOrEmpty(ServerPath) AndAlso _
-               Not String.IsNullOrEmpty(ModelPath) AndAlso _
-               Not ServerRunning
-    End Function
-    
-    ' Generated Command Property
-    Private _generatedCommand As String = ""
-    Public Property GeneratedCommand As String
-        Get
-            Return _generatedCommand
-        End Get
-        Set(value As String)
-            SetProperty(_generatedCommand, value)
-        End Set
-    End Property
-    
-    ' Server State
-    Private _serverRunning As Boolean = False
-    Public Property ServerRunning As Boolean
-        Get
-            Return _serverRunning
-        End Get
-        Set(value As Boolean)
-            If SetProperty(_serverRunning, value) Then
-                ' 更新相关命令状态
-                DirectCast(StartServerCommand, DelegateCommand).RaiseCanExecuteChanged()
-                DirectCast(StopServerCommand, DelegateCommand).RaiseCanExecuteChanged()
-            End If
-        End Set
-    End Property
-End Class
-```
-
-#### 4.3 实现命令生成逻辑
-
-**文件**: `AppSettings.vb`
-
-```vb
-Partial Public Class AppSettings
-    Inherits ObservableBase
-    
-    ' Command Generation
-    Public Sub UpdateGeneratedCommand()
-        Dim commandBuilder As New StringBuilder()
-        
-        ' Server Path
-        If Not String.IsNullOrEmpty(ServerPath) Then
-            commandBuilder.Append($"""{ServerPath}""")
-        End If
-        
-        ' Model Path
-        If Not String.IsNullOrEmpty(ModelPath) Then
-            commandBuilder.Append($" -m ""{ModelPath}""")
-        End If
-        
-        ' Basic Parameters
-        commandBuilder.Append($" -t {Threads}")
-        commandBuilder.Append($" -c {CtxSize}")
-        
-        ' GPU Layers
-        If NGpuLayers > 0 Then
-            commandBuilder.Append($" -ngl {NGpuLayers}")
-        End If
-        
-        ' Network
-        commandBuilder.Append($" --host {Host}")
-        commandBuilder.Append($" --port {Port}")
-        commandBuilder.Append($" --timeout {Timeout}")
-        
-        ' Sampling Parameters
-        commandBuilder.Append($" --temp {Temperature}")
-        commandBuilder.Append($" --top-p {TopP}")
-        commandBuilder.Append($" --top-k {TopK}")
-        commandBuilder.Append($" --repeat-penalty {RepeatPenalty}")
-        
-        ' Boolean Parameters
-        If Mlock Then commandBuilder.Append(" --mlock")
-        If NoMmap Then commandBuilder.Append(" --no-mmap")
-        If Verbose Then commandBuilder.Append(" --verbose")
-        
-        GeneratedCommand = commandBuilder.ToString().Trim()
-    End Sub
-    
-    ' Auto-update command when properties change
-    Protected Overrides Sub OnPropertyChanged(propertyName As String)
-        MyBase.OnPropertyChanged(propertyName)
-        
-        ' Auto-update command when relevant properties change
-        Select Case propertyName
-            Case NameOf(ServerPath), NameOf(ModelPath), NameOf(Threads), NameOf(CtxSize),
-                 NameOf(NGpuLayers), NameOf(Host), NameOf(Port), NameOf(Timeout),
-                 NameOf(Temperature), NameOf(TopP), NameOf(TopK), NameOf(RepeatPenalty),
-                 NameOf(Mlock), NameOf(NoMmap), NameOf(Verbose)
-                UpdateGeneratedCommand()
-        End Select
-    End Sub
-End Class
-```
-
-### 阶段五：MainWindow 重构
-
-#### 5.1 简化 MainWindow 代码
+#### 4.1 重构 MainWindow.axaml.vb
 
 **文件**: `MainWindow.axaml.vb`
 
 ```vb
 Imports Avalonia.Controls
 Imports Avalonia.Interactivity
+Imports Avalonia.Platform.Storage
+Imports System.Globalization
 Imports System.IO
+Imports System.Text
+Imports System.Text.Json
 
 Partial Public Class MainWindow
     Inherits Window
     
-    Private _settings As AppSettings
+    Private serverProcess As Process
+    Private serverRunning As Boolean = False
+    Private settings As New AppSettings()
+    Private configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
     
     Public Sub New()
         InitializeComponent()
-        
-        ' Initialize Settings
-        _settings = New AppSettings()
-        DataContext = _settings
-        
-        ' Load Settings
-        LoadSettings()
-        
-        ' Subscribe to command generation updates
-        AddHandler _settings.PropertyChanged, AddressOf OnSettingsPropertyChanged
+        DataContext = settings
+        LoadSettingsSync()
+        UpdateCommandPreview()
     End Sub
     
-    Private Sub OnSettingsPropertyChanged(sender As Object, e As PropertyChangedEventArgs)
-        ' Handle property changes if needed
-        Select Case e.PropertyName
-            Case "ServerRunning"
-                UpdateServerStatus()
-        End Select
-    End Sub
-    
-    Private Sub LoadSettings()
-        Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
-        
-        If File.Exists(configFile) Then
-            Try
-                Dim json As String = File.ReadAllText(configFile)
-                Dim loadedSettings As AppSettings = JsonSerializer.Deserialize(Of AppSettings)(json)
-                
-                ' Copy properties to current settings
-                _settings.CopyFrom(loadedSettings)
-            Catch ex As Exception
-                ' Log error or show message
-            End Try
+    Private Function GenerateCommandLineArguments() As String
+        Dim args As New StringBuilder()
+
+        ' Model Path
+        If Not String.IsNullOrEmpty(settings.ModelPath) Then
+            args.Append($"""{settings.ModelPath}""")
         End If
-    End Sub
+
+        ' Host
+        If Not String.IsNullOrEmpty(settings.Host) Then
+            args.Append($" --host {settings.Host}")
+        End If
+
+        ' Port
+        If settings.Port > 0 Then
+            args.Append($" --port {settings.Port}")
+        End If
+
+        ' Threads
+        If settings.Threads > 0 Then
+            args.Append($" -t {settings.Threads}")
+        End If
+
+        ' Context Size
+        If settings.CtxSize > 0 Then
+            args.Append($" -c {settings.CtxSize}")
+        End If
+
+        ' GPU Layers
+        If settings.NGpuLayers > 0 Then
+            args.Append($" -ngl {settings.NGpuLayers}")
+        End If
+
+        ' Batch Threads
+        If settings.ThreadsBatch > 0 Then
+            args.Append($" -tb {settings.ThreadsBatch}")
+        End If
+
+        ' Temperature
+        If settings.Temperature >= 0 Then
+            args.Append($" --temp {settings.Temperature.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Repeat Penalty
+        If settings.RepeatPenalty >= 0 Then
+            args.Append($" --repeat-penalty {settings.RepeatPenalty.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Top K
+        If settings.TopK > 0 Then
+            args.Append($" --top-k {settings.TopK}")
+        End If
+
+        ' Top P
+        If settings.TopP >= 0 Then
+            args.Append($" --top-p {settings.TopP.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Min P
+        If settings.MinP >= 0 Then
+            args.Append($" --min-p {settings.MinP.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Presence Penalty
+        If settings.PresencePenalty >= 0 Then
+            args.Append($" --presence-penalty {settings.PresencePenalty.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Frequency Penalty
+        If settings.FrequencyPenalty >= 0 Then
+            args.Append($" --frequency-penalty {settings.FrequencyPenalty.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Timeout
+        If settings.Timeout > 0 Then
+            args.Append($" --timeout {settings.Timeout}")
+        End If
+
+        ' Memory Management
+        If settings.Mlock Then
+            args.Append(" -mlock")
+        End If
+
+        If settings.NoMmap Then
+            args.Append(" --no-mmap")
+        End If
+
+        If settings.KVUnified Then
+            args.Append(" --kv-unified")
+        End If
+
+        If settings.NoKVOffload Then
+            args.Append(" --no-kv-offload")
+        End If
+
+        If settings.NoRepack Then
+            args.Append(" --no-repack")
+        End If
+
+        If settings.FlashAttention Then
+            args.Append(" --flash-attn")
+        End If
+
+        ' Logging
+        If settings.Verbose Then
+            args.Append(" -v")
+        End If
+
+        If settings.LogColors Then
+            args.Append(" --log-colors")
+        End If
+
+        If settings.LogTimestamps Then
+            args.Append(" --log-timestamps")
+        End If
+
+        If settings.Metrics Then
+            args.Append(" --metrics")
+        End If
+
+        If settings.Slots Then
+            args.Append(" --slots")
+        End If
+
+        Return args.ToString().Trim()
+    End Function
+
+#Region " Event Handlers "
     
-    Private Sub SaveSettings()
-        Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
-        
+    Private Sub UpdateCommandPreviewButton_Click(sender As Object, e As RoutedEventArgs) Handles UpdateCommandPreviewButton.Click
+        UpdateCommandPreview()
+    End Sub
+
+    Private Async Sub BrowseServerButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseServerButton.Click
+        Await BrowseForServer()
+    End Sub
+
+    Private Async Sub BrowseModelButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseModelButton.Click
+        Await BrowseForModel()
+    End Sub
+
+    Private Async Sub StartServerButton_Click(sender As Object, e As RoutedEventArgs) Handles StartServerButton.Click
+        Await StartServer()
+    End Sub
+
+    Private Sub StopServerButton_Click(sender As Object, e As RoutedEventArgs) Handles StopServerButton.Click
+        StopServer()
+    End Sub
+
+    Private Async Sub SaveSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles SaveSettingsButton.Click
+        Await SaveSettings()
+    End Sub
+
+    Private Async Sub LoadSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles LoadSettingsButton.Click
+        Await LoadSettingsAsync()
+    End Sub
+
+    Private Async Sub CopyCommandButton_Click(sender As Object, e As RoutedEventArgs) Handles CopyCommandButton.Click
+        Await CopyCommandToClipboard()
+    End Sub
+
+#End Region
+
+#Region " File Operations "
+    
+    Private Sub LoadSettingsSync()
         Try
-            Dim json As String = JsonSerializer.Serialize(_settings, New JsonSerializerOptions With {
-                .WriteIndented = True
-            })
-            File.WriteAllText(configFile, json)
-        Catch ex As Exception
-            ' Log error or show message
+            If File.Exists(configFile) Then
+                Dim json As String = File.ReadAllText(configFile)
+                settings = JsonSerializer.Deserialize(Of AppSettings)(json)
+                DataContext = settings ' 更新 DataContext
+            End If
+        Catch
+            ' If loading fails, use default settings
+            settings = New AppSettings()
+            DataContext = settings ' 更新 DataContext
         End Try
     End Sub
-    
-    Private Sub UpdateServerStatus()
-        ' Update UI based on server state
-        If _settings.ServerRunning Then
-            ' Show running state
-        Else
-            ' Show stopped state
+
+    Private Async Function BrowseForServer() As Task
+        If StorageProvider IsNot Nothing Then
+            Dim files As IReadOnlyList(Of IStorageFile) =
+                Await StorageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
+                    .Title = "Select LLaMA.cpp Server Executable",
+                    .AllowMultiple = False,
+                    .FileTypeFilter = New List(Of FilePickerFileType) From {
+                        New FilePickerFileType("Executable Files") With {
+                            .Patterns = New List(Of String) From {"*.exe"}
+                        }
+                    }
+                })
+
+            If files.Count > 0 Then
+                settings.ServerPath = files(0).Path.LocalPath
+            End If
         End If
-    End Sub
-End Class
-```
+    End Function
 
-#### 5.2 添加文件选择方法
+    Private Async Function BrowseForModel() As Task
+        If StorageProvider IsNot Nothing Then
+            Dim files As IReadOnlyList(Of IStorageFile) =
+                Await StorageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
+                    .Title = "Select LLaMA.cpp Model File",
+                    .AllowMultiple = False,
+                    .FileTypeFilter = New List(Of FilePickerFileType) From {
+                        New FilePickerFileType("Model Files") With {
+                            .Patterns = New List(Of String) From {"*.gguf", "*.bin"}
+                        }
+                    }
+                })
 
-**文件**: `MainWindow.axaml.vb`
+            If files.Count > 0 Then
+                settings.ModelPath = files(0).Path.LocalPath
+            End If
+        End If
+    End Function
 
-```vb
-Partial Public Class MainWindow
-    Inherits Window
+    Private Async Function SaveSettings() As Task
+        Dim errorMessage As String = ""
+        Try
+            Dim json As String = JsonSerializer.Serialize(settings, New JsonSerializerOptions With {
+                .WriteIndented = True
+            })
+            Await File.WriteAllTextAsync(configFile, json)
+            Await MsgBoxAsync("Settings saved successfully", MsgBoxButtons.Ok, "Success")
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync($"Error saving settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
+        End If
+    End Function
+
+    Private Async Function LoadSettingsAsync() As Task
+        Dim errorMessage As String = ""
+        Dim configFileExists As Boolean = False
+
+        Try
+            configFileExists = File.Exists(configFile)
+            If configFileExists Then
+                Dim json As String = Await File.ReadAllTextAsync(configFile)
+                settings = JsonSerializer.Deserialize(Of AppSettings)(json)
+                DataContext = settings ' 更新 DataContext
+                UpdateCommandPreview()
+                Await MsgBoxAsync("Settings loaded successfully", MsgBoxButtons.Ok, "Success")
+            End If
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync($"Error loading settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
+        ElseIf Not configFileExists Then
+            Await MsgBoxAsync("No configuration file found. Using default settings.", MsgBoxButtons.Ok, "Info")
+        End If
+    End Function
+
+#End Region
+
+#Region " Server Management "
     
-    ' Add these methods to handle file browsing
-    
-    Private Async Sub BrowseServer()
-        Dim storageProvider = Me.StorageProvider
-        Dim filePickerOptions As New FilePickerOpenOptions With {
-            .Title = "Select Server Executable",
-            .AllowMultiple = False,
-            .FileTypeFilter = {
-                New FilePickerFileType("Executable Files") With {
-                    .Patterns = {"*.exe"}
-                }
+    Private Async Function StartServer() As Task
+        Dim errorMessage As String = ""
+
+        If serverRunning Then
+            Await MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning")
+            Return
+        End If
+
+        If String.IsNullOrEmpty(settings.ServerPath) OrElse Not File.Exists(settings.ServerPath) Then
+            Await MsgBoxAsync("Server path is required!", MsgBoxButtons.Ok, "Error")
+            Return
+        End If
+
+        If String.IsNullOrEmpty(settings.ModelPath) OrElse Not File.Exists(settings.ModelPath) Then
+            Await MsgBoxAsync("Model path is required!", MsgBoxButtons.Ok, "Error")
+            Return
+        End If
+
+        Try
+            Dim args As String = GenerateCommandLineArguments()
+            Dim fullCommand As String = $"""{settings.ServerPath}"" {args}"
+
+            Dim startInfo As New ProcessStartInfo(settings.ServerPath, args) With {
+                .UseShellExecute = True,
+                .CreateNoWindow = False,
+                .WindowStyle = ProcessWindowStyle.Normal
             }
-        }
-        
-        Dim result = Await storageProvider.OpenFilePickerAsync(filePickerOptions)
-        If result.Count > 0 Then
-            _settings.ServerPath = result(0).Path.LocalPath
+
+            serverProcess = Process.Start(startInfo)
+            serverRunning = True
+
+            StartServerButton.IsEnabled = False
+            StopServerButton.IsEnabled = True
+
+            Await CheckServerStatusAsync()
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync($"Failed to start server: {errorMessage}", MsgBoxButtons.Ok, "Error")
         End If
-    End Sub
-    
-    Private Async Sub BrowseModel()
-        Dim storageProvider = Me.StorageProvider
-        Dim filePickerOptions As New FilePickerOpenOptions With {
-            .Title = "Select Model File",
-            .AllowMultiple = False,
-            .FileTypeFilter = {
-                New FilePickerFileType("GGUF Models") With {
-                    .Patterns = {"*.gguf"}
-                },
-                New FilePickerFileType("All Files") With {
-                    .Patterns = {"*.*"}
-                }
-            }
-        }
-        
-        Dim result = Await storageProvider.OpenFilePickerAsync(filePickerOptions)
-        If result.Count > 0 Then
-            _settings.ModelPath = result(0).Path.LocalPath
-        End If
-    End Sub
-    
-    ' Server management methods
-    Private Sub StartServer()
-        ' Server start logic will be implemented here
-        _settings.ServerRunning = True
-    End Sub
-    
+    End Function
+
     Private Sub StopServer()
-        ' Server stop logic will be implemented here
-        _settings.ServerRunning = False
+        If Not serverRunning OrElse serverProcess Is Nothing OrElse serverProcess.HasExited Then
+            Return
+        End If
+
+        Try
+            serverProcess.Kill()
+        Catch
+            ' Ignore kill errors
+        Finally
+            serverRunning = False
+            serverProcess = Nothing
+
+            StartServerButton.IsEnabled = True
+            StopServerButton.IsEnabled = False
+        End Try
     End Sub
+
+    Private Async Function CheckServerStatusAsync() As Task
+        While serverRunning AndAlso serverProcess IsNot Nothing AndAlso Not serverProcess.HasExited
+            Await Task.Delay(1000)
+        End While
+
+        If serverRunning Then
+            serverRunning = False
+            serverProcess = Nothing
+
+            StartServerButton.IsEnabled = True
+            StopServerButton.IsEnabled = False
+        End If
+    End Function
+
+#End Region
+
+#Region " Utility Methods "
+    
+    Private Async Function CopyCommandToClipboard() As Task
+        If Not String.IsNullOrEmpty(CommandPreviewTextBox.Text) Then
+            Dim errorMessage As String = ""
+            Try
+                Await Clipboard.SetTextAsync(CommandPreviewTextBox.Text)
+                Await MsgBoxAsync("Command copied to clipboard", MsgBoxButtons.Ok, "Success")
+            Catch ex As Exception
+                errorMessage = ex.Message
+            End Try
+
+            If Not String.IsNullOrEmpty(errorMessage) Then
+                Await MsgBoxAsync($"Failed to copy command: {errorMessage}", MsgBoxButtons.Ok, "Error")
+            End If
+        End If
+    End Function
+
+#End Region
+
 End Class
 ```
-
-### 阶段六：测试和验证
-
-#### 6.1 单元测试
-
-**测试清单**:
-- [ ] 所有属性绑定正常工作
-- [ ] 属性变更正确通知UI
-- [ ] 命令生成逻辑正确
-- [ ] 文件选择功能正常
-- [ ] 配置保存/加载正常
-- [ ] 服务器状态管理正常
-
-#### 6.2 性能测试
-
-**性能指标**:
-- [ ] 绑定操作性能提升 50%+
-- [ ] 属性变更通知延迟 < 1ms
-- [ ] 内存使用减少 20%+
-- [ ] 编译时无警告和错误
-
-#### 6.3 用户体验测试
-
-**用户体验**:
-- [ ] 界面响应流畅
-- [ ] 实时命令预览正常
-- [ ] 错误处理友好
-- [ ] 符合用户操作习惯
 
 ## 📈 预期收益
 
 ### 技术收益
-- **性能提升**: 编译时绑定消除反射开销
+- **编译时绑定**: 消除反射开销，提升性能
 - **类型安全**: 编译时错误检测，减少运行时错误
-- **代码简化**: 减少 60%+ 的样板代码
-- **可维护性**: 清晰的架构和更好的扩展性
+- **代码简化**: 移除 60%+ 的手动UI更新代码
+- **自动通知**: 属性变更自动更新UI
 
 ### 开发体验
 - **更好的调试**: 编译时错误提示
 - **更少的错误**: 类型安全的绑定系统
-- **更快的开发**: 自动化的属性通知和命令系统
-- **更好的工具支持**: IDE 智能感知和重构
+- **更快的开发**: 自动化的属性通知
+- **更清晰的代码**: 分离UI和数据逻辑
 
 ### 用户体验
-- **更流畅的界面**: 实时响应，无延迟
-- **更好的反馈**: 实时命令预览
-- **更少的错误**: 输入验证和错误处理
+- **实时响应**: 属性变更立即反映在UI上
 - **更好的性能**: 启动和运行速度提升
+- **手动预览**: 命令行预览通过按钮触发更新
 
-## 🚀 实施优先级
+## 🚀 实施步骤
 
-### 第一优先级（核心架构）
 1. **创建 ObservableBase 基类**
-2. **重构 AppSettings 基础属性**
-3. **更新 MainWindow.axaml 基础绑定**
-4. **实现命令系统基础**
-
-### 第二优先级（功能完善）
-1. **完成所有属性重构**
-2. **实现集合属性处理**
-3. **完善命令系统**
-4. **添加文件选择功能**
-
-### 第三优先级（优化完善）
-1. **性能优化**
-2. **错误处理和验证**
-3. **用户体验优化**
-4. **文档和测试**
+2. **重构 AppSettings 所有属性**
+3. **更新 MainWindow.axaml 添加 x:DataType**
+4. **更新 MainWindow.axaml.vb 简化代码**
+5. **测试所有功能**
 
 ## 🎯 成功标准
 
-### 功能标准
-- ✅ 所有现有功能正常工作
 - ✅ 属性变更自动更新UI
-- ✅ 实时命令预览正常
+- ✅ 手动命令预览通过按钮触发正常工作
+- ✅ 配置保存/加载功能正常
 - ✅ 文件选择功能正常
-- ✅ 配置保存/加载正常
+- ✅ 编译时无错误和警告
+- ✅ 性能明显提升
+- ✅ 事件处理全部使用 Handles 子句
 
-### 性能标准
-- ✅ 绑定性能提升 50%+
-- ✅ 内存使用减少 20%+
-- ✅ 编译时无错误
-- ✅ 运行时无异常
-
-### 代码质量标准
-- ✅ 代码量减少 50%+
-- ✅ 符合 VB.NET 编码规范
-- ✅ 良好的可读性和可维护性
-- ✅ 完整的错误处理
-
-## 📝 注意事项
-
-### 实施风险
-1. **兼容性**: 确保与现有代码兼容
-2. **性能**: 避免过度频繁的属性变更通知
-3. **内存**: 正确处理事件订阅和释放
-4. **测试**: 充分测试所有功能
-
-### 最佳实践
-1. **渐进式重构**: 分阶段实施，确保每阶段都能正常工作
-2. **备份代码**: 在重构前备份现有代码
-3. **充分测试**: 每个阶段完成后进行全面测试
-4. **文档更新**: 及时更新相关文档和注释
-
-这个重构计划将显著提升应用的性能和代码质量，为后续的参数扩展工作奠定坚实的基础。
+这个简化的重构计划充分利用了项目已有的 compiled binding 配置，只需要实现 INotifyPropertyChanged 和添加 x:DataType 就可以获得编译时绑定的所有好处。UpdateCommandPreview 保持按钮触发，事件处理使用 Handles 子句，符合用户的最新要求。
