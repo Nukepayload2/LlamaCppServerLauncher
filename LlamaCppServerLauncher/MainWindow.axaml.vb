@@ -1,20 +1,11 @@
 #Region " Imports "
 
-Imports Avalonia
 Imports Avalonia.Controls
-Imports Avalonia.Controls.ApplicationLifetimes
 Imports Avalonia.Interactivity
 Imports Avalonia.Platform.Storage
-Imports Avalonia.Threading
-Imports System
-Imports System.Collections.Generic
-Imports System.ComponentModel
-Imports System.Diagnostics
 Imports System.Globalization
 Imports System.IO
 Imports System.Text
-Imports System.Threading.Tasks
-Imports LlamaCppServerLauncher.Helpers
 
 #End Region
 
@@ -34,7 +25,7 @@ Partial Public Class MainWindow
 
     Public Sub New()
         InitializeComponent()
-        LoadSettings()
+        LoadSettingsSync()
         UpdateCommandPreview()
     End Sub
 
@@ -43,145 +34,20 @@ Partial Public Class MainWindow
 #Region " UI Updates "
 
     Private Sub UpdateCommandPreview()
-        Dim args As New StringBuilder()
+        Dim fullCommand As New StringBuilder()
 
         ' Server Path
         If Not String.IsNullOrEmpty(settings.ServerPath) Then
-            args.Append($"""{settings.ServerPath}""")
+            fullCommand.Append($"""{settings.ServerPath}""")
         End If
 
-        ' Model Path
-        If Not String.IsNullOrEmpty(settings.ModelPath) Then
-            args.Append($" -m ""{settings.ModelPath}""")
+        ' Arguments
+        Dim args As String = GenerateCommandLineArguments()
+        If Not String.IsNullOrEmpty(args) Then
+            fullCommand.Append(" " & args)
         End If
 
-        ' Host
-        If Not String.IsNullOrEmpty(settings.Host) Then
-            args.Append($" --host {settings.Host}")
-        End If
-
-        ' Port
-        If settings.Port > 0 Then
-            args.Append($" --port {settings.Port}")
-        End If
-
-        ' Threads
-        If settings.Threads > 0 Then
-            args.Append($" -t {settings.Threads}")
-        End If
-
-        ' Context Size
-        If settings.CtxSize > 0 Then
-            args.Append($" -c {settings.CtxSize}")
-        End If
-
-        ' GPU Layers
-        If settings.NGpuLayers > 0 Then
-            args.Append($" -ngl {settings.NGpuLayers}")
-        End If
-
-        ' Batch Threads
-        If settings.ThreadsBatch > 0 Then
-            args.Append($" -tb {settings.ThreadsBatch}")
-        End If
-
-        ' Temperature
-        If settings.Temperature >= 0 Then
-            args.Append($" --temp {settings.Temperature.ToString(CultureInfo.InvariantCulture)}")
-        End If
-
-        ' Repeat Penalty
-        If settings.RepeatPenalty >= 0 Then
-            args.Append($" --repeat-penalty {settings.RepeatPenalty.ToString(CultureInfo.InvariantCulture)}")
-        End If
-
-        ' Top K
-        If settings.TopK > 0 Then
-            args.Append($" --top-k {settings.TopK}")
-        End If
-
-        ' Top P
-        If settings.TopP >= 0 Then
-            args.Append($" --top-p {settings.TopP.ToString(CultureInfo.InvariantCulture)}")
-        End If
-
-        ' Min P
-        If settings.MinP >= 0 Then
-            args.Append($" --min-p {settings.MinP.ToString(CultureInfo.InvariantCulture)}")
-        End If
-
-        ' Presence Penalty
-        If settings.PresencePenalty >= 0 Then
-            args.Append($" --presence-penalty {settings.PresencePenalty.ToString(CultureInfo.InvariantCulture)}")
-        End If
-
-        ' Frequency Penalty
-        If settings.FrequencyPenalty >= 0 Then
-            args.Append($" --frequency-penalty {settings.FrequencyPenalty.ToString(CultureInfo.InvariantCulture)}")
-        End If
-
-        ' Timeout
-        If settings.Timeout > 0 Then
-            args.Append($" --timeout {settings.Timeout}")
-        End If
-
-        ' Memory Management
-        If settings.Mlock Then
-            args.Append(" -mlock")
-        End If
-
-        If settings.NoMmap Then
-            args.Append(" --no-mmap")
-        End If
-
-        If settings.KVUnified Then
-            args.Append(" --kv-unified")
-        End If
-
-        If settings.NoKVOffload Then
-            args.Append(" --no-kv-offload")
-        End If
-
-        If settings.NoRepack Then
-            args.Append(" --no-repack")
-        End If
-
-        If settings.FlashAttention Then
-            args.Append(" --flash-attn")
-        End If
-
-        ' Logging
-        If settings.Verbose Then
-            args.Append(" -v")
-        End If
-
-        If settings.LogColors Then
-            args.Append(" --log-colors")
-        End If
-
-        If settings.LogTimestamps Then
-            args.Append(" --log-timestamps")
-        End If
-
-        If settings.Metrics Then
-            args.Append(" --metrics")
-        End If
-
-        If settings.Slots Then
-            args.Append(" --slots")
-        End If
-
-        ' Control Vectors (Future Implementation)
-        ' For Each cv In settings.ControlVectors
-        '     If Not String.IsNullOrEmpty(cv.Path) AndAlso File.Exists(cv.Path) Then
-        '         args.Append($" --control-vector ""{cv.Path}""")
-        '         If cv.Scale <> 1.0 Then
-        '             args.Append($" {cv.Scale}")
-        '         End If
-        '     End If
-        ' Next
-
-        CommandPreviewTextBox.Text = args.ToString().Trim()
+        CommandPreviewTextBox.Text = fullCommand.ToString().Trim()
     End Sub
 
     Private Sub UpdateUIFromSettings()
@@ -284,7 +150,7 @@ Partial Public Class MainWindow
     End Sub
 
     Private Async Sub LoadSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles LoadSettingsButton.Click
-        Await LoadSettings()
+        Await LoadSettingsAsync()
     End Sub
 
     Private Async Sub CopyCommandButton_Click(sender As Object, e As RoutedEventArgs) Handles CopyCommandButton.Click
@@ -294,6 +160,20 @@ Partial Public Class MainWindow
 #End Region
 
 #Region " File Operations "
+
+    Private Sub LoadSettingsSync()
+        Try
+            If File.Exists(configFile) Then
+                Dim json As String = File.ReadAllText(configFile)
+                settings = System.Text.Json.JsonSerializer.Deserialize(Of AppSettings)(json)
+                UpdateUIFromSettings()
+            End If
+        Catch
+            ' If loading fails, use default settings
+            settings = New AppSettings()
+            UpdateUIFromSettings()
+        End Try
+    End Sub
 
     Private Async Function BrowseForServer() As Task
         If StorageProvider IsNot Nothing Then
@@ -341,21 +221,17 @@ Partial Public Class MainWindow
                 .WriteIndented = True
             })
             Await File.WriteAllTextAsync(configFile, json)
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, "Success")
-                                                  End Sub)
+            Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, "Success")
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
 
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      MsgBoxAsync($"Error saving settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
-                                                  End Sub)
+            Await MsgBoxAsync($"Error saving settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
         End If
     End Function
 
-    Private Async Function LoadSettings() As Task
+    Private Async Function LoadSettingsAsync() As Task
         Dim errorMessage As String = ""
         Dim configFileExists As Boolean = False
 
@@ -366,22 +242,16 @@ Partial Public Class MainWindow
                 settings = System.Text.Json.JsonSerializer.Deserialize(Of AppSettings)(json)
                 UpdateUIFromSettings()
                 UpdateCommandPreview()
-                Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                          MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success")
-                                                      End Sub)
+                Await MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success")
             End If
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
 
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      MsgBoxAsync($"Error loading settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
-                                                  End Sub)
+            Await MsgBoxAsync($"Error loading settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
         ElseIf Not configFileExists Then
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      MsgBoxAsync("No configuration file found. Using default settings.", MsgBoxButtons.Ok, "Info")
-                                                  End Sub)
+            Await MsgBoxAsync("No configuration file found. Using default settings.", MsgBoxButtons.Ok, "Info")
         End If
     End Function
 
@@ -393,25 +263,19 @@ Partial Public Class MainWindow
         Dim errorMessage As String = ""
 
         If serverRunning Then
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning")
-                                                  End Sub)
+            Await MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning")
             Return
         End If
 
         UpdateSettingsFromUI()
 
         If String.IsNullOrEmpty(settings.ServerPath) OrElse Not File.Exists(settings.ServerPath) Then
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error")
-                                                  End Sub)
+            Await MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error")
             Return
         End If
 
         If String.IsNullOrEmpty(settings.ModelPath) OrElse Not File.Exists(settings.ModelPath) Then
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, "Error")
-                                                  End Sub)
+            Await MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, "Error")
             Return
         End If
 
@@ -436,9 +300,7 @@ Partial Public Class MainWindow
         End Try
 
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      MsgBoxAsync($"Failed to start server: {errorMessage}", MsgBoxButtons.Ok, "Error")
-                                                  End Sub)
+            Await MsgBoxAsync($"Failed to start server: {errorMessage}", MsgBoxButtons.Ok, "Error")
         End If
     End Function
 
@@ -469,10 +331,8 @@ Partial Public Class MainWindow
             serverRunning = False
             serverProcess = Nothing
 
-            Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                      StartServerButton.IsEnabled = True
-                                                      StopServerButton.IsEnabled = False
-                                                  End Sub)
+            StartServerButton.IsEnabled = True
+            StopServerButton.IsEnabled = False
         End If
     End Function
 
@@ -610,17 +470,13 @@ Partial Public Class MainWindow
             Dim errorMessage As String = ""
             Try
                 Await Clipboard.SetTextAsync(CommandPreviewTextBox.Text)
-                Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                          MsgBoxAsync(My.Resources.CommandCopied, MsgBoxButtons.Ok, "Success")
-                                                      End Sub)
+                Await MsgBoxAsync(My.Resources.CommandCopied, MsgBoxButtons.Ok, "Success")
             Catch ex As Exception
                 errorMessage = ex.Message
             End Try
 
             If Not String.IsNullOrEmpty(errorMessage) Then
-                Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                          MsgBoxAsync($"Failed to copy command: {errorMessage}", MsgBoxButtons.Ok, "Error")
-                                                      End Sub)
+                Await MsgBoxAsync($"Failed to copy command: {errorMessage}", MsgBoxButtons.Ok, "Error")
             End If
         End If
     End Function
