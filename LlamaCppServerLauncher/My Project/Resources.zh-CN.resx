@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>LLaMA.cpp HTTP 服务器启动器</value>
+  </data>
+  
+  <!-- Tab Headers -->
+  <data name="BasicSettingsTabHeader" xml:space="preserve">
+    <value>基本设置</value>
+  </data>
+  <data name="SamplingSettingsTabHeader" xml:space="preserve">
+    <value>采样设置</value>
+  </data>
+  <data name="AdvancedSettingsTabHeader" xml:space="preserve">
+    <value>高级设置</value>
+  </data>
+  <data name="CommandPreviewTabHeader" xml:space="preserve">
+    <value>命令预览</value>
+  </data>
+  
+  <!-- Basic Settings -->
+  <data name="ServerPathLabel" xml:space="preserve">
+    <value>服务器路径:</value>
+  </data>
+  <data name="ModelPathLabel" xml:space="preserve">
+    <value>模型路径:</value>
+  </data>
+  <data name="BrowseButton" xml:space="preserve">
+    <value>浏览...</value>
+  </data>
+  <data name="BasicParametersExpander" xml:space="preserve">
+    <value>基本参数</value>
+  </data>
+  <data name="ThreadsLabel" xml:space="preserve">
+    <value>线程数:</value>
+  </data>
+  <data name="ContextSizeLabel" xml:space="preserve">
+    <value>上下文大小:</value>
+  </data>
+  <data name="GpuLayersLabel" xml:space="preserve">
+    <value>GPU层数:</value>
+  </data>
+  <data name="NetworkSettingsExpander" xml:space="preserve">
+    <value>网络设置</value>
+  </data>
+  <data name="HostLabel" xml:space="preserve">
+    <value>主机:</value>
+  </data>
+  <data name="PortLabel" xml:space="preserve">
+    <value>端口:</value>
+  </data>
+  <data name="TimeoutLabel" xml:space="preserve">
+    <value>超时 (秒):</value>
+  </data>
+  
+  <!-- Sampling Settings -->
+  <data name="SamplingParametersExpander" xml:space="preserve">
+    <value>采样参数</value>
+  </data>
+  <data name="TemperatureLabel" xml:space="preserve">
+    <value>温度:</value>
+  </data>
+  <data name="TopPLabel" xml:space="preserve">
+    <value>Top P:</value>
+  </data>
+  <data name="TopKLabel" xml:space="preserve">
+    <value>Top K:</value>
+  </data>
+  <data name="RepeatPenaltyLabel" xml:space="preserve">
+    <value>重复惩罚:</value>
+  </data>
+  <data name="AdvancedSamplingExpander" xml:space="preserve">
+    <value>高级采样</value>
+  </data>
+  <data name="MinPLabel" xml:space="preserve">
+    <value>Min P:</value>
+  </data>
+  <data name="PresencePenaltyLabel" xml:space="preserve">
+    <value>存在惩罚:</value>
+  </data>
+  <data name="FrequencyPenaltyLabel" xml:space="preserve">
+    <value>频率惩罚:</value>
+  </data>
+  
+  <!-- Advanced Settings -->
+  <data name="MemoryManagementExpander" xml:space="preserve">
+    <value>内存管理</value>
+  </data>
+  <data name="MlockCheckBox" xml:space="preserve">
+    <value>强制模型保留在内存中 (mlock)</value>
+  </data>
+  <data name="NoMmapCheckBox" xml:space="preserve">
+    <value>不使用内存映射模型</value>
+  </data>
+  <data name="NoKVOffloadCheckBox" xml:space="preserve">
+    <value>禁用 KV 卸载</value>
+  </data>
+  <data name="NoRepackCheckBox" xml:space="preserve">
+    <value>禁用权重重新打包</value>
+  </data>
+  <data name="CpuThreadManagementExpander" xml:space="preserve">
+    <value>CPU 和线程管理</value>
+  </data>
+  <data name="BatchThreadsLabel" xml:space="preserve">
+    <value>批处理线程数:</value>
+  </data>
+  <data name="KVUnifiedCheckBox" xml:space="preserve">
+    <value>使用统一的 KV 缓冲区</value>
+  </data>
+  <data name="FlashAttentionCheckBox" xml:space="preserve">
+    <value>启用 Flash Attention</value>
+  </data>
+  <data name="LoggingExpander" xml:space="preserve">
+    <value>日志和监控</value>
+  </data>
+  <data name="VerboseCheckBox" xml:space="preserve">
+    <value>详细日志</value>
+  </data>
+  <data name="LogColorsCheckBox" xml:space="preserve">
+    <value>启用日志颜色</value>
+  </data>
+  <data name="LogTimestampsCheckBox" xml:space="preserve">
+    <value>启用日志时间戳</value>
+  </data>
+  <data name="MetricsCheckBox" xml:space="preserve">
+    <value>启用指标端点</value>
+  </data>
+  <data name="SlotsCheckBox" xml:space="preserve">
+    <value>启用槽位端点</value>
+  </data>
+  
+  <!-- Command Preview -->
+  <data name="GeneratedCommandLineLabel" xml:space="preserve">
+    <value>生成的命令行:</value>
+  </data>
+  <data name="CopyCommandButton" xml:space="preserve">
+    <value>复制到剪贴板</value>
+  </data>
+  
+  <!-- Control Buttons -->
+  <data name="StartServerButton" xml:space="preserve">
+    <value>启动服务器</value>
+  </data>
+  <data name="StopServerButton" xml:space="preserve">
+    <value>停止服务器</value>
+  </data>
+  <data name="SaveSettingsButton" xml:space="preserve">
+    <value>保存设置</value>
+  </data>
+  <data name="LoadSettingsButton" xml:space="preserve">
+    <value>加载设置</value>
+  </data>
+  
+  <!-- Language Selection -->
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>语言:</value>
+  </data>
+  <data name="LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageChinese" xml:space="preserve">
+    <value>中文</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="ErrorServerPathRequired" xml:space="preserve">
+    <value>请指定服务器可执行文件路径</value>
+  </data>
+  <data name="ErrorModelPathRequired" xml:space="preserve">
+    <value>请指定模型文件路径</value>
+  </data>
+  <data name="ServerStatusRunning" xml:space="preserve">
+    <value>服务器状态: 运行中</value>
+  </data>
+  <data name="ServerStatusStarting" xml:space="preserve">
+    <value>服务器状态: 启动中...</value>
+  </data>
+  <data name="ServerStatusStopped" xml:space="preserve">
+    <value>服务器状态: 已停止</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>设置保存成功</value>
+  </data>
+  <data name="SettingsLoaded" xml:space="preserve">
+    <value>设置加载成功</value>
+  </data>
+  <data name="ErrorSavingSettings" xml:space="preserve">
+    <value>保存设置时出错: {0}</value>
+  </data>
+  <data name="ErrorLoadingSettings" xml:space="preserve">
+    <value>加载设置时出错: {0}</value>
+  </data>
+  <data name="CommandCopied" xml:space="preserve">
+    <value>命令已复制到剪贴板</value>
+  </data>
+</root>

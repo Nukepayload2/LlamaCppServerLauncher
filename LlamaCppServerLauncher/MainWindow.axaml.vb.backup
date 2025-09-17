@@ -1,0 +1,495 @@
+﻿Imports Avalonia.Controls
+Imports Avalonia.Interactivity
+Imports Avalonia.Input
+Imports System.IO
+Imports System.Text
+Imports System.Text.Json
+Imports Avalonia.Platform.Storage
+
+Partial Class MainWindow
+    Inherits Window
+    
+    Private settings As New AppSettings
+    Private serverProcess As Process
+    Private serverRunning As Boolean = False
+    
+    Public Sub New()
+        InitializeComponent()
+        LoadSettings()
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub Window_Loaded(sender As Object, e As RoutedEventArgs) Handles Me.Loaded
+        ' Initialize event handlers are automatically connected via Handles clauses
+        UpdateCommandPreview()
+    End Sub
+    
+    ' Parameter change handlers
+    Private Sub ServerPath_TextChanged(sender As Object, e As TextChangedEventArgs) Handles ServerPathTextBox.TextChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub ModelPath_TextChanged(sender As Object, e As TextChangedEventArgs) Handles ModelPathTextBox.TextChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub Host_TextChanged(sender As Object, e As TextChangedEventArgs) Handles HostTextBox.TextChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    ' NumericUpDown change handlers
+    Private Sub Threads_ValueChanged(sender As Object, e As RoutedEventArgs) Handles ThreadsNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub CtxSize_ValueChanged(sender As Object, e As RoutedEventArgs) Handles CtxSizeNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub GpuLayers_ValueChanged(sender As Object, e As RoutedEventArgs) Handles GpuLayersNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub Port_ValueChanged(sender As Object, e As RoutedEventArgs) Handles PortNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub Timeout_ValueChanged(sender As Object, e As RoutedEventArgs) Handles TimeoutNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub Temperature_ValueChanged(sender As Object, e As RoutedEventArgs) Handles TemperatureNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub TopP_ValueChanged(sender As Object, e As RoutedEventArgs) Handles TopPNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub TopK_ValueChanged(sender As Object, e As RoutedEventArgs) Handles TopKNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub RepeatPenalty_ValueChanged(sender As Object, e As RoutedEventArgs) Handles RepeatPenaltyNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub MinP_ValueChanged(sender As Object, e As RoutedEventArgs) Handles MinPNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub PresencePenalty_ValueChanged(sender As Object, e As RoutedEventArgs) Handles PresencePenaltyNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub FrequencyPenalty_ValueChanged(sender As Object, e As RoutedEventArgs) Handles FrequencyPenaltyNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub ThreadsBatch_ValueChanged(sender As Object, e As RoutedEventArgs) Handles ThreadsBatchNumericUpDown.ValueChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    ' CheckBox change handlers
+    Private Sub Mlock_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles MlockCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub NoMmap_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles NoMmapCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub NoKVOffload_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles NoKVOffloadCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub NoRepack_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles NoRepackCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub KVUnified_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles KVUnifiedCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub FlashAttention_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles FlashAttentionCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub Verbose_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles VerboseCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub LogColors_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles LogColorsCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub LogTimestamps_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles LogTimestampsCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub Metrics_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles MetricsCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub Slots_CheckedChanged(sender As Object, e As RoutedEventArgs) Handles SlotsCheckBox.IsCheckedChanged
+        UpdateCommandPreview()
+    End Sub
+    
+    Private Sub UpdateCommandPreview()
+        Dim command As New StringBuilder()
+        
+        ' Server path
+        If Not String.IsNullOrEmpty(settings.ServerPath) Then
+            command.Append($"""{settings.ServerPath}"" ")
+        End If
+        
+        ' Model path
+        If Not String.IsNullOrEmpty(settings.ModelPath) Then
+            command.Append($"-m ""{settings.ModelPath}"" ")
+        End If
+        
+        ' Basic parameters
+        If settings.Threads > 0 Then
+            command.Append($"-t {settings.Threads} ")
+        End If
+        
+        If settings.CtxSize > 0 Then
+            command.Append($"-c {settings.CtxSize} ")
+        End If
+        
+        If settings.NGpuLayers > 0 Then
+            command.Append($"-ngl {settings.NGpuLayers} ")
+        End If
+        
+        ' Network settings
+        command.Append($"--host {settings.Host} ")
+        command.Append($"--port {settings.Port} ")
+        command.Append($"--timeout {settings.Timeout} ")
+        
+        ' Sampling parameters
+        command.Append($"--temp {settings.Temperature} ")
+        command.Append($"--top-p {settings.TopP} ")
+        command.Append($"--top-k {settings.TopK} ")
+        command.Append($"--repeat-penalty {settings.RepeatPenalty} ")
+        
+        ' Advanced sampling
+        command.Append($"--min-p {settings.MinP} ")
+        command.Append($"--presence-penalty {settings.PresencePenalty} ")
+        command.Append($"--frequency-penalty {settings.FrequencyPenalty} ")
+        
+        ' Memory management
+        If settings.Mlock Then command.Append("--mlock ")
+        If settings.NoMmap Then command.Append("--no-mmap ")
+        If settings.NoKVOffload Then command.Append("-nkvo ")
+        If settings.NoRepack Then command.Append("-nr ")
+        
+        ' CPU and thread management
+        If settings.ThreadsBatch >= 0 Then command.Append($"-tb {settings.ThreadsBatch} ")
+        If settings.KVUnified Then command.Append("-kvu ")
+        If settings.FlashAttention Then command.Append("-fa ")
+        
+        ' Logging
+        If settings.Verbose Then command.Append("--verbose ")
+        If settings.LogColors Then command.Append("--log-colors ")
+        If settings.LogTimestamps Then command.Append("--log-timestamps ")
+        If settings.Metrics Then command.Append("--metrics ")
+        If settings.Slots Then command.Append("--slots ")
+        If Not settings.Slots Then command.Append("--no-slots ")
+        
+        CommandPreviewTextBox.Text = command.ToString().Trim()
+    End Sub
+    
+    Private Sub UpdateUIFromSettings()
+        ' Update all UI controls from settings object
+        ServerPathTextBox.Text = settings.ServerPath
+        ModelPathTextBox.Text = settings.ModelPath
+        HostTextBox.Text = settings.Host
+        
+        ThreadsNumericUpDown.Value = settings.Threads
+        CtxSizeNumericUpDown.Value = settings.CtxSize
+        GpuLayersNumericUpDown.Value = settings.NGpuLayers
+        PortNumericUpDown.Value = settings.Port
+        TimeoutNumericUpDown.Value = settings.Timeout
+        
+        TemperatureNumericUpDown.Value = settings.Temperature
+        TopPNumericUpDown.Value = settings.TopP
+        TopKNumericUpDown.Value = settings.TopK
+        RepeatPenaltyNumericUpDown.Value = settings.RepeatPenalty
+        MinPNumericUpDown.Value = settings.MinP
+        PresencePenaltyNumericUpDown.Value = settings.PresencePenalty
+        FrequencyPenaltyNumericUpDown.Value = settings.FrequencyPenalty
+        ThreadsBatchNumericUpDown.Value = settings.ThreadsBatch
+        
+        MlockCheckBox.IsChecked = settings.Mlock
+        NoMmapCheckBox.IsChecked = settings.NoMmap
+        NoKVOffloadCheckBox.IsChecked = settings.NoKVOffload
+        NoRepackCheckBox.IsChecked = settings.NoRepack
+        KVUnifiedCheckBox.IsChecked = settings.KVUnified
+        FlashAttentionCheckBox.IsChecked = settings.FlashAttention
+        VerboseCheckBox.IsChecked = settings.Verbose
+        LogColorsCheckBox.IsChecked = settings.LogColors
+        LogTimestampsCheckBox.IsChecked = settings.LogTimestamps
+        MetricsCheckBox.IsChecked = settings.Metrics
+        SlotsCheckBox.IsChecked = settings.Slots
+    End Sub
+    
+    Private Sub UpdateSettingsFromUI()
+        ' Update settings object from UI controls
+        settings.ServerPath = ServerPathTextBox.Text
+        settings.ModelPath = ModelPathTextBox.Text
+        settings.Host = HostTextBox.Text
+        
+        settings.Threads = CInt(ThreadsNumericUpDown.Value)
+        settings.CtxSize = CInt(CtxSizeNumericUpDown.Value)
+        settings.NGpuLayers = CInt(GpuLayersNumericUpDown.Value)
+        settings.Port = CInt(PortNumericUpDown.Value)
+        settings.Timeout = CInt(TimeoutNumericUpDown.Value)
+        
+        settings.Temperature = CDbl(TemperatureNumericUpDown.Value)
+        settings.TopP = CDbl(TopPNumericUpDown.Value)
+        settings.TopK = CInt(TopKNumericUpDown.Value)
+        settings.RepeatPenalty = CDbl(RepeatPenaltyNumericUpDown.Value)
+        settings.MinP = CDbl(MinPNumericUpDown.Value)
+        settings.PresencePenalty = CDbl(PresencePenaltyNumericUpDown.Value)
+        settings.FrequencyPenalty = CDbl(FrequencyPenaltyNumericUpDown.Value)
+        settings.ThreadsBatch = CInt(ThreadsBatchNumericUpDown.Value)
+        
+        settings.Mlock = MlockCheckBox.IsChecked.GetValueOrDefault()
+        settings.NoMmap = NoMmapCheckBox.IsChecked.GetValueOrDefault()
+        settings.NoKVOffload = NoKVOffloadCheckBox.IsChecked.GetValueOrDefault()
+        settings.NoRepack = NoRepackCheckBox.IsChecked.GetValueOrDefault()
+        settings.KVUnified = KVUnifiedCheckBox.IsChecked.GetValueOrDefault()
+        settings.FlashAttention = FlashAttentionCheckBox.IsChecked.GetValueOrDefault()
+        settings.Verbose = VerboseCheckBox.IsChecked.GetValueOrDefault()
+        settings.LogColors = LogColorsCheckBox.IsChecked.GetValueOrDefault()
+        settings.LogTimestamps = LogTimestampsCheckBox.IsChecked.GetValueOrDefault()
+        settings.Metrics = MetricsCheckBox.IsChecked.GetValueOrDefault()
+        settings.Slots = SlotsCheckBox.IsChecked.GetValueOrDefault()
+    End Sub
+    
+    Private Async Sub StartServerButton_Click(sender As Object, e As RoutedEventArgs) Handles StartServerButton.Click
+        If serverRunning Then
+            Return
+        End If
+        
+        UpdateSettingsFromUI()
+        
+        ' Validate paths
+        If String.IsNullOrEmpty(settings.ServerPath) OrElse Not File.Exists(settings.ServerPath) Then
+            MsgBox("Server executable not found!", MsgBoxStyle.Exclamation, "Error")
+            Return
+        End If
+        
+        If String.IsNullOrEmpty(settings.ModelPath) OrElse Not File.Exists(settings.ModelPath) Then
+            MsgBox("Model file not found!", MsgBoxStyle.Exclamation, "Error")
+            Return
+        End If
+        
+        Try
+            Dim args = GenerateCommandLineArguments()
+            Dim startInfo As New ProcessStartInfo(settings.ServerPath, args) With {
+                .UseShellExecute = True,
+                .CreateNoWindow = False,
+                .WindowStyle = ProcessWindowStyle.Normal
+            }
+            
+            serverProcess = Process.Start(startInfo)
+            serverRunning = True
+            
+            ' Update UI state
+            StartServerButton.IsEnabled = False
+            StopServerButton.IsEnabled = True
+            
+        Catch ex As Exception
+            MsgBox($"Failed to start server: {ex.Message}", MsgBoxStyle.Exclamation, "Error")
+        End Try
+    End Sub
+    
+    Private Sub StopServerButton_Click(sender As Object, e As RoutedEventArgs) Handles StopServerButton.Click
+        If Not serverRunning OrElse serverProcess Is Nothing Then
+            Return
+        End If
+        
+        Try
+            serverProcess.Kill()
+            serverProcess.WaitForExit()
+            serverProcess = Nothing
+            serverRunning = False
+            
+            ' Update UI state
+            StartServerButton.IsEnabled = True
+            StopServerButton.IsEnabled = False
+            
+        Catch ex As Exception
+            MsgBox($"Failed to stop server: {ex.Message}", MsgBoxStyle.Exclamation, "Error")
+        End Try
+    End Sub
+    
+    Private Function GenerateCommandLineArguments() As String
+        Return CommandPreviewTextBox.Text
+    End Function
+    
+    Private Sub SaveSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles SaveSettingsButton.Click
+        UpdateSettingsFromUI()
+        SaveSettings()
+        MsgBox("Settings saved successfully!", MsgBoxStyle.Information, "Success")
+    End Sub
+    
+    Private Sub LoadSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles LoadSettingsButton.Click
+        LoadSettings()
+        UpdateUIFromSettings()
+        UpdateCommandPreview()
+        MsgBox("Settings loaded successfully!", MsgBoxStyle.Information, "Success")
+    End Sub
+    
+    Private Sub CopyCommandButton_Click(sender As Object, e As RoutedEventArgs) Handles CopyCommandButton.Click
+        Dim command = GenerateCommandLineArguments()
+        Clipboard.SetTextAsync(command)
+        MsgBox("Command copied to clipboard!", MsgBoxStyle.Information, "Success")
+    End Sub
+    
+    Private Async Sub BrowseServerButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseServerButton.Click
+        Try
+            Dim storageProvider = Me.StorageProvider
+            Dim fileTypes = New List(Of FilePickerFileType) From {
+                New FilePickerFileType("Executable Files") With {
+                    .Patterns = {"*.exe"},
+                    .MimeTypes = {"application/x-executable"}
+                },
+                New FilePickerFileType("All Files") With {
+                    .Patterns = {"*.*"},
+                    .MimeTypes = {"*/*"}
+                }
+            }
+            
+            Dim options As New FilePickerOpenOptions With {
+                .Title = "Select LLaMA.cpp Server Executable",
+                .AllowMultiple = False,
+                .FileTypeFilter = fileTypes
+            }
+            
+            Dim result = Await storageProvider.OpenFilePickerAsync(options)
+            
+            If result.Count > 0 Then
+                ServerPathTextBox.Text = result(0).Path.LocalPath
+                UpdateCommandPreview()
+            End If
+            
+        Catch ex As Exception
+            MsgBox($"Failed to browse for server: {ex.Message}", MsgBoxStyle.Exclamation, "Error")
+        End Try
+    End Sub
+    
+    Private Async Sub BrowseModelButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseModelButton.Click
+        Try
+            Dim storageProvider = Me.StorageProvider
+            Dim fileTypes = New List(Of FilePickerFileType) From {
+                New FilePickerFileType("GGUF Model Files") With {
+                    .Patterns = {"*.gguf"},
+                    .MimeTypes = {"application/octet-stream"}
+                },
+                New FilePickerFileType("All Model Files") With {
+                    .Patterns = {"*.ggml", "*.gguf", "*.bin"},
+                    .MimeTypes = {"application/octet-stream"}
+                },
+                New FilePickerFileType("All Files") With {
+                    .Patterns = {"*.*"},
+                    .MimeTypes = {"*/*"}
+                }
+            }
+            
+            Dim options As New FilePickerOpenOptions With {
+                .Title = "Select LLaMA.cpp Model File",
+                .AllowMultiple = False,
+                .FileTypeFilter = fileTypes
+            }
+            
+            Dim result = Await storageProvider.OpenFilePickerAsync(options)
+            
+            If result.Count > 0 Then
+                ModelPathTextBox.Text = result(0).Path.LocalPath
+                UpdateCommandPreview()
+            End If
+            
+        Catch ex As Exception
+            MsgBox($"Failed to browse for model: {ex.Message}", MsgBoxStyle.Exclamation, "Error")
+        End Try
+    End Sub
+    
+    Private Sub SaveSettings()
+        UpdateSettingsFromUI()
+        
+        Dim settingsPath = Path.Combine(AppContext.BaseDirectory, "settings.json")
+        
+        Try
+            Dim jsonOptions As New JsonSerializerOptions With {
+                .WriteIndented = True,
+                .PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            }
+            
+            Dim json = JsonSerializer.Serialize(settings, jsonOptions)
+            File.WriteAllText(settingsPath, json)
+            
+        Catch ex As Exception
+            MsgBox($"Failed to save settings: {ex.Message}", MsgBoxStyle.Exclamation, "Error")
+        End Try
+    End Sub
+    
+    Private Sub LoadSettings()
+        Dim settingsPath = Path.Combine(AppContext.BaseDirectory, "settings.json")
+        
+        Try
+            If File.Exists(settingsPath) Then
+                Dim json = File.ReadAllText(settingsPath)
+                Dim jsonOptions As New JsonSerializerOptions With {
+                    .PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                }
+                
+                settings = JsonSerializer.Deserialize(Of AppSettings)(json, jsonOptions)
+            Else
+                ' Set default values
+                settings = New AppSettings With {
+                    .ServerPath = "",
+                    .ModelPath = "",
+                    .Host = "127.0.0.1",
+                    .Port = 8080,
+                    .Timeout = 600,
+                    .Threads = 4,
+                    .CtxSize = 4096,
+                    .NGpuLayers = 0,
+                    .Temperature = 0.8,
+                    .TopP = 0.9,
+                    .TopK = 40,
+                    .RepeatPenalty = 1.0,
+                    .MinP = 0.1,
+                    .PresencePenalty = 0.0,
+                    .FrequencyPenalty = 0.0,
+                    .ThreadsBatch = -1,
+                    .Mlock = False,
+                    .NoMmap = False,
+                    .NoKVOffload = False,
+                    .NoRepack = False,
+                    .KVUnified = False,
+                    .FlashAttention = False,
+                    .Verbose = False,
+                    .LogColors = False,
+                    .LogTimestamps = False,
+                    .Metrics = False,
+                    .Slots = True
+                }
+            End If
+            
+        Catch ex As Exception
+            MsgBox($"Failed to load settings: {ex.Message}", MsgBoxStyle.Exclamation, "Error")
+            ' Set default values on error
+            settings = New AppSettings()
+        End Try
+    End Sub
+    
+    Protected Overrides Sub OnClosed(e As EventArgs)
+        If serverProcess IsNot Nothing AndAlso Not serverProcess.HasExited Then
+            serverProcess.Kill()
+        End If
+        MyBase.OnClosed(e)
+    End Sub
+End Class

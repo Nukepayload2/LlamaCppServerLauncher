@@ -2,8 +2,221 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:res="clr-namespace:LlamaCppServerLauncher.My.Resources"
+        mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="LlamaCppServerLauncher.MainWindow"
-        Title="LlamaCppServerLauncher">
-    Welcome to Avalonia!
+        Title="{x:Static res:Resources.AppTitle}"
+        Width="1200" Height="800"
+        MinWidth="800" MinHeight="600">
+    
+    <Grid RowDefinitions="Auto,*,Auto">
+        <!-- Header -->
+        <Border Grid.Row="0" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,0,0,1">
+            <TextBlock Text="{x:Static res:Resources.AppTitle}" 
+                       FontSize="24" FontWeight="Bold"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Margin="10"/>
+        </Border>
+        
+        <!-- Main Content -->
+        <TabControl Grid.Row="1" Margin="10">
+            <!-- Basic Settings Tab -->
+            <TabItem Header="{x:Static res:Resources.BasicSettingsTabHeader}">
+                <ScrollViewer>
+                    <StackPanel Margin="10" Spacing="10">
+                        <!-- Server Path -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
+                            <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ServerPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Column="1" x:Name="ServerPathTextBox" Margin="0,0,10,0"/>
+                            <Button Grid.Column="2" x:Name="BrowseServerButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
+                        </Grid>
+                        
+                        <!-- Model Path -->
+                        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
+                            <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ModelPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBox Grid.Column="1" x:Name="ModelPathTextBox" Margin="0,0,10,0"/>
+                            <Button Grid.Column="2" x:Name="BrowseModelButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
+                        </Grid>
+                        
+                        <!-- Basic Parameters -->
+                        <Expander Header="{x:Static res:Resources.BasicParametersExpander}" IsExpanded="True">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ThreadsLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="ThreadsNumericUpDown" Minimum="1" Maximum="64" Value="4" FormatString="0"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ContextSizeLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="CtxSizeNumericUpDown" Minimum="512" Maximum="8192" Value="4096" FormatString="0"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.GpuLayersLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="GpuLayersNumericUpDown" Minimum="0" Maximum="100" Value="0" FormatString="0"/>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                        
+                        <!-- Network Settings -->
+                        <Expander Header="{x:Static res:Resources.NetworkSettingsExpander}" IsExpanded="True">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.HostLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <TextBox Grid.Column="1" x:Name="HostTextBox" Text="127.0.0.1"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.PortLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="PortNumericUpDown" Minimum="1" Maximum="65535" Value="8080" FormatString="0"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TimeoutLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="TimeoutNumericUpDown" Minimum="10" Maximum="3600" Value="600" FormatString="0"/>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Sampling Settings Tab -->
+            <TabItem Header="{x:Static res:Resources.SamplingSettingsTabHeader}">
+                <ScrollViewer>
+                    <StackPanel Margin="10" Spacing="10">
+                        <Expander Header="{x:Static res:Resources.SamplingParametersExpander}" IsExpanded="True">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TemperatureLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="TemperatureNumericUpDown" Minimum="0" Maximum="2" Increment="0.1" Value="0.8" FormatString="0.0"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TopPLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="TopPNumericUpDown" Minimum="0" Maximum="1" Increment="0.05" Value="0.9" FormatString="0.00"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TopKLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="TopKNumericUpDown" Minimum="0" Maximum="100" Value="40" FormatString="0"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.RepeatPenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="RepeatPenaltyNumericUpDown" Minimum="0" Maximum="2" Increment="0.1" Value="1.0" FormatString="0.0"/>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                        
+                        <Expander Header="{x:Static res:Resources.AdvancedSamplingExpander}">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.MinPLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="MinPNumericUpDown" Minimum="0" Maximum="1" Increment="0.05" Value="0.1" FormatString="0.00"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.PresencePenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="PresencePenaltyNumericUpDown" Minimum="-2" Maximum="2" Increment="0.1" Value="0" FormatString="0.0"/>
+                                </Grid>
+                                
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.FrequencyPenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="FrequencyPenaltyNumericUpDown" Minimum="-2" Maximum="2" Increment="0.1" Value="0" FormatString="0.0"/>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Advanced Settings Tab -->
+            <TabItem Header="{x:Static res:Resources.AdvancedSettingsTabHeader}">
+                <ScrollViewer>
+                    <StackPanel Margin="10" Spacing="10">
+                        <Expander Header="{x:Static res:Resources.MemoryManagementExpander}" IsExpanded="True">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <CheckBox x:Name="MlockCheckBox" Content="{x:Static res:Resources.MlockCheckBox}" Margin="0,3"/>
+                                <CheckBox x:Name="NoMmapCheckBox" Content="{x:Static res:Resources.NoMmapCheckBox}" Margin="0,3"/>
+                                <CheckBox x:Name="NoKVOffloadCheckBox" Content="{x:Static res:Resources.NoKVOffloadCheckBox}" Margin="0,3"/>
+                                <CheckBox x:Name="NoRepackCheckBox" Content="{x:Static res:Resources.NoRepackCheckBox}" Margin="0,3"/>
+                            </StackPanel>
+                        </Expander>
+                        
+                        <Expander Header="{x:Static res:Resources.CpuThreadManagementExpander}">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.BatchThreadsLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                    <NumericUpDown Grid.Column="1" x:Name="ThreadsBatchNumericUpDown" Minimum="-1" Maximum="64" Value="-1" FormatString="0"/>
+                                </Grid>
+                                
+                                <CheckBox x:Name="KVUnifiedCheckBox" Content="{x:Static res:Resources.KVUnifiedCheckBox}" Margin="0,3"/>
+                                <CheckBox x:Name="FlashAttentionCheckBox" Content="{x:Static res:Resources.FlashAttentionCheckBox}" Margin="0,3"/>
+                            </StackPanel>
+                        </Expander>
+                        
+                        <Expander Header="{x:Static res:Resources.LoggingExpander}">
+                            <StackPanel Margin="10,5" Spacing="5">
+                                <CheckBox x:Name="VerboseCheckBox" Content="{x:Static res:Resources.VerboseCheckBox}" Margin="0,3"/>
+                                <CheckBox x:Name="LogColorsCheckBox" Content="{x:Static res:Resources.LogColorsCheckBox}" Margin="0,3"/>
+                                <CheckBox x:Name="LogTimestampsCheckBox" Content="{x:Static res:Resources.LogTimestampsCheckBox}" Margin="0,3"/>
+                                <CheckBox x:Name="MetricsCheckBox" Content="{x:Static res:Resources.MetricsCheckBox}" Margin="0,3"/>
+                                <CheckBox x:Name="SlotsCheckBox" Content="{x:Static res:Resources.SlotsCheckBox}" IsChecked="True" Margin="0,3"/>
+                            </StackPanel>
+                        </Expander>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            
+            <!-- Command Preview Tab -->
+            <TabItem Header="{x:Static res:Resources.CommandPreviewTabHeader}">
+                <StackPanel Margin="10" Spacing="10">
+                    <TextBlock Text="{x:Static res:Resources.GeneratedCommandLineLabel}" FontWeight="Bold"/>
+                    
+                    <!-- Update Button -->
+                    <Button x:Name="UpdateCommandPreviewButton" 
+                            Content="Update Command Preview" 
+                            HorizontalAlignment="Left"
+                            MinWidth="180"
+                            Background="#2196F3" 
+                            Foreground="White"/>
+                    
+                    <!-- Command Preview Text Box -->
+                    <TextBox x:Name="CommandPreviewTextBox" 
+                             TextWrapping="Wrap" 
+                             VerticalAlignment="Stretch"
+                             MinHeight="150"
+                             IsReadOnly="True"
+                             FontFamily="Consolas, monospace"
+                             Background="#f8f8f8"/>
+                    
+                    <!-- Copy Button -->
+                    <Button x:Name="CopyCommandButton" 
+                            Content="{x:Static res:Resources.CopyCommandButton}" 
+                            HorizontalAlignment="Right"
+                            MinWidth="120"/>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
+        
+        <!-- Footer with Controls -->
+        <Border Grid.Row="2" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,1,0,0" Padding="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+                <Button x:Name="StartServerButton" Content="{x:Static res:Resources.StartServerButton}" 
+                        Background="#4CAF50" Foreground="White"
+                        MinWidth="120" Height="35"/>
+                <Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}" 
+                        Background="#f44336" Foreground="White"
+                        IsEnabled="False"
+                        MinWidth="120" Height="35"/>
+                <Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}" 
+                        Background="#2196F3" Foreground="White"
+                        MinWidth="120" Height="35"/>
+                <Button x:Name="LoadSettingsButton" Content="{x:Static res:Resources.LoadSettingsButton}" 
+                        Background="#FF9800" Foreground="White"
+                        MinWidth="120" Height="35"/>
+            </StackPanel>
+        </Border>
+    </Grid>
 </Window>

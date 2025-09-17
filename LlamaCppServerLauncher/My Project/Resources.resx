@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  
+  <!-- Application Title -->
+  <data name="AppTitle" xml:space="preserve">
+    <value>LLaMA.cpp HTTP Server Launcher</value>
+  </data>
+  
+  <!-- Tab Headers -->
+  <data name="BasicSettingsTabHeader" xml:space="preserve">
+    <value>Basic Settings</value>
+  </data>
+  <data name="SamplingSettingsTabHeader" xml:space="preserve">
+    <value>Sampling Settings</value>
+  </data>
+  <data name="AdvancedSettingsTabHeader" xml:space="preserve">
+    <value>Advanced Settings</value>
+  </data>
+  <data name="CommandPreviewTabHeader" xml:space="preserve">
+    <value>Command Preview</value>
+  </data>
+  
+  <!-- Basic Settings -->
+  <data name="ServerPathLabel" xml:space="preserve">
+    <value>Server Path:</value>
+  </data>
+  <data name="ModelPathLabel" xml:space="preserve">
+    <value>Model Path:</value>
+  </data>
+  <data name="BrowseButton" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+  <data name="BasicParametersExpander" xml:space="preserve">
+    <value>Basic Parameters</value>
+  </data>
+  <data name="ThreadsLabel" xml:space="preserve">
+    <value>Threads:</value>
+  </data>
+  <data name="ContextSizeLabel" xml:space="preserve">
+    <value>Context Size:</value>
+  </data>
+  <data name="GpuLayersLabel" xml:space="preserve">
+    <value>GPU Layers:</value>
+  </data>
+  <data name="NetworkSettingsExpander" xml:space="preserve">
+    <value>Network Settings</value>
+  </data>
+  <data name="HostLabel" xml:space="preserve">
+    <value>Host:</value>
+  </data>
+  <data name="PortLabel" xml:space="preserve">
+    <value>Port:</value>
+  </data>
+  <data name="TimeoutLabel" xml:space="preserve">
+    <value>Timeout (s):</value>
+  </data>
+  
+  <!-- Sampling Settings -->
+  <data name="SamplingParametersExpander" xml:space="preserve">
+    <value>Sampling Parameters</value>
+  </data>
+  <data name="TemperatureLabel" xml:space="preserve">
+    <value>Temperature:</value>
+  </data>
+  <data name="TopPLabel" xml:space="preserve">
+    <value>Top P:</value>
+  </data>
+  <data name="TopKLabel" xml:space="preserve">
+    <value>Top K:</value>
+  </data>
+  <data name="RepeatPenaltyLabel" xml:space="preserve">
+    <value>Repeat Penalty:</value>
+  </data>
+  <data name="AdvancedSamplingExpander" xml:space="preserve">
+    <value>Advanced Sampling</value>
+  </data>
+  <data name="MinPLabel" xml:space="preserve">
+    <value>Min P:</value>
+  </data>
+  <data name="PresencePenaltyLabel" xml:space="preserve">
+    <value>Presence Penalty:</value>
+  </data>
+  <data name="FrequencyPenaltyLabel" xml:space="preserve">
+    <value>Frequency Penalty:</value>
+  </data>
+  
+  <!-- Advanced Settings -->
+  <data name="MemoryManagementExpander" xml:space="preserve">
+    <value>Memory Management</value>
+  </data>
+  <data name="MlockCheckBox" xml:space="preserve">
+    <value>Force model in RAM (mlock)</value>
+  </data>
+  <data name="NoMmapCheckBox" xml:space="preserve">
+    <value>Don't memory-map model</value>
+  </data>
+  <data name="NoKVOffloadCheckBox" xml:space="preserve">
+    <value>Disable KV offload</value>
+  </data>
+  <data name="NoRepackCheckBox" xml:space="preserve">
+    <value>Disable weight repacking</value>
+  </data>
+  <data name="CpuThreadManagementExpander" xml:space="preserve">
+    <value>CPU and Thread Management</value>
+  </data>
+  <data name="BatchThreadsLabel" xml:space="preserve">
+    <value>Batch Threads:</value>
+  </data>
+  <data name="KVUnifiedCheckBox" xml:space="preserve">
+    <value>Use unified KV buffer</value>
+  </data>
+  <data name="FlashAttentionCheckBox" xml:space="preserve">
+    <value>Enable Flash Attention</value>
+  </data>
+  <data name="LoggingExpander" xml:space="preserve">
+    <value>Logging and Monitoring</value>
+  </data>
+  <data name="VerboseCheckBox" xml:space="preserve">
+    <value>Verbose logging</value>
+  </data>
+  <data name="LogColorsCheckBox" xml:space="preserve">
+    <value>Enable log colors</value>
+  </data>
+  <data name="LogTimestampsCheckBox" xml:space="preserve">
+    <value>Enable log timestamps</value>
+  </data>
+  <data name="MetricsCheckBox" xml:space="preserve">
+    <value>Enable metrics endpoint</value>
+  </data>
+  <data name="SlotsCheckBox" xml:space="preserve">
+    <value>Enable slots endpoint</value>
+  </data>
+  
+  <!-- Command Preview -->
+  <data name="GeneratedCommandLineLabel" xml:space="preserve">
+    <value>Generated Command Line:</value>
+  </data>
+  <data name="CopyCommandButton" xml:space="preserve">
+    <value>Copy to Clipboard</value>
+  </data>
+  
+  <!-- Control Buttons -->
+  <data name="StartServerButton" xml:space="preserve">
+    <value>Start Server</value>
+  </data>
+  <data name="StopServerButton" xml:space="preserve">
+    <value>Stop Server</value>
+  </data>
+  <data name="SaveSettingsButton" xml:space="preserve">
+    <value>Save Settings</value>
+  </data>
+  <data name="LoadSettingsButton" xml:space="preserve">
+    <value>Load Settings</value>
+  </data>
+  
+  <!-- Language Selection -->
+  <data name="LanguageLabel" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="LanguageEnglish" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="LanguageChinese" xml:space="preserve">
+    <value>中文</value>
+  </data>
+  
+  <!-- Messages -->
+  <data name="ErrorServerPathRequired" xml:space="preserve">
+    <value>Please specify the server executable path</value>
+  </data>
+  <data name="ErrorModelPathRequired" xml:space="preserve">
+    <value>Please specify the model file path</value>
+  </data>
+  <data name="ServerStatusRunning" xml:space="preserve">
+    <value>Server Status: Running</value>
+  </data>
+  <data name="ServerStatusStarting" xml:space="preserve">
+    <value>Server Status: Starting...</value>
+  </data>
+  <data name="ServerStatusStopped" xml:space="preserve">
+    <value>Server Status: Stopped</value>
+  </data>
+  <data name="SettingsSaved" xml:space="preserve">
+    <value>Settings saved successfully</value>
+  </data>
+  <data name="SettingsLoaded" xml:space="preserve">
+    <value>Settings loaded successfully</value>
+  </data>
+  <data name="ErrorSavingSettings" xml:space="preserve">
+    <value>Error saving settings: {0}</value>
+  </data>
+  <data name="ErrorLoadingSettings" xml:space="preserve">
+    <value>Error loading settings: {0}</value>
+  </data>
+  <data name="CommandCopied" xml:space="preserve">
+    <value>Command copied to clipboard</value>
+  </data>
+</root>
