@@ -3,8 +3,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:res="clr-namespace:LlamaCppServerLauncher.My.Resources"
+        xmlns:local="clr-namespace:LlamaCppServerLauncher"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="LlamaCppServerLauncher.MainWindow"
+        x:DataType="local:AppSettings"
         Title="{x:Static res:Resources.AppTitle}"
         Width="1200" Height="800"
         MinWidth="800" MinHeight="600">
@@ -27,14 +29,14 @@
                         <!-- Server Path -->
                         <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
                             <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ServerPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBox Grid.Column="1" x:Name="ServerPathTextBox" Margin="0,0,10,0"/>
+                            <TextBox Grid.Column="1" Text="{Binding ServerPath}" Margin="0,0,10,0"/>
                             <Button Grid.Column="2" x:Name="BrowseServerButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
                         </Grid>
                         
                         <!-- Model Path -->
                         <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
                             <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ModelPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBox Grid.Column="1" x:Name="ModelPathTextBox" Margin="0,0,10,0"/>
+                            <TextBox Grid.Column="1" Text="{Binding ModelPath}" Margin="0,0,10,0"/>
                             <Button Grid.Column="2" x:Name="BrowseModelButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
                         </Grid>
                         
@@ -43,17 +45,17 @@
                             <StackPanel Margin="10,5" Spacing="5">
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ThreadsLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="ThreadsNumericUpDown" Minimum="1" Maximum="64" Value="4" FormatString="0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding Threads}" Minimum="1" Maximum="64" FormatString="0"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ContextSizeLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="CtxSizeNumericUpDown" Minimum="512" Maximum="8192" Value="4096" FormatString="0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding CtxSize}" Minimum="512" Maximum="8192" FormatString="0"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.GpuLayersLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="GpuLayersNumericUpDown" Minimum="0" Maximum="100" Value="0" FormatString="0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding NGpuLayers}" Minimum="0" Maximum="100" FormatString="0"/>
                                 </Grid>
                             </StackPanel>
                         </Expander>
@@ -63,17 +65,17 @@
                             <StackPanel Margin="10,5" Spacing="5">
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.HostLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <TextBox Grid.Column="1" x:Name="HostTextBox" Text="127.0.0.1"/>
+                                    <TextBox Grid.Column="1" Text="{Binding Host}"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.PortLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="PortNumericUpDown" Minimum="1" Maximum="65535" Value="8080" FormatString="0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding Port}" Minimum="1" Maximum="65535" FormatString="0"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TimeoutLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="TimeoutNumericUpDown" Minimum="10" Maximum="3600" Value="600" FormatString="0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding Timeout}" Minimum="10" Maximum="3600" FormatString="0"/>
                                 </Grid>
                             </StackPanel>
                         </Expander>
@@ -89,22 +91,22 @@
                             <StackPanel Margin="10,5" Spacing="5">
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TemperatureLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="TemperatureNumericUpDown" Minimum="0" Maximum="2" Increment="0.1" Value="0.8" FormatString="0.0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding Temperature}" Minimum="0" Maximum="2" Increment="0.1" FormatString="0.0"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TopPLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="TopPNumericUpDown" Minimum="0" Maximum="1" Increment="0.05" Value="0.9" FormatString="0.00"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding TopP}" Minimum="0" Maximum="1" Increment="0.05" FormatString="0.00"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TopKLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="TopKNumericUpDown" Minimum="0" Maximum="100" Value="40" FormatString="0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding TopK}" Minimum="0" Maximum="100" FormatString="0"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.RepeatPenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="RepeatPenaltyNumericUpDown" Minimum="0" Maximum="2" Increment="0.1" Value="1.0" FormatString="0.0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding RepeatPenalty}" Minimum="0" Maximum="2" Increment="0.1" FormatString="0.0"/>
                                 </Grid>
                             </StackPanel>
                         </Expander>
@@ -113,17 +115,17 @@
                             <StackPanel Margin="10,5" Spacing="5">
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.MinPLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="MinPNumericUpDown" Minimum="0" Maximum="1" Increment="0.05" Value="0.1" FormatString="0.00"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding MinP}" Minimum="0" Maximum="1" Increment="0.05" FormatString="0.00"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.PresencePenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="PresencePenaltyNumericUpDown" Minimum="-2" Maximum="2" Increment="0.1" Value="0" FormatString="0.0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding PresencePenalty}" Minimum="-2" Maximum="2" Increment="0.1" FormatString="0.0"/>
                                 </Grid>
                                 
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.FrequencyPenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="FrequencyPenaltyNumericUpDown" Minimum="-2" Maximum="2" Increment="0.1" Value="0" FormatString="0.0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding FrequencyPenalty}" Minimum="-2" Maximum="2" Increment="0.1" FormatString="0.0"/>
                                 </Grid>
                             </StackPanel>
                         </Expander>
@@ -137,10 +139,10 @@
                     <StackPanel Margin="10" Spacing="10">
                         <Expander Header="{x:Static res:Resources.MemoryManagementExpander}" IsExpanded="True">
                             <StackPanel Margin="10,5" Spacing="5">
-                                <CheckBox x:Name="MlockCheckBox" Content="{x:Static res:Resources.MlockCheckBox}" Margin="0,3"/>
-                                <CheckBox x:Name="NoMmapCheckBox" Content="{x:Static res:Resources.NoMmapCheckBox}" Margin="0,3"/>
-                                <CheckBox x:Name="NoKVOffloadCheckBox" Content="{x:Static res:Resources.NoKVOffloadCheckBox}" Margin="0,3"/>
-                                <CheckBox x:Name="NoRepackCheckBox" Content="{x:Static res:Resources.NoRepackCheckBox}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.MlockCheckBox}" IsChecked="{Binding Mlock}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.NoMmapCheckBox}" IsChecked="{Binding NoMmap}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.NoKVOffloadCheckBox}" IsChecked="{Binding NoKVOffload}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.NoRepackCheckBox}" IsChecked="{Binding NoRepack}" Margin="0,3"/>
                             </StackPanel>
                         </Expander>
                         
@@ -148,21 +150,21 @@
                             <StackPanel Margin="10,5" Spacing="5">
                                 <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
                                     <TextBlock Grid.Column="0" Text="{x:Static res:Resources.BatchThreadsLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" x:Name="ThreadsBatchNumericUpDown" Minimum="-1" Maximum="64" Value="-1" FormatString="0"/>
+                                    <NumericUpDown Grid.Column="1" Value="{Binding ThreadsBatch}" Minimum="-1" Maximum="64" FormatString="0"/>
                                 </Grid>
                                 
-                                <CheckBox x:Name="KVUnifiedCheckBox" Content="{x:Static res:Resources.KVUnifiedCheckBox}" Margin="0,3"/>
-                                <CheckBox x:Name="FlashAttentionCheckBox" Content="{x:Static res:Resources.FlashAttentionCheckBox}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.KVUnifiedCheckBox}" IsChecked="{Binding KVUnified}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.FlashAttentionCheckBox}" IsChecked="{Binding FlashAttention}" Margin="0,3"/>
                             </StackPanel>
                         </Expander>
                         
                         <Expander Header="{x:Static res:Resources.LoggingExpander}">
                             <StackPanel Margin="10,5" Spacing="5">
-                                <CheckBox x:Name="VerboseCheckBox" Content="{x:Static res:Resources.VerboseCheckBox}" Margin="0,3"/>
-                                <CheckBox x:Name="LogColorsCheckBox" Content="{x:Static res:Resources.LogColorsCheckBox}" Margin="0,3"/>
-                                <CheckBox x:Name="LogTimestampsCheckBox" Content="{x:Static res:Resources.LogTimestampsCheckBox}" Margin="0,3"/>
-                                <CheckBox x:Name="MetricsCheckBox" Content="{x:Static res:Resources.MetricsCheckBox}" Margin="0,3"/>
-                                <CheckBox x:Name="SlotsCheckBox" Content="{x:Static res:Resources.SlotsCheckBox}" IsChecked="True" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.VerboseCheckBox}" IsChecked="{Binding Verbose}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.LogColorsCheckBox}" IsChecked="{Binding LogColors}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.LogTimestampsCheckBox}" IsChecked="{Binding LogTimestamps}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.MetricsCheckBox}" IsChecked="{Binding Metrics}" Margin="0,3"/>
+                                <CheckBox Content="{x:Static res:Resources.SlotsCheckBox}" IsChecked="{Binding Slots}" Margin="0,3"/>
                             </StackPanel>
                         </Expander>
                     </StackPanel>

@@ -6,6 +6,7 @@ Imports Avalonia.Platform.Storage
 Imports System.Globalization
 Imports System.IO
 Imports System.Text
+Imports System.Text.Json
 
 #End Region
 
@@ -25,6 +26,7 @@ Partial Public Class MainWindow
 
     Public Sub New()
         InitializeComponent()
+        DataContext = settings
         LoadSettingsSync()
         UpdateCommandPreview()
     End Sub
@@ -50,82 +52,11 @@ Partial Public Class MainWindow
         CommandPreviewTextBox.Text = fullCommand.ToString().Trim()
     End Sub
 
-    Private Sub UpdateUIFromSettings()
-        ' Basic Settings
-        ServerPathTextBox.Text = settings.ServerPath
-        ModelPathTextBox.Text = settings.ModelPath
-        ThreadsNumericUpDown.Value = settings.Threads
-        CtxSizeNumericUpDown.Value = settings.CtxSize
-        GpuLayersNumericUpDown.Value = settings.NGpuLayers
-        HostTextBox.Text = settings.Host
-        PortNumericUpDown.Value = settings.Port
-
-        ' Sampling Settings
-        TemperatureNumericUpDown.Value = settings.Temperature
-        RepeatPenaltyNumericUpDown.Value = settings.RepeatPenalty
-        TopKNumericUpDown.Value = settings.TopK
-        TopPNumericUpDown.Value = settings.TopP
-        MinPNumericUpDown.Value = settings.MinP
-        PresencePenaltyNumericUpDown.Value = settings.PresencePenalty
-        FrequencyPenaltyNumericUpDown.Value = settings.FrequencyPenalty
-
-        ' Advanced Settings
-        TimeoutNumericUpDown.Value = settings.Timeout
-        MlockCheckBox.IsChecked = settings.Mlock
-        NoMmapCheckBox.IsChecked = settings.NoMmap
-        NoKVOffloadCheckBox.IsChecked = settings.NoKVOffload
-        NoRepackCheckBox.IsChecked = settings.NoRepack
-        KVUnifiedCheckBox.IsChecked = settings.KVUnified
-        FlashAttentionCheckBox.IsChecked = settings.FlashAttention
-        VerboseCheckBox.IsChecked = settings.Verbose
-        LogColorsCheckBox.IsChecked = settings.LogColors
-        LogTimestampsCheckBox.IsChecked = settings.LogTimestamps
-        MetricsCheckBox.IsChecked = settings.Metrics
-        SlotsCheckBox.IsChecked = settings.Slots
-        ThreadsBatchNumericUpDown.Value = settings.ThreadsBatch
-    End Sub
-
-    Private Sub UpdateSettingsFromUI()
-        ' Basic Settings
-        settings.ServerPath = ServerPathTextBox.Text
-        settings.ModelPath = ModelPathTextBox.Text
-        settings.Threads = CInt(ThreadsNumericUpDown.Value)
-        settings.CtxSize = CInt(CtxSizeNumericUpDown.Value)
-        settings.NGpuLayers = CInt(GpuLayersNumericUpDown.Value)
-        settings.Host = HostTextBox.Text
-        settings.Port = CInt(PortNumericUpDown.Value)
-
-        ' Sampling Settings
-        settings.Temperature = TemperatureNumericUpDown.Value
-        settings.RepeatPenalty = RepeatPenaltyNumericUpDown.Value
-        settings.TopK = CInt(TopKNumericUpDown.Value)
-        settings.TopP = TopPNumericUpDown.Value
-        settings.MinP = MinPNumericUpDown.Value
-        settings.PresencePenalty = PresencePenaltyNumericUpDown.Value
-        settings.FrequencyPenalty = FrequencyPenaltyNumericUpDown.Value
-
-        ' Advanced Settings
-        settings.Timeout = CInt(TimeoutNumericUpDown.Value)
-        settings.Mlock = MlockCheckBox.IsChecked.GetValueOrDefault()
-        settings.NoMmap = NoMmapCheckBox.IsChecked.GetValueOrDefault()
-        settings.NoKVOffload = NoKVOffloadCheckBox.IsChecked.GetValueOrDefault()
-        settings.NoRepack = NoRepackCheckBox.IsChecked.GetValueOrDefault()
-        settings.KVUnified = KVUnifiedCheckBox.IsChecked.GetValueOrDefault()
-        settings.FlashAttention = FlashAttentionCheckBox.IsChecked.GetValueOrDefault()
-        settings.Verbose = VerboseCheckBox.IsChecked.GetValueOrDefault()
-        settings.LogColors = LogColorsCheckBox.IsChecked.GetValueOrDefault()
-        settings.LogTimestamps = LogTimestampsCheckBox.IsChecked.GetValueOrDefault()
-        settings.Metrics = MetricsCheckBox.IsChecked.GetValueOrDefault()
-        settings.Slots = SlotsCheckBox.IsChecked.GetValueOrDefault()
-        settings.ThreadsBatch = CInt(ThreadsBatchNumericUpDown.Value)
-    End Sub
-
 #End Region
 
 #Region " Event Handlers "
 
     Private Sub UpdateCommandPreviewButton_Click(sender As Object, e As RoutedEventArgs) Handles UpdateCommandPreviewButton.Click
-        UpdateSettingsFromUI()
         UpdateCommandPreview()
     End Sub
 
@@ -165,13 +96,13 @@ Partial Public Class MainWindow
         Try
             If File.Exists(configFile) Then
                 Dim json As String = File.ReadAllText(configFile)
-                settings = System.Text.Json.JsonSerializer.Deserialize(Of AppSettings)(json)
-                UpdateUIFromSettings()
+                settings = JsonSerializer.Deserialize(Of AppSettings)(json)
+                DataContext = settings ' Update DataContext
             End If
         Catch
             ' If loading fails, use default settings
             settings = New AppSettings()
-            UpdateUIFromSettings()
+            DataContext = settings ' Update DataContext
         End Try
     End Sub
 
@@ -189,7 +120,7 @@ Partial Public Class MainWindow
                 })
 
             If files.Count > 0 Then
-                ServerPathTextBox.Text = files(0).Path.LocalPath
+                settings.ServerPath = files(0).Path.LocalPath
             End If
         End If
     End Function
@@ -208,7 +139,7 @@ Partial Public Class MainWindow
                 })
 
             If files.Count > 0 Then
-                ModelPathTextBox.Text = files(0).Path.LocalPath
+                settings.ModelPath = files(0).Path.LocalPath
             End If
         End If
     End Function
@@ -216,8 +147,7 @@ Partial Public Class MainWindow
     Private Async Function SaveSettings() As Task
         Dim errorMessage As String = ""
         Try
-            UpdateSettingsFromUI()
-            Dim json As String = System.Text.Json.JsonSerializer.Serialize(settings, New System.Text.Json.JsonSerializerOptions With {
+            Dim json As String = JsonSerializer.Serialize(settings, New JsonSerializerOptions With {
                 .WriteIndented = True
             })
             Await File.WriteAllTextAsync(configFile, json)
@@ -239,8 +169,8 @@ Partial Public Class MainWindow
             configFileExists = File.Exists(configFile)
             If configFileExists Then
                 Dim json As String = Await File.ReadAllTextAsync(configFile)
-                settings = System.Text.Json.JsonSerializer.Deserialize(Of AppSettings)(json)
-                UpdateUIFromSettings()
+                settings = JsonSerializer.Deserialize(Of AppSettings)(json)
+                DataContext = settings ' Update DataContext
                 UpdateCommandPreview()
                 Await MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success")
             End If
@@ -266,8 +196,6 @@ Partial Public Class MainWindow
             Await MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning")
             Return
         End If
-
-        UpdateSettingsFromUI()
 
         If String.IsNullOrEmpty(settings.ServerPath) OrElse Not File.Exists(settings.ServerPath) Then
             Await MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error")
