@@ -9,10 +9,18 @@ Partial Public Class App
 		AvaloniaXamlLoader.Load(Me)
 	End Sub
 
+	Friend ReadOnly Property MainWindow As MainWindow
+	Friend ReadOnly Property ActiveWindow As Controls.Window
+		Get
+			Return VbHost.ActiveWindow
+		End Get
+	End Property
+
 	Public Overrides Sub OnFrameworkInitializationCompleted()
 		Dim desktop = TryCast(ApplicationLifetime, IClassicDesktopStyleApplicationLifetime)
 		If desktop IsNot Nothing Then
-			desktop.MainWindow = New MainWindow
+			_MainWindow = New MainWindow
+			desktop.MainWindow = MainWindow
 		End If
 
 		MyBase.OnFrameworkInitializationCompleted()

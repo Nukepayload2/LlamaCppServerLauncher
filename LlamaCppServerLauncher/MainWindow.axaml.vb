@@ -14,6 +14,7 @@ Imports System.Globalization
 Imports System.IO
 Imports System.Text
 Imports System.Threading.Tasks
+Imports LlamaCppServerLauncher.Helpers
 
 #End Region
 
@@ -54,53 +55,87 @@ Partial Public Class MainWindow
             args.Append($" -m ""{settings.ModelPath}""")
         End If
 
-        ' Basic Parameters
+        ' Host
+        If Not String.IsNullOrEmpty(settings.Host) Then
+            args.Append($" --host {settings.Host}")
+        End If
+
+        ' Port
+        If settings.Port > 0 Then
+            args.Append($" --port {settings.Port}")
+        End If
+
+        ' Threads
         If settings.Threads > 0 Then
             args.Append($" -t {settings.Threads}")
         End If
 
+        ' Context Size
         If settings.CtxSize > 0 Then
             args.Append($" -c {settings.CtxSize}")
         End If
 
-        If settings.NPredict > 0 Then
-            args.Append($" -n {settings.NPredict}")
-        End If
-
+        ' GPU Layers
         If settings.NGpuLayers > 0 Then
             args.Append($" -ngl {settings.NGpuLayers}")
         End If
 
-        ' Sampling Parameters
-        args.Append($" --temp {settings.Temperature}")
-        args.Append($" --top-p {settings.TopP}")
-        args.Append($" --top-k {settings.TopK}")
-        args.Append($" --repeat-penalty {settings.RepeatPenalty}")
-
-        If settings.MinP > 0 Then
-            args.Append($" --min-p {settings.MinP}")
+        ' Batch Threads
+        If settings.ThreadsBatch > 0 Then
+            args.Append($" -tb {settings.ThreadsBatch}")
         End If
 
-        If settings.PresencePenalty <> 0 Then
-            args.Append($" --presence-penalty {settings.PresencePenalty}")
+        ' Temperature
+        If settings.Temperature >= 0 Then
+            args.Append($" --temp {settings.Temperature.ToString(CultureInfo.InvariantCulture)}")
         End If
 
-        If settings.FrequencyPenalty <> 0 Then
-            args.Append($" --frequency-penalty {settings.FrequencyPenalty}")
+        ' Repeat Penalty
+        If settings.RepeatPenalty >= 0 Then
+            args.Append($" --repeat-penalty {settings.RepeatPenalty.ToString(CultureInfo.InvariantCulture)}")
         End If
 
-        ' Network Parameters
-        args.Append($" --host {settings.Host}")
-        args.Append($" --port {settings.Port}")
-        args.Append($" --timeout {settings.Timeout}")
+        ' Top K
+        If settings.TopK > 0 Then
+            args.Append($" --top-k {settings.TopK}")
+        End If
 
-        ' Boolean Parameters
+        ' Top P
+        If settings.TopP >= 0 Then
+            args.Append($" --top-p {settings.TopP.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Min P
+        If settings.MinP >= 0 Then
+            args.Append($" --min-p {settings.MinP.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Presence Penalty
+        If settings.PresencePenalty >= 0 Then
+            args.Append($" --presence-penalty {settings.PresencePenalty.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Frequency Penalty
+        If settings.FrequencyPenalty >= 0 Then
+            args.Append($" --frequency-penalty {settings.FrequencyPenalty.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Timeout
+        If settings.Timeout > 0 Then
+            args.Append($" --timeout {settings.Timeout}")
+        End If
+
+        ' Memory Management
         If settings.Mlock Then
-            args.Append(" --mlock")
+            args.Append(" -mlock")
         End If
 
         If settings.NoMmap Then
             args.Append(" --no-mmap")
+        End If
+
+        If settings.KVUnified Then
+            args.Append(" --kv-unified")
         End If
 
         If settings.NoKVOffload Then
@@ -111,14 +146,11 @@ Partial Public Class MainWindow
             args.Append(" --no-repack")
         End If
 
-        If settings.KVUnified Then
-            args.Append(" --kv-unified")
-        End If
-
         If settings.FlashAttention Then
             args.Append(" --flash-attn")
         End If
 
+        ' Logging
         If settings.Verbose Then
             args.Append(" -v")
         End If
@@ -139,24 +171,9 @@ Partial Public Class MainWindow
             args.Append(" --slots")
         End If
 
-        ' Additional Parameters
-        If settings.ThreadsBatch > 0 Then
-            args.Append($" -tb {settings.ThreadsBatch}")
-        End If
-
-        ' LoRA Adapters
-        ' For Each lora As AppSettings.LoraConfig In settings.Lora
-        '     If Not String.IsNullOrEmpty(lora.Path) Then
-        '         args.Append($" --lora ""{lora.Path}""")
-        '         If lora.Scale <> 1.0 Then
-        '             args.Append($" {lora.Scale}")
-        '         End If
-        '     End If
-        ' Next
-
-        ' Control Vectors
-        ' For Each cv As AppSettings.ControlVectorConfig In settings.ControlVector
-        '     If Not String.IsNullOrEmpty(cv.Path) Then
+        ' Control Vectors (Future Implementation)
+        ' For Each cv In settings.ControlVectors
+        '     If Not String.IsNullOrEmpty(cv.Path) AndAlso File.Exists(cv.Path) Then
         '         args.Append($" --control-vector ""{cv.Path}""")
         '         If cv.Scale <> 1.0 Then
         '             args.Append($" {cv.Scale}")
@@ -176,18 +193,18 @@ Partial Public Class MainWindow
         GpuLayersNumericUpDown.Value = settings.NGpuLayers
         HostTextBox.Text = settings.Host
         PortNumericUpDown.Value = settings.Port
-        TimeoutNumericUpDown.Value = settings.Timeout
 
         ' Sampling Settings
         TemperatureNumericUpDown.Value = settings.Temperature
-        TopPNumericUpDown.Value = settings.TopP
-        TopKNumericUpDown.Value = settings.TopK
         RepeatPenaltyNumericUpDown.Value = settings.RepeatPenalty
+        TopKNumericUpDown.Value = settings.TopK
+        TopPNumericUpDown.Value = settings.TopP
         MinPNumericUpDown.Value = settings.MinP
         PresencePenaltyNumericUpDown.Value = settings.PresencePenalty
         FrequencyPenaltyNumericUpDown.Value = settings.FrequencyPenalty
 
         ' Advanced Settings
+        TimeoutNumericUpDown.Value = settings.Timeout
         MlockCheckBox.IsChecked = settings.Mlock
         NoMmapCheckBox.IsChecked = settings.NoMmap
         NoKVOffloadCheckBox.IsChecked = settings.NoKVOffload
@@ -211,18 +228,18 @@ Partial Public Class MainWindow
         settings.NGpuLayers = CInt(GpuLayersNumericUpDown.Value)
         settings.Host = HostTextBox.Text
         settings.Port = CInt(PortNumericUpDown.Value)
-        settings.Timeout = CInt(TimeoutNumericUpDown.Value)
 
         ' Sampling Settings
-        settings.Temperature = CDbl(TemperatureNumericUpDown.Value)
-        settings.TopP = CDbl(TopPNumericUpDown.Value)
+        settings.Temperature = TemperatureNumericUpDown.Value
+        settings.RepeatPenalty = RepeatPenaltyNumericUpDown.Value
         settings.TopK = CInt(TopKNumericUpDown.Value)
-        settings.RepeatPenalty = CDbl(RepeatPenaltyNumericUpDown.Value)
-        settings.MinP = CDbl(MinPNumericUpDown.Value)
-        settings.PresencePenalty = CDbl(PresencePenaltyNumericUpDown.Value)
-        settings.FrequencyPenalty = CDbl(FrequencyPenaltyNumericUpDown.Value)
+        settings.TopP = TopPNumericUpDown.Value
+        settings.MinP = MinPNumericUpDown.Value
+        settings.PresencePenalty = PresencePenaltyNumericUpDown.Value
+        settings.FrequencyPenalty = FrequencyPenaltyNumericUpDown.Value
 
         ' Advanced Settings
+        settings.Timeout = CInt(TimeoutNumericUpDown.Value)
         settings.Mlock = MlockCheckBox.IsChecked.GetValueOrDefault()
         settings.NoMmap = NoMmapCheckBox.IsChecked.GetValueOrDefault()
         settings.NoKVOffload = NoKVOffloadCheckBox.IsChecked.GetValueOrDefault()
@@ -246,39 +263,39 @@ Partial Public Class MainWindow
         UpdateCommandPreview()
     End Sub
 
-    Private Sub BrowseServerButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseServerButton.Click
-        BrowseForServer()
+    Private Async Sub BrowseServerButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseServerButton.Click
+        Await BrowseForServer()
     End Sub
 
-    Private Sub BrowseModelButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseModelButton.Click
-        BrowseForModel()
+    Private Async Sub BrowseModelButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseModelButton.Click
+        Await BrowseForModel()
     End Sub
 
-    Private Sub StartServerButton_Click(sender As Object, e As RoutedEventArgs) Handles StartServerButton.Click
-        StartServer()
+    Private Async Sub StartServerButton_Click(sender As Object, e As RoutedEventArgs) Handles StartServerButton.Click
+        Await StartServer()
     End Sub
 
     Private Sub StopServerButton_Click(sender As Object, e As RoutedEventArgs) Handles StopServerButton.Click
         StopServer()
     End Sub
 
-    Private Sub SaveSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles SaveSettingsButton.Click
-        SaveSettings()
+    Private Async Sub SaveSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles SaveSettingsButton.Click
+        Await SaveSettings()
     End Sub
 
-    Private Sub LoadSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles LoadSettingsButton.Click
-        LoadSettings()
+    Private Async Sub LoadSettingsButton_Click(sender As Object, e As RoutedEventArgs) Handles LoadSettingsButton.Click
+        Await LoadSettings()
     End Sub
 
-    Private Sub CopyCommandButton_Click(sender As Object, e As RoutedEventArgs) Handles CopyCommandButton.Click
-        CopyCommandToClipboard()
+    Private Async Sub CopyCommandButton_Click(sender As Object, e As RoutedEventArgs) Handles CopyCommandButton.Click
+        Await CopyCommandToClipboard()
     End Sub
 
 #End Region
 
 #Region " File Operations "
 
-    Private Async Sub BrowseForServer()
+    Private Async Function BrowseForServer() As Task
         If StorageProvider IsNot Nothing Then
             Dim files As IReadOnlyList(Of IStorageFile) =
                 Await StorageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
@@ -295,9 +312,9 @@ Partial Public Class MainWindow
                 ServerPathTextBox.Text = files(0).Path.LocalPath
             End If
         End If
-    End Sub
+    End Function
 
-    Private Async Sub BrowseForModel()
+    Private Async Function BrowseForModel() As Task
         If StorageProvider IsNot Nothing Then
             Dim files As IReadOnlyList(Of IStorageFile) =
                 Await StorageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
@@ -305,7 +322,7 @@ Partial Public Class MainWindow
                     .AllowMultiple = False,
                     .FileTypeFilter = New List(Of FilePickerFileType) From {
                         New FilePickerFileType("Model Files") With {
-                            .Patterns = New List(Of String) From {"*.gguf", "*.bin", "*.model"}
+                            .Patterns = New List(Of String) From {"*.gguf", "*.bin"}
                         }
                     }
                 })
@@ -314,9 +331,9 @@ Partial Public Class MainWindow
                 ModelPathTextBox.Text = files(0).Path.LocalPath
             End If
         End If
-    End Sub
+    End Function
 
-    Private Async Sub SaveSettings()
+    Private Async Function SaveSettings() As Task
         Dim errorMessage As String = ""
         Try
             UpdateSettingsFromUI()
@@ -325,23 +342,23 @@ Partial Public Class MainWindow
             })
             Await File.WriteAllTextAsync(configFile, json)
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                MsgBox(My.Resources.SettingsSaved, MsgBoxStyle.Information, "Success")
-            End Sub)
+                                                      MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, "Success")
+                                                  End Sub)
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
-        
+
         If Not String.IsNullOrEmpty(errorMessage) Then
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                MsgBox($"Error saving settings: {errorMessage}", MsgBoxStyle.Exclamation, "Error")
-            End Sub)
+                                                      MsgBoxAsync($"Error saving settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
+                                                  End Sub)
         End If
-    End Sub
+    End Function
 
-    Private Async Sub LoadSettings()
+    Private Async Function LoadSettings() As Task
         Dim errorMessage As String = ""
         Dim configFileExists As Boolean = False
-        
+
         Try
             configFileExists = File.Exists(configFile)
             If configFileExists Then
@@ -350,35 +367,35 @@ Partial Public Class MainWindow
                 UpdateUIFromSettings()
                 UpdateCommandPreview()
                 Await Dispatcher.UIThread.InvokeAsync(Sub()
-                    MsgBox(My.Resources.SettingsLoaded, MsgBoxStyle.Information, "Success")
-                End Sub)
+                                                          MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success")
+                                                      End Sub)
             End If
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
-        
+
         If Not String.IsNullOrEmpty(errorMessage) Then
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                MsgBox($"Error loading settings: {errorMessage}", MsgBoxStyle.Exclamation, "Error")
-            End Sub)
+                                                      MsgBoxAsync($"Error loading settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
+                                                  End Sub)
         ElseIf Not configFileExists Then
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                MsgBox("No configuration file found. Using default settings.", MsgBoxStyle.Information, "Info")
-            End Sub)
+                                                      MsgBoxAsync("No configuration file found. Using default settings.", MsgBoxButtons.Ok, "Info")
+                                                  End Sub)
         End If
-    End Sub
+    End Function
 
 #End Region
 
 #Region " Server Management "
 
-    Private Async Sub StartServer()
+    Private Async Function StartServer() As Task
         Dim errorMessage As String = ""
-        
+
         If serverRunning Then
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                MsgBox("Server is already running!", MsgBoxStyle.Exclamation, "Warning")
-            End Sub)
+                                                      MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning")
+                                                  End Sub)
             Return
         End If
 
@@ -386,15 +403,15 @@ Partial Public Class MainWindow
 
         If String.IsNullOrEmpty(settings.ServerPath) OrElse Not File.Exists(settings.ServerPath) Then
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                MsgBox(My.Resources.ErrorServerPathRequired, MsgBoxStyle.Exclamation, "Error")
-            End Sub)
+                                                      MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error")
+                                                  End Sub)
             Return
         End If
 
         If String.IsNullOrEmpty(settings.ModelPath) OrElse Not File.Exists(settings.ModelPath) Then
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                MsgBox(My.Resources.ErrorModelPathRequired, MsgBoxStyle.Exclamation, "Error")
-            End Sub)
+                                                      MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, "Error")
+                                                  End Sub)
             Return
         End If
 
@@ -417,13 +434,13 @@ Partial Public Class MainWindow
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
-        
+
         If Not String.IsNullOrEmpty(errorMessage) Then
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                MsgBox($"Failed to start server: {errorMessage}", MsgBoxStyle.Exclamation, "Error")
-            End Sub)
+                                                      MsgBoxAsync($"Failed to start server: {errorMessage}", MsgBoxButtons.Ok, "Error")
+                                                  End Sub)
         End If
-    End Sub
+    End Function
 
     Private Sub StopServer()
         If Not serverRunning OrElse serverProcess Is Nothing OrElse serverProcess.HasExited Then
@@ -432,8 +449,7 @@ Partial Public Class MainWindow
 
         Try
             serverProcess.Kill()
-            serverProcess.WaitForExit()
-        Catch ex As Exception
+        Catch
             ' Ignore kill errors
         Finally
             serverRunning = False
@@ -454,9 +470,9 @@ Partial Public Class MainWindow
             serverProcess = Nothing
 
             Await Dispatcher.UIThread.InvokeAsync(Sub()
-                StartServerButton.IsEnabled = True
-                StopServerButton.IsEnabled = False
-            End Sub)
+                                                      StartServerButton.IsEnabled = True
+                                                      StopServerButton.IsEnabled = False
+                                                  End Sub)
         End If
     End Function
 
@@ -464,98 +480,122 @@ Partial Public Class MainWindow
         Dim args As New StringBuilder()
 
         ' Model Path
-        If Not String.IsNullOrEmpty(settings.ModelPath) Then
-            args.Append($"-m ""{settings.ModelPath}"" ")
+        args.Append($"""{settings.ModelPath}""")
+
+        ' Host
+        If Not String.IsNullOrEmpty(settings.Host) Then
+            args.Append($" --host {settings.Host}")
         End If
 
-        ' Basic Parameters
+        ' Port
+        If settings.Port > 0 Then
+            args.Append($" --port {settings.Port}")
+        End If
+
+        ' Threads
         If settings.Threads > 0 Then
-            args.Append($"-t {settings.Threads} ")
+            args.Append($" -t {settings.Threads}")
         End If
 
+        ' Context Size
         If settings.CtxSize > 0 Then
-            args.Append($"-c {settings.CtxSize} ")
+            args.Append($" -c {settings.CtxSize}")
         End If
 
-        If settings.NPredict > 0 Then
-            args.Append($"-n {settings.NPredict} ")
-        End If
-
+        ' GPU Layers
         If settings.NGpuLayers > 0 Then
-            args.Append($"-ngl {settings.NGpuLayers} ")
+            args.Append($" -ngl {settings.NGpuLayers}")
         End If
 
-        ' Sampling Parameters
-        args.Append($"--temp {settings.Temperature} ")
-        args.Append($"--top-p {settings.TopP} ")
-        args.Append($"--top-k {settings.TopK} ")
-        args.Append($"--repeat-penalty {settings.RepeatPenalty} ")
-
-        If settings.MinP > 0 Then
-            args.Append($"--min-p {settings.MinP} ")
+        ' Batch Threads
+        If settings.ThreadsBatch > 0 Then
+            args.Append($" -tb {settings.ThreadsBatch}")
         End If
 
-        If settings.PresencePenalty <> 0 Then
-            args.Append($"--presence-penalty {settings.PresencePenalty} ")
+        ' Temperature
+        If settings.Temperature >= 0 Then
+            args.Append($" --temp {settings.Temperature.ToString(CultureInfo.InvariantCulture)}")
         End If
 
-        If settings.FrequencyPenalty <> 0 Then
-            args.Append($"--frequency-penalty {settings.FrequencyPenalty} ")
+        ' Repeat Penalty
+        If settings.RepeatPenalty >= 0 Then
+            args.Append($" --repeat-penalty {settings.RepeatPenalty.ToString(CultureInfo.InvariantCulture)}")
         End If
 
-        ' Network Parameters
-        args.Append($"--host {settings.Host} ")
-        args.Append($"--port {settings.Port} ")
-        args.Append($"--timeout {settings.Timeout} ")
+        ' Top K
+        If settings.TopK > 0 Then
+            args.Append($" --top-k {settings.TopK}")
+        End If
 
-        ' Boolean Parameters
+        ' Top P
+        If settings.TopP >= 0 Then
+            args.Append($" --top-p {settings.TopP.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Min P
+        If settings.MinP >= 0 Then
+            args.Append($" --min-p {settings.MinP.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Presence Penalty
+        If settings.PresencePenalty >= 0 Then
+            args.Append($" --presence-penalty {settings.PresencePenalty.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Frequency Penalty
+        If settings.FrequencyPenalty >= 0 Then
+            args.Append($" --frequency-penalty {settings.FrequencyPenalty.ToString(CultureInfo.InvariantCulture)}")
+        End If
+
+        ' Timeout
+        If settings.Timeout > 0 Then
+            args.Append($" --timeout {settings.Timeout}")
+        End If
+
+        ' Memory Management
         If settings.Mlock Then
-            args.Append("--mlock ")
+            args.Append(" -mlock")
         End If
 
         If settings.NoMmap Then
-            args.Append("--no-mmap ")
-        End If
-
-        If settings.NoKVOffload Then
-            args.Append("--no-kv-offload ")
-        End If
-
-        If settings.NoRepack Then
-            args.Append("--no-repack ")
+            args.Append(" --no-mmap")
         End If
 
         If settings.KVUnified Then
-            args.Append("--kv-unified ")
+            args.Append(" --kv-unified")
+        End If
+
+        If settings.NoKVOffload Then
+            args.Append(" --no-kv-offload")
+        End If
+
+        If settings.NoRepack Then
+            args.Append(" --no-repack")
         End If
 
         If settings.FlashAttention Then
-            args.Append("--flash-attn ")
+            args.Append(" --flash-attn")
         End If
 
+        ' Logging
         If settings.Verbose Then
-            args.Append("-v ")
+            args.Append(" -v")
         End If
 
         If settings.LogColors Then
-            args.Append("--log-colors ")
+            args.Append(" --log-colors")
         End If
 
         If settings.LogTimestamps Then
-            args.Append("--log-timestamps ")
+            args.Append(" --log-timestamps")
         End If
 
         If settings.Metrics Then
-            args.Append("--metrics ")
+            args.Append(" --metrics")
         End If
 
         If settings.Slots Then
-            args.Append("--slots ")
-        End If
-
-        ' Additional Parameters
-        If settings.ThreadsBatch > 0 Then
-            args.Append($"-tb {settings.ThreadsBatch} ")
+            args.Append(" --slots")
         End If
 
         Return args.ToString().Trim()
@@ -565,25 +605,25 @@ Partial Public Class MainWindow
 
 #Region " Utility Methods "
 
-    Private Async Sub CopyCommandToClipboard()
+    Private Async Function CopyCommandToClipboard() As Task
         If Not String.IsNullOrEmpty(CommandPreviewTextBox.Text) Then
             Dim errorMessage As String = ""
             Try
                 Await Clipboard.SetTextAsync(CommandPreviewTextBox.Text)
                 Await Dispatcher.UIThread.InvokeAsync(Sub()
-                    MsgBox(My.Resources.CommandCopied, MsgBoxStyle.Information, "Success")
-                End Sub)
+                                                          MsgBoxAsync(My.Resources.CommandCopied, MsgBoxButtons.Ok, "Success")
+                                                      End Sub)
             Catch ex As Exception
                 errorMessage = ex.Message
             End Try
-            
+
             If Not String.IsNullOrEmpty(errorMessage) Then
                 Await Dispatcher.UIThread.InvokeAsync(Sub()
-                    MsgBox($"Failed to copy command: {errorMessage}", MsgBoxStyle.Exclamation, "Error")
-                End Sub)
+                                                          MsgBoxAsync($"Failed to copy command: {errorMessage}", MsgBoxButtons.Ok, "Error")
+                                                      End Sub)
             End If
         End If
-    End Sub
+    End Function
 
 #End Region
 
