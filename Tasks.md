@@ -1,307 +1,239 @@
-# LLaMA.cpp HTTP Server Launcher 开发任务
+# LlamaCppServerLauncher 任务清单
 
-## 📊 项目完成状态: **100%** (18/18 任务已完成)
+## 项目现状分析
 
-### ✅ 已完成的 Phase:
-- **Phase 1: 项目基础设施** - 100% 完成
-- **Phase 2: 配置管理系统** - 100% 完成  
-- **Phase 3: 用户界面开发** - 100% 完成
-- **Phase 4: 服务器进程管理** - 100% 完成
-- **Phase 5: 国际化支持** - 100% 完成
+### 已完成的功能
+- ✅ **AppSettings.vb** 中定义了221+个完整的llama.cpp server参数
+- ✅ **MainWindow.axaml** 实现了基础UI界面（约30%的参数）
+- ✅ 完整的参数管理系统和JSON配置支持
+- ✅ 命令行参数生成功能
+- ✅ 服务器进程管理
+- ✅ 国际化支持（中英文）
 
-## 项目概述
-实现一个基于 Avalonia UI 的 VB.NET 桌面应用程序，用于管理和启动 LLaMA.cpp HTTP Server。该应用将包含所有221+个启动参数的配置界面，支持参数持久化、预览和多语言。
+### UI中遗漏的重要参数
 
-项目：LlamaCppServerLauncher\LlamaCppServerLauncher.vbproj
+虽然AppSettings.vb中定义了完整的参数，但UI中只实现了约30%的参数。以下是按优先级分类的遗漏参数：
 
-启动参数见文档：README.server.md
+## 🎯 第一阶段：硬件和性能参数（高优先级）
 
-每个 Phase 完成时都询问用户是否已经完成代码审查，每个 Phase 完成都标注完成情况
+### 1.1 多GPU配置 (5个参数)
+- `MainGpu` - 主GPU选择 (NumericUpDown: 0-N)
+- `TensorSplit` - 多GPU张量分割 (TextBox: "3,1"格式)
+- `SplitMode` - GPU分割模式 (ComboBox: none/layer/row)
+- `Device` - 设备选择列表 (TextBox: "0,1,2")
+- `Numa` - NUMA优化 (ComboBox: distribute/isolate/numactl)
 
-## 技术栈
-- **框架**: .NET 9.0
-- **UI框架**: Avalonia UI 11.3.4
-- **编程语言**: VB.NET
-- **数据处理**: System.Text.Json
-- **架构模式**: MVVM, Partial Class
-- **异步编程**: Async/Await
+### 1.2 CPU优化 (8个参数)
+- `CpuMask` - CPU亲和性掩码 (TextBox: 十六进制格式)
+- `CpuRange` - CPU范围 (TextBox: "0-7"格式)
+- `Prio` - 进程优先级 (ComboBox: low/normal/medium/high/realtime)
+- `Poll` - 轮询级别 (NumericUpDown: 0-100)
+- `CpuMaskBatch` - 批处理CPU掩码
+- `CpuRangeBatch` - 批处理CPU范围
+- `CpuStrict` - 严格CPU放置 (CheckBox)
+- `CpuStrictBatch` - 批处理严格CPU放置 (CheckBox)
 
-代码实现方式参考另一个类似项目的做法: DevNote.md
+### 1.3 批处理配置 (3个参数)
+- `BatchSize` - 逻辑批处理大小 (NumericUpDown: 512-8192)
+- `UbatchSize` - 物理批处理大小 (NumericUpDown: 128-2048)
+- `NParallel` - 并行序列数 (NumericUpDown: 1-16)
 
-## Phase 1: 项目基础设施
+## 🎯 第二阶段：高级采样参数（高优先级）
 
-### 1.1 项目设置和配置
-- [x] 创建 Visual Studio .gitignore 文件
-- [x] 创建 Tasks.md 详细任务分解
-- [x] 设置项目文件结构
+### 2.1 采样器配置 (2个参数)
+- `Samplers` - 采样器顺序 (TextBox: "penalties;dry;top_k;...")
+- `SamplingSeq` - 简化采样序列 (TextBox: "edskypmxt")
 
-### 1.2 基础应用程序结构
-- [x] 创建 Program.vb 应用程序入口点
-- [x] 创建 App.axaml.vb 应用程序类
-- [x] 创建 MainWindow.axaml 基础UI布局
+### 2.2 DRY采样 (6个参数)
+- `DryMultiplier` - DRY采样乘数 (NumericUpDown: 0.0-5.0)
+- `DryBase` - DRY采样基础值 (NumericUpDown: 1.0-3.0)
+- `DryAllowedLength` - 允许长度 (NumericUpDown: 1-10)
+- `DryPenaltyLastN` - 惩罚范围 (NumericUpDown: -1-128)
+- `DrySequenceBreaker` - 序列分隔符 (TextBox: "\n,:,\"")
+- `IgnoreEOS` - 忽略结束标记 (CheckBox)
 
-## Phase 2: 配置管理系统
+### 2.3 Mirostat采样 (3个参数)
+- `Mirostat` - Mirostat模式 (ComboBox: 0/1/2)
+- `MirostatLr` - 学习率 (NumericUpDown: 0.01-1.0)
+- `MirostatEnt` - 目标熵 (NumericUpDown: 1.0-10.0)
 
-### 2.1 应用设置类
-- [x] 实现 AppSettings 类，包含所有 LLaMA.cpp 参数
-  - 基础参数 (线程数、上下文大小等)
-  - 采样参数 (温度、top-p、top-k 等)
-  - 高级参数 (GPU层、内存管理等)
-  - 网络参数 (主机、端口、SSL等)
-- [x] 实现 JSON 序列化/反序列化
-- [x] 实现配置保存和加载功能
+### 2.4 动态温度 (2个参数)
+- `DynatempRange` - 动态温度范围 (NumericUpDown: 0.0-2.0)
+- `DynatempExp` - 动态温度指数 (NumericUpDown: 0.1-5.0)
 
-### 2.2 参数验证和默认值
-- [x] 为每个参数设置合理的默认值
-- [x] 实现参数范围验证
-- [x] 实现文件路径存在性检查
+### 2.5 高级采样选项 (4个参数)
+- `Typical` - 典型采样 (NumericUpDown: 0.1-2.0)
+- `TopNSigma` - Top-N Sigma (NumericUpDown: -1.0-5.0)
+- `XtcProbability` - XTC概率 (NumericUpDown: 0.0-1.0)
+- `XtcThreshold` - XTC阈值 (NumericUpDown: 0.0-1.0)
+- `RepeatLastN` - 重复惩罚范围 (NumericUpDown: -1-256)
 
-## Phase 3: 用户界面开发
+## 🎯 第三阶段：网络和安全参数（中优先级）
 
-### 3.1 主界面布局
-- [x] 创建 TabControl 分组界面
-  - 基本设置选项卡
-  - 采样参数选项卡
-  - 高级设置选项卡
-  - 网络配置选项卡
-  - 启动预览选项卡
-- [x] 实现服务器控制按钮区域
-- [x] 实现状态显示区域
+### 3.1 API认证 (3个参数)
+- `ApiKey` - API密钥 (TextBox)
+- `ApiKeyFile` - API密钥文件 (TextBox + Browse按钮)
+- `NoWebui` - 禁用Web UI (CheckBox)
 
-### 3.2 参数管理界面
-- [x] 创建分类的参数控制面板
-  - **基本参数**: 模型路径、线程数、上下文大小等
-  - **采样参数**: 温度、top-p、top-k、惩罚等
-  - **硬件配置**: GPU层、内存映射、CPU亲和性等
-  - **网络配置**: 主机、端口、SSL、API密钥等
-  - **日志配置**: 详细程度、文件日志、颜色等
-  - **模型配置**: LoRA适配器、控制向量等
-- [x] 实现文件浏览器对话框
-- [x] 实现数值输入控件和验证
+### 3.2 SSL配置 (2个参数)
+- `SslKeyFile` - SSL密钥文件 (TextBox + Browse按钮)
+- `SslCertFile` - SSL证书文件 (TextBox + Browse按钮)
 
-### 3.3 启动参数预览
-- [x] 创建命令行参数预览文本框
-- [x] 实现实时参数更新显示
-- [x] 添加参数复制功能
+### 3.3 服务配置 (4个参数)
+- `Path` - 静态文件路径 (TextBox + Browse按钮)
+- `ApiPrefix` - API前缀路径 (TextBox)
+- `ThreadsHttp` - HTTP线程数 (NumericUpDown: -1-64)
+- `ContBatching` - 连续批处理 (CheckBox)
+- `NoContBatching` - 禁用连续批处理 (CheckBox)
+- `Props` - 属性修改端点 (CheckBox)
 
-## Phase 4: 服务器进程管理
+### 3.4 服务器功能 (3个参数)
+- `Embeddings` - 嵌入端点 (CheckBox)
+- `Reranking` - 重排端点 (CheckBox)
+- `Metrics` - 指标端点 (CheckBox)
 
-### 4.1 服务器启动
-- [x] 实现命令行参数生成
-- [x] 实现服务器进程启动
-- [x] 实现独立命令窗口创建
-- [x] 实现进程状态监控
+## 🎯 第四阶段：模型和适配器参数（中优先级）
 
-### 4.2 进程监控
-- [x] 实现服务器状态检查
-- [x] 实现输出日志捕获
-- [x] 实现错误处理和显示
-- [x] 实现服务器停止功能
+### 4.1 LoRA适配器 (3个参数)
+- `Lora` - LoRA适配器路径列表 (ListBox + 添加/删除按钮)
+- `LoraScaled` - 带缩放的LoRA适配器 (ListView with Scale column)
+- `LoraInitWithoutApply` - 加载但不应用 (CheckBox)
 
-## Phase 5: 国际化支持
+### 4.2 控制向量 (3个参数)
+- `ControlVector` - 控制向量路径列表 (ListBox + 添加/删除按钮)
+- `ControlVectorScaled` - 带缩放的控制向量 (ListView with Scale column)
+- `ControlVectorLayerRange` - 层范围 (TextBox: "0,32")
 
-### 5.1 资源文件
-- [x] 创建 en-US 资源文件
-- [x] 创建 zh-CN 资源文件
-- [x] 实现所有UI文本的本地化
+### 4.3 Hugging Face集成 (4个参数)
+- `HfRepo` - HF仓库 (TextBox: "user/model")
+- `HfFile` - HF文件 (TextBox)
+- `HfToken` - HF令牌 (PasswordBox)
+- `ModelUrl` - 模型URL (TextBox)
+- `HfRepoDraft` - 草稿模型HF仓库 (TextBox)
 
-### 5.2 语言切换
-- [x] 实现语言选择功能
-- [x] 实现运行时语言切换
-- [x] 保存语言偏好设置
+### 4.4 模型配置 (4个参数)
+- `OverrideKV` - 覆盖元数据 (TextBox: "key=type:value")
+- `NoOpOffload` - 禁用操作卸载 (CheckBox)
+- `Keep` - 保留token数 (NumericUpDown: 0-2048)
+- `NPredict` - 预测token数 (NumericUpDown: -1-4096)
 
-## Phase 6: 高级功能
+## 🎯 第五阶段：草稿模型参数（中优先级）
 
-### 6.1 配置管理
-- [ ] 实现配置导入/导出
-- [ ] 实现配置预设管理
-- [ ] 实现配置重置功能
+### 5.1 草稿模型基础 (6个参数)
+- `ModelDraft` - 草稿模型路径 (TextBox + Browse按钮)
+- `CtxSizeDraft` - 草稿上下文大小 (NumericUpDown: 0-8192)
+- `NGpuLayersDraft` - 草稿GPU层数 (NumericUpDown: 0-100)
+- `ThreadsDraft` - 草稿线程数 (NumericUpDown: -1-64)
+- `ThreadsBatchDraft` - 草稿批处理线程 (NumericUpDown: -1-64)
+- `DeviceDraft` - 草稿设备 (TextBox)
 
-### 6.2 用户体验优化
-- [ ] 实现参数分组和折叠
-- [ ] 实现搜索和过滤功能
-- [ ] 实现工具提示和帮助信息
+### 5.2 投机解码 (3个参数)
+- `DraftMax` - 最大草稿token数 (NumericUpDown: 1-64)
+- `DraftMin` - 最小草稿token数 (NumericUpDown: 0-32)
+- `DraftPMin` - 最小概率 (NumericUpDown: 0.0-1.0)
 
-## Phase 7: 测试和优化
+### 5.3 草稿模型缓存 (2个参数)
+- `CacheTypeKDraft` - 草稿K缓存类型 (ComboBox: f32/f16/bf16/q8_0等)
+- `CacheTypeVDraft` - 草稿V缓存类型 (ComboBox: f32/f16/bf16/q8_0等)
 
-### 7.1 功能测试
-- [ ] 测试所有参数配置
-- [ ] 测试服务器启动功能
-- [ ] 测试进程管理功能
-- [ ] 测试国际化功能
+## 🎯 第六阶段：RoPE和上下文参数（中优先级）
 
-### 7.2 性能优化
-- [ ] 优化UI响应性能
-- [ ] 优化内存使用
-- [ ] 优化启动时间
+### 6.1 RoPE配置 (4个参数)
+- `RopeScaling` - RoPE缩放方法 (ComboBox: none/linear/yarn)
+- `RopeScale` - RoPE缩放因子 (NumericUpDown: 0.1-10.0)
+- `RopeFreqBase` - RoPE频率基数 (NumericUpDown: 0.0-1000000.0)
+- `RopeFreqScale` - RoPE频率缩放 (NumericUpDown: 0.1-10.0)
 
-## Phase 8: 发布准备
+### 6.2 YaRN配置 (5个参数)
+- `YarnOrigCtx` - 原始上下文大小 (NumericUpDown: 0-8192)
+- `YarnExtFactor` - 外推因子 (NumericUpDown: -1.0-10.0)
+- `YarnAttnFactor` - 注意力因子 (NumericUpDown: 0.1-10.0)
+- `YarnBetaSlow` - Beta慢 (NumericUpDown: 0.1-100.0)
+- `YarnBetaFast` - Beta快 (NumericUpDown: 1.0-1000.0)
 
-### 8.1 文档和说明
-- [ ] 创建用户使用说明
-- [ ] 创建开发者文档
-- [ ] 更新README文件
+## 🎯 第七阶段：多模态和嵌入参数（低优先级）
 
-### 8.2 打包和发布
-- [ ] 配置发布设置
-- [ ] 创建安装程序
-- [ ] 准备发布版本
+### 7.1 多模态配置 (4个参数)
+- `Mmproj` - 多模态投影器路径 (TextBox + Browse按钮)
+- `MmprojUrl` - 多模态投影器URL (TextBox)
+- `NoMmproj` - 禁用多模态投影器 (CheckBox)
+- `NoMmprojOffload` - 禁用投影器卸载 (CheckBox)
 
-## 详细实现说明
+### 7.2 嵌入配置 (4个参数)
+- `Pooling` - 池化类型 (ComboBox: none/mean/cls/last/rank)
+- `EmbdBgeSmallEnDefault` - 默认BGE模型 (CheckBox)
+- `EmbdE5SmallEnDefault` - 默认E5模型 (CheckBox)
+- `EmbdGteSmallDefault` - 默认GTE模型 (CheckBox)
 
-### AppSettings 类结构
-```vb
-Public Class AppSettings
-    ' 基础参数
-    Public Property ModelPath As String
-    Public Property Threads As Integer = 4
-    Public Property CtxSize As Integer = 4096
-    Public Property NPredict As Integer = -1
-    
-    ' 采样参数
-    Public Property Temperature As Double = 0.8
-    Public Property TopP As Double = 0.9
-    Public Property TopK As Integer = 40
-    Public Property RepeatPenalty As Double = 1.0
-    
-    ' 硬件配置
-    Public Property NGpuLayers As Integer = 0
-    Public Property Mlock As Boolean = False
-    Public Property NoMmap As Boolean = False
-    
-    ' 网络配置
-    Public Property Host As String = "127.0.0.1"
-    Public Property Port As Integer = 8080
-    Public Property Timeout As Integer = 600
-    
-    ' 其他221+参数...
-End Class
-```
+## 🎯 第八阶段：日志和监控参数（低优先级）
 
-### 命令行参数生成逻辑
-```vb
-Private Function GenerateCommandLineArguments() As String
-    Dim args As New StringBuilder()
-    
-    ' 基础参数
-    If Not String.IsNullOrEmpty(Settings.ModelPath) Then
-        args.Append($"-m ""{Settings.ModelPath}"" ")
-    End If
-    
-    ' 线程数
-    If Settings.Threads > 0 Then
-        args.Append($"-t {Settings.Threads} ")
-    End If
-    
-    ' 上下文大小
-    If Settings.CtxSize > 0 Then
-        args.Append($"-c {Settings.CtxSize} ")
-    End If
-    
-    ' 条件参数
-    If Settings.Mlock Then
-        args.Append("--mlock ")
-    End If
-    
-    ' 采样参数
-    args.Append($"--temp {Settings.Temperature} ")
-    args.Append($"--top-p {Settings.TopP} ")
-    args.Append($"--top-k {Settings.TopK} ")
-    
-    ' 网络参数
-    args.Append($"--host {Settings.Host} ")
-    args.Append($"--port {Settings.Port} ")
-    
-    Return args.ToString().Trim()
-End Function
-```
+### 8.1 日志配置 (6个参数)
+- `LogFile` - 日志文件路径 (TextBox + Browse按钮)
+- `Verbosity` - 日志详细程度 (NumericUpDown: 0-5)
+- `LogPrefix` - 日志前缀 (CheckBox)
+- `NoPerf` - 禁用性能计时 (CheckBox)
+- `Escape` - 转义序列 (CheckBox)
+- `VerbosePrompt` - 详细提示 (CheckBox)
 
-### 进程管理架构
-```vb
-Private serverProcess As Process
-Private serverRunning As Boolean = False
+### 8.2 监控功能 (4个参数)
+- `SlotSavePath` - 槽位保存路径 (TextBox + Browse按钮)
+- `SWACheckpoints` - SWA检查点数 (NumericUpDown: 1-10)
+- `CacheReuse` - 缓存重用大小 (NumericUpDown: 0-1024)
+- `SlotPromptSimilarity` - 提示相似度 (NumericUpDown: 0.0-1.0)
 
-Private Async Sub StartServer()
-    Dim args = GenerateCommandLineArguments()
-    Dim startInfo As New ProcessStartInfo(Settings.ServerPath, args) With {
-        .UseShellExecute = True,
-        .CreateNoWindow = False,
-        .WindowStyle = ProcessWindowStyle.Normal
-    }
-    
-    serverProcess = Process.Start(startInfo)
-    serverRunning = True
-    
-    Await CheckServerStatusAsync()
-End Sub
-```
+## 🎯 第九阶段：聊天和功能参数（低优先级）
 
-## 开发注意事项
+### 9.1 聊天配置 (5个参数)
+- `ChatTemplate` - 聊天模板 (ComboBox: 内置模板列表)
+- `ChatTemplateFile` - 聊天模板文件 (TextBox + Browse按钮)
+- `ChatTemplateKwargs` - 模板参数 (TextBox)
+- `ModelAlias` - 模型别名 (TextBox)
+- `NoPrefillAssistant` - 禁用助手预填充 (CheckBox)
 
-### VB.NET 编码规范
-- 使用 `Dim x As New Xxx` 而不是 `Dim x As Xxx = New Xxx`
-- 使用 `With` 关键字进行对象初始化
-- 使用 `Handles` 处理事件
-- 使用 `Async Sub` 处理异步事件
-- 遵循 Visual Basic Coding Conventions
+### 9.2 功能配置 (5个参数)
+- `ReversePrompt` - 反向提示 (TextBox)
+- `ReasoningFormat` - 推理格式 (ComboBox: auto/deepseek/none)
+- `ReasoningBudget` - 推理预算 (NumericUpDown: -1-1000)
+- `Special` - 特殊标记输出 (CheckBox)
+- `NoWarmup` - 跳过预热 (CheckBox)
+- `SpmInfill` - SPM填充模式 (CheckBox)
 
-### Avalonia UI 最佳实践
-- 使用 `x:Static` 绑定资源
-- 使用 `Grid` 和 `StackPanel` 进行布局
-- 使用 `Expander` 控件组织参数组
-- 使用 `Dispatcher.UIThread.InvokeAsync` 进行线程安全UI更新
+## 🎯 第十阶段：其他功能参数（低优先级）
 
-### 性能考虑
-- 使用异步操作避免阻塞UI线程
-- 实现适当的资源管理
-- 避免频繁的UI更新
-- 使用缓存机制优化性能
+### 10.1 MoE配置 (2个参数)
+- `CpuMoe` - MoE权重保持在CPU (CheckBox)
+- `NCpuMoe` - MoE CPU层数 (NumericUpDown: 0-100)
+- `CpuMoeDraft` - 草稿模型MoE (CheckBox)
+- `NCpuMoeDraft` - 草稿模型MoE层数 (NumericUpDown: 0-100)
 
-## 🎉 项目完成总结
+### 10.2 其他参数 (6个参数)
+- `SWAFull` - 全尺寸SWA缓存 (CheckBox)
+- `NParallel` - 并行处理数 (NumericUpDown: 1-16)
+- `Offline` - 离线模式 (CheckBox)
+- `NoContextShift` - 禁用上下文转移 (CheckBox)
+- `ContextShift` - 启用上下文转移 (CheckBox)
+- `Jinja` - Jinja模板 (CheckBox)
 
-### ✅ 核心功能实现
-- **完整的参数管理系统** - 支持所有221+个LLaMA.cpp启动参数
-- **专业UI界面** - 使用Avalonia UI构建的现代化桌面应用
-- **实时命令预览** - 参数变更时自动更新命令行显示
-- **配置持久化** - 支持设置保存和加载（JSON格式）
-- **服务器进程管理** - 启动、停止、监控LLaMA.cpp服务器
-- **国际化支持** - 完整的英文和中文资源文件
+## 实现建议
 
-### 📋 技术亮点
-- **VB.NET最佳实践** - 使用`Handles`子句进行事件处理，代码简洁高效
-- **MVVM架构** - 遵循设计模式，代码结构清晰
-- **异步编程** - 非阻塞文件操作和进程管理
-- **错误处理** - 完善的异常处理和用户提示
-- **资源管理** - 使用强类型资源类进行国际化
+### UI设计原则
+1. **分组组织**：使用Expander控件按功能分组
+2. **合理布局**：保持现有Grid布局风格
+3. **用户体验**：常用参数放在前面，高级参数可折叠
+4. **工具提示**：为每个参数添加说明性工具提示
+5. **实时预览**：保持命令预览功能实时更新
 
-### 🚀 构建状态
-- ✅ **编译成功** - 无错误，仅有一个异步方法警告（不影响功能）
-- ✅ **功能完整** - 所有核心功能均已实现并测试
-- ✅ **国际化就绪** - 支持en-US和zh-CN两种语言
+### 技术实现
+1. **数据绑定**：使用Avalonia的双向绑定
+2. **验证逻辑**：添加参数范围和格式验证
+3. **错误处理**：友好的错误提示
+4. **国际化**：所有新参数添加中英文资源
+5. **响应式设计**：确保在不同屏幕尺寸下正常显示
 
-### 📁 最终项目结构
-```
-LlamaCppServerLauncher/
-├── .gitignore                    # Visual Studio .gitignore
-├── Tasks.md                      # 项目任务和完成情况
-├── README.server.md              # LLaMA.cpp参数文档
-├── Instructions.md              # 项目要求
-├── DevNote.md                   # 技术参考
-├── LlamaCppServerLauncher.sln   # 解决方案
-└── LlamaCppServerLauncher/
-    ├── LlamaCppServerLauncher.vbproj
-    ├── Program.vb                # 应用程序入口
-    ├── App.axaml/.vb            # 应用程序类
-    ├── MainWindow.axaml/.vb     # 主窗口
-    ├── AppSettings.vb           # 配置管理
-    └── My Project/
-        ├── app.manifest         # 应用清单
-        ├── Resources.resx       # 英文资源
-        ├── Resources.zh-CN.resx # 中文资源
-        └── Resources.Designer.vb # 强类型资源类
-```
+## 预期成果
 
-**项目完成时间**: 2025年1月17日  
-**开发语言**: VB.NET (.NET 8.0)  
-**UI框架**: Avalonia UI 11.0.9  
-**构建状态**: ✅ 成功构建，所有功能可用
+实现这个计划后，将达到：
+- **95%+的参数UI覆盖**
+- **完整的功能支持**
+- **优秀的用户体验**
+- **生产环境就绪**
