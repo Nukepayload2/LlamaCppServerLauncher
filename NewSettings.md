@@ -154,7 +154,7 @@ End Class
 
 ### 第一阶段：基础类型实现
 - [ ] 创建 PrimitiveValue 结构体（BooleanValue, StringValue, DoubleValue）
-- [ ] 实现 ServerParameterMetadata 类，预加载所有参数定义
+- [ ] 实现 ServerParameterMetadata 类，预加载所有参数定义（重要：一个参数都不能落下！记得检查有没有漏掉参数！）
 - [ ] 创建 ServerParameterItem 类，实现属性变更通知
 - [ ] 实现 ServerParameterCollection 类，包含 ClearLocalValue 方法
 - [ ] 测试基础类型的属性变更通知机制
@@ -202,9 +202,4 @@ End Class
 
 ## 代码审查计划
 
-每个阶段完成后，将进行代码审查：
-1. 代码结构和设计模式审查
-2. 功能完整性测试
-3. 性能评估
-4. 用户体验测试
-5. 文档完整性检查
+每个阶段完成后，停下工作，通知用户执行代码审查
