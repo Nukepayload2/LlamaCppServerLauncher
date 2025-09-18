@@ -109,9 +109,9 @@ Public Class ServerParameterItem
         End Set
     End Property
     
-    Public Sub New(argument As String, metadata As ServerParameterMetadata)
-        Me.Argument = argument
-        Me.Metadata = metadata
+    Public Sub New()
+        ' 监听值变成非空则 HasLocalValue = true
+        AddHandler Value.PropertyChanged, AddressOf UpdateHasLocalValue
     End Sub
 End Class
 ```
@@ -122,38 +122,8 @@ End Class
 Public Class ServerParameterCollection
     Inherits ObservableCollection(Of ServerParameterItem)
     
-    Public Sub ClearLocalValue(argument As String)
-        Dim item = Me.FirstOrDefault(Function(x) x.Argument = argument)
-        If item IsNot Nothing Then
-            item.HasLocalValue = False
-            Remove(item) ' 从集合中移除
-        End If
-    End Sub
-    
-    Public Function GetParameter(argument As String) As ServerParameterItem
-        Return Me.FirstOrDefault(Function(x) x.Argument = argument)
-    End Function
-    
-    Public Sub SetParameter(argument As String, value As Object)
-        Dim metadata = ServerParameterMetadata.AllParameters.FirstOrDefault(Function(x) x.Argument = argument)
-        If metadata Is Nothing Then Return
-        
-        Dim item = GetParameter(argument)
-        If item Is Nothing Then
-            item = New ServerParameterItem(argument, metadata)
-            Add(item)
-        End If
-        
-        ' 根据 metadata.ValueType 设置适当的值
-        Select Case metadata.ValueType
-            Case GetType(Boolean)
-                item.Value = New BooleanValue With {.Value = Convert.ToBoolean(value)}
-            Case GetType(String)
-                item.Value = New StringValue With {.Value = Convert.ToString(value)}
-            Case GetType(Double)
-                item.Value = New DoubleValue With {.Value = Convert.ToDouble(value)}
-        End Select
-    End Sub
+    ' 这个命令的作用是清除命令参数 ServerParameterItem 的 HasLocalValue 并且清空 Value 里面的属性值
+    Public ReadOnly Property ClearLocalValue As ICommand = New ClearLocalValueCommand
 End Class
 ```
 
