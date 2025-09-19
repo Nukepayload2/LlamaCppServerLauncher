@@ -80,10 +80,11 @@ Public Class ServerParameterItem
         _hasLocalValue = Value.HasValue
         OnPropertyChanged(NameOf(HasLocalValue))
     End Sub
-    
+
     Public Sub ClearLocalValue()
         If _metadata IsNot Nothing Then
             SetDefaultValue(_metadata.DefaultValue)
+            Value.HasValue = False
         Else
             Value.Clear()
         End If
