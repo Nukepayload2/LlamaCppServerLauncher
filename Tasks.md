@@ -168,7 +168,11 @@ End Class
 ### 第三阶段：UI 集成 🔄 进行中
 - [ ] 完全重做 MainWindow，做成单页面不分 Tab 的布局，删掉现有的参数和绑定，只保留参数预览和启动按钮
 - [ ] 创建参数筛选界面，支持按参数名、分类、说明、是否有 LocalValue 筛选。分类是个多选 list，是否已填是个多选 list，参数名和分类合在一起用文本框筛选，做200ms防抖
-- [ ] 实现动态参数编辑器，根据 Editor 类型选择编辑用的数据模板，每个模板内部绑定的是 PrimitiveValue 的属性 
+- [x] 创建 DataTemplate 和 DataTemplateSelector 实现动态参数编辑器，根据 Editor 类型选择编辑用的数据模板。包含：
+  - ParameterEditorTemplateSelector 类实现 IDataTemplate 接口
+  - 支持 checkbox、textbox、numberupdown、filepath、directory 五种编辑器类型
+  - BrowseFilePathCommand 和 BrowseDirectoryCommand 实现文件和目录选择
+  - 使用 FuncDataTemplate 动态生成控件，每个模板内部绑定的是 PrimitiveValue 的属性 
 
 ## 完成情况总结
 

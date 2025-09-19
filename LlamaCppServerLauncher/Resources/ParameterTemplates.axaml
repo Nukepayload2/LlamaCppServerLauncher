@@ -1,0 +1,126 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="using:LlamaCppServerLauncher">
+    
+    <!-- Boolean Parameter Template (Checkbox) -->
+    <DataTemplate x:Key="BooleanParameterTemplate" DataType="local:ServerParameterItem">
+        <CheckBox Content="{Binding Metadata.Explanation}"
+                  IsChecked="{Binding Value.BooleanValue}"
+                  HorizontalAlignment="Stretch" />
+    </DataTemplate>
+    
+    <!-- String Parameter Template (TextBox) -->
+    <DataTemplate x:Key="StringParameterTemplate" DataType="local:ServerParameterItem">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="{Binding Metadata.Explanation}"
+                       Margin="0,0,10,0"
+                       VerticalAlignment="Center" />
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding Value.StringValue}"
+                     Watermark="{Binding Argument}" />
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Number Parameter Template (NumericUpDown) -->
+    <DataTemplate x:Key="NumberParameterTemplate" DataType="local:ServerParameterItem">
+        <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="{Binding Metadata.Explanation}"
+                       Margin="0,0,10,0"
+                       VerticalAlignment="Center" />
+            <NumericUpDown Grid.Row="0" Grid.Column="1"
+                           Value="{Binding Value.DoubleValue}"
+                           FormatString="0"
+                           Minimum="0"
+                           Maximum="1000000"
+                           Increment="1" />
+        </Grid>
+    </DataTemplate>
+    
+    <!-- File Path Parameter Template -->
+    <DataTemplate x:Key="FilePathParameterTemplate" DataType="local:ServerParameterItem">
+        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="{Binding Metadata.Explanation}"
+                       Margin="0,0,10,0"
+                       VerticalAlignment="Center" />
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding Value.StringValue}"
+                     Watermark="{Binding Argument}"
+                     IsReadOnly="True" />
+            <Button Grid.Row="0" Grid.Column="2"
+                    Content="Browse..."
+                    MinWidth="80"
+                    Command="{Binding BrowseFilePathCommand}" />
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Directory Parameter Template -->
+    <DataTemplate x:Key="DirectoryParameterTemplate" DataType="local:ServerParameterItem">
+        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto">
+            <TextBlock Grid.Row="0" Grid.Column="0"
+                       Text="{Binding Metadata.Explanation}"
+                       Margin="0,0,10,0"
+                       VerticalAlignment="Center" />
+            <TextBox Grid.Row="0" Grid.Column="1"
+                     Text="{Binding Value.StringValue}"
+                     Watermark="{Binding Argument}"
+                     IsReadOnly="True" />
+            <Button Grid.Row="0" Grid.Column="2"
+                    Content="Browse..."
+                    MinWidth="80"
+                    Command="{Binding BrowseDirectoryCommand}" />
+        </Grid>
+    </DataTemplate>
+    
+    <!-- Default Parameter Template -->
+    <DataTemplate x:Key="DefaultParameterTemplate" DataType="local:ServerParameterItem">
+        <ContentControl Content="{Binding}"
+                        ContentTemplate="{StaticResource StringParameterTemplate}" />
+    </DataTemplate>
+    
+    <!-- Parameter Template Selector Instance -->
+    <local:ParameterEditorTemplateSelector x:Key="ParameterEditorTemplateSelector" />
+    
+    <!-- Parameter Item Template for List View -->
+    <DataTemplate x:Key="ParameterItemTemplate" DataType="local:ServerParameterItem">
+        <Border BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4" Margin="2" Padding="8">
+            <Grid RowDefinitions="Auto,*" ColumnDefinitions="*,Auto">
+                <!-- Header with parameter name and clear button -->
+                <Grid Grid.Row="0" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto">
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding Argument}"
+                               FontWeight="Bold"
+                               FontSize="14" />
+                    <Button Grid.Column="1"
+                            Content="Clear"
+                            MinWidth="60"
+                            Classes="clear-button"
+                            Command="{Binding ClearValueCommand}"
+                            IsVisible="{Binding HasLocalValue}" />
+                </Grid>
+                
+                <!-- Parameter value editor -->
+                <ContentControl Grid.Row="1" Grid.Column="0"
+                                Content="{Binding}"
+                                ContentTemplate="{StaticResource ParameterEditorTemplateSelector}" />
+                
+                <!-- Status indicator -->
+                <StackPanel Grid.Row="1" Grid.Column="1"
+                            Orientation="Horizontal"
+                            Margin="10,0,0,0"
+                            VerticalAlignment="Center">
+                    <Ellipse Width="8" Height="8"
+                             Fill="{Binding HasLocalValue, Converter={StaticResource BooleanToBrushConverter}}"
+                             ToolTip.Tip="{Binding HasLocalValue, Converter={StaticResource BooleanToStatusConverter}}" />
+                    <TextBlock Text="{Binding Metadata.Category}"
+                               FontSize="10"
+                               Foreground="Gray"
+                               Margin="5,0,0,0" />
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+    
+</ResourceDictionary>
