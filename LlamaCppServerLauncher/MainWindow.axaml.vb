@@ -3,12 +3,10 @@
 Imports Avalonia.Controls
 Imports Avalonia.Interactivity
 Imports Avalonia.Platform.Storage
-Imports System.Globalization
+Imports System.Diagnostics
+Imports System.Threading.Tasks
 Imports System.IO
-Imports System.Text
 Imports System.Text.Json
-Imports System.ComponentModel
-Imports System.Linq
 
 #End Region
 
@@ -19,124 +17,15 @@ Partial Public Class MainWindow
 
     Private serverProcess As Process
     Private serverRunning As Boolean = False
-    Private _Settings As New AppSettings()
-    Private configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
-    Private _filterText As String = ""
-    Private _selectedCategory As String = "所有分类"
-    Private _showModifiedOnly As Boolean = False
+    Private _viewModel As New MainViewModel()
 
 #End Region
 
 #Region " Properties "
 
-    Public Property Settings As AppSettings
+    Public ReadOnly Property ViewModel As MainViewModel
         Get
-            Return _Settings
-        End Get
-        Set(value As AppSettings)
-            _Settings = value
-        End Set
-    End Property
-
-#End Region
-
-#Region " Properties "
-
-    Public Property FilterText As String
-        Get
-            Return _filterText
-        End Get
-        Set(value As String)
-            _filterText = value
-            UpdateFilteredParameters()
-        End Set
-    End Property
-
-    Public Property SelectedCategory As String
-        Get
-            Return _selectedCategory
-        End Get
-        Set(value As String)
-            _selectedCategory = value
-            UpdateFilteredParameters()
-        End Set
-    End Property
-
-    Public Property ShowModifiedOnly As Boolean
-        Get
-            Return _showModifiedOnly
-        End Get
-        Set(value As Boolean)
-            _showModifiedOnly = value
-            UpdateFilteredParameters()
-        End Set
-    End Property
-
-    Public ReadOnly Property AvailableCategories As List(Of String)
-        Get
-            If Settings.ServerParameters Is Nothing Then Return New List(Of String) From {"所有分类"}
-            
-            Dim categories = Settings.ServerParameters.Select(Function(p) p.Metadata?.Category).
-                                              Where(Function(c) Not String.IsNullOrEmpty(c)).
-                                              Distinct().
-                                              OrderBy(Function(c) c).
-                                              ToList()
-            
-            Dim result = New List(Of String) From {"所有分类"}
-            result.AddRange(categories)
-            Return result
-        End Get
-    End Property
-
-    Public ReadOnly Property FilteredParameters As List(Of ServerParameterItem)
-        Get
-            If Settings.ServerParameters Is Nothing Then Return New List(Of ServerParameterItem)()
-            
-            Dim filtered = Settings.ServerParameters.AsEnumerable()
-            
-            ' Text filter
-            If Not String.IsNullOrEmpty(FilterText) Then
-                Dim searchText = FilterText.ToLower()
-                filtered = filtered.Where(Function(p) p.Argument.ToLower().Contains(searchText) OrElse (p.Metadata?.Explanation?.ToLower().Contains(searchText) = True))
-            End If
-            
-            ' Category filter
-            If SelectedCategory <> "所有分类" Then
-                filtered = filtered.Where(Function(p) p.Metadata?.Category = SelectedCategory)
-            End If
-            
-            ' Modified only filter
-            If ShowModifiedOnly Then
-                filtered = filtered.Where(Function(p) p.HasLocalValue)
-            End If
-            
-            Return filtered.OrderBy(Function(p) p.Argument).ToList()
-        End Get
-    End Property
-
-    Public ReadOnly Property TotalParameters As Integer
-        Get
-            Return If(Settings.ServerParameters?.Count, 0)
-        End Get
-    End Property
-
-    Public ReadOnly Property ModifiedParameters As Integer
-        Get
-            Return If(Settings.ServerParameters?.Where(Function(p) p.HasLocalValue).Count(), 0)
-        End Get
-    End Property
-
-    Public ReadOnly Property DefaultParameters As Integer
-        Get
-            Return If(Settings.ServerParameters?.Where(Function(p) Not p.HasLocalValue).Count(), 0)
-        End Get
-    End Property
-
-    Public ReadOnly Property ParameterCountText As String
-        Get
-            Dim filtered = FilteredParameters.Count
-            Dim total = TotalParameters
-            Return $"显示 {filtered} / {total} 个参数"
+            Return _viewModel
         End Get
     End Property
 
@@ -146,36 +35,16 @@ Partial Public Class MainWindow
 
     Public Sub New()
         InitializeComponent()
-        DataContext = Me
-        LoadSettingsSync()
+        DataContext = ViewModel
         UpdateCommandPreview()
     End Sub
 
 #End Region
 
-
 #Region " UI Updates "
 
-    Private Sub UpdateFilteredParameters()
-        ' Properties will automatically notify due to Avalonia data binding
-        ' No need to manually call OnPropertyChanged
-    End Sub
-
     Private Sub UpdateCommandPreview()
-        Dim fullCommand As New StringBuilder()
-
-        ' Server Path
-        If Not String.IsNullOrEmpty(Settings.ServerPath) Then
-            fullCommand.Append($"""{Settings.ServerPath}""")
-        End If
-
-        ' Arguments
-        Dim args As String = GenerateCommandLineArguments()
-        If Not String.IsNullOrEmpty(args) Then
-            fullCommand.Append(" " & args)
-        End If
-
-        CommandPreviewTextBox.Text = fullCommand.ToString().Trim()
+        CommandPreviewTextBox.Text = ViewModel.UpdateCommandPreview()
     End Sub
 
 #End Region
@@ -186,14 +55,8 @@ Partial Public Class MainWindow
         UpdateCommandPreview()
     End Sub
 
-    Private Sub SearchTextBox_KeyUp(sender As Object, e As Avalonia.Input.KeyEventArgs)
-        UpdateFilteredParameters()
-    End Sub
-
     Private Sub ClearFiltersButton_Click(sender As Object, e As RoutedEventArgs)
-        FilterText = ""
-        SelectedCategory = "所有分类"
-        ShowModifiedOnly = False
+        ViewModel.ClearFilters()
     End Sub
 
     Private Async Sub BrowseServerButton_Click(sender As Object, e As RoutedEventArgs) Handles BrowseServerButton.Click
@@ -228,22 +91,6 @@ Partial Public Class MainWindow
 
 #Region " File Operations "
 
-    Private Sub LoadSettingsSync()
-        Try
-            If File.Exists(configFile) Then
-                Dim json As String = File.ReadAllText(configFile)
-                Settings = JsonSerializer.Deserialize(Of AppSettings)(json)
-                DataContext = Me ' Update DataContext
-                UpdateFilteredParameters()
-            End If
-        Catch
-            ' If loading fails, use default Settings
-            Settings = New AppSettings()
-            DataContext = Me ' Update DataContext
-            UpdateFilteredParameters()
-        End Try
-    End Sub
-
     Private Async Function BrowseForServer() As Task
         If StorageProvider IsNot Nothing Then
             Dim files As IReadOnlyList(Of IStorageFile) =
@@ -258,7 +105,7 @@ Partial Public Class MainWindow
                 })
 
             If files.Count > 0 Then
-                Settings.ServerPath = files(0).Path.LocalPath
+                ViewModel.Settings.ServerPath = files(0).Path.LocalPath
             End If
         End If
     End Function
@@ -277,7 +124,7 @@ Partial Public Class MainWindow
                 })
 
             If files.Count > 0 Then
-                Settings.ModelPath = files(0).Path.LocalPath
+                ViewModel.Settings.ModelPath = files(0).Path.LocalPath
             End If
         End If
     End Function
@@ -285,9 +132,10 @@ Partial Public Class MainWindow
     Private Async Function SaveSettings() As Task
         Dim errorMessage As String = ""
         Try
-            Dim json As String = JsonSerializer.Serialize(Settings, New JsonSerializerOptions With {
+            Dim json As String = JsonSerializer.Serialize(ViewModel.Settings, New JsonSerializerOptions With {
                 .WriteIndented = True
             })
+            Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
             Await File.WriteAllTextAsync(configFile, json)
             Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, "Success")
         Catch ex As Exception
@@ -295,7 +143,7 @@ Partial Public Class MainWindow
         End Try
 
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await MsgBoxAsync($"Error saving Settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
+            Await MsgBoxAsync($"Error saving settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
         End If
     End Function
 
@@ -304,12 +152,11 @@ Partial Public Class MainWindow
         Dim configFileExists As Boolean = False
 
         Try
+            Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
             configFileExists = File.Exists(configFile)
             If configFileExists Then
                 Dim json As String = Await File.ReadAllTextAsync(configFile)
-                Settings = JsonSerializer.Deserialize(Of AppSettings)(json)
-                DataContext = Me ' Update DataContext
-                UpdateFilteredParameters()
+                ViewModel.Settings = JsonSerializer.Deserialize(Of AppSettings)(json)
                 UpdateCommandPreview()
                 Await MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success")
             End If
@@ -318,9 +165,9 @@ Partial Public Class MainWindow
         End Try
 
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await MsgBoxAsync($"Error loading Settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
+            Await MsgBoxAsync($"Error loading settings: {errorMessage}", MsgBoxButtons.Ok, "Error")
         ElseIf Not configFileExists Then
-            Await MsgBoxAsync("No configuration file found. Using default Settings.", MsgBoxButtons.Ok, "Info")
+            Await MsgBoxAsync("No configuration file found. Using default settings.", MsgBoxButtons.Ok, "Info")
         End If
     End Function
 
@@ -336,20 +183,20 @@ Partial Public Class MainWindow
             Return
         End If
 
-        If String.IsNullOrEmpty(Settings.ServerPath) OrElse Not File.Exists(Settings.ServerPath) Then
+        If String.IsNullOrEmpty(ViewModel.Settings.ServerPath) OrElse Not File.Exists(ViewModel.Settings.ServerPath) Then
             Await MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error")
             Return
         End If
 
-        If String.IsNullOrEmpty(Settings.ModelPath) OrElse Not File.Exists(Settings.ModelPath) Then
+        If String.IsNullOrEmpty(ViewModel.Settings.ModelPath) OrElse Not File.Exists(ViewModel.Settings.ModelPath) Then
             Await MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, "Error")
             Return
         End If
 
         Try
-            Dim args As String = GenerateCommandLineArguments()
+            Dim args As String = ViewModel.UpdateCommandPreview()
 
-            Dim startInfo As New ProcessStartInfo(Settings.ServerPath, args) With {
+            Dim startInfo As New ProcessStartInfo(ViewModel.Settings.ServerPath, args) With {
                 .UseShellExecute = True,
                 .CreateNoWindow = False,
                 .WindowStyle = ProcessWindowStyle.Normal
@@ -401,52 +248,6 @@ Partial Public Class MainWindow
             StartServerButton.IsEnabled = True
             StopServerButton.IsEnabled = False
         End If
-    End Function
-
-    Private Function GenerateCommandLineArguments() As String
-        Dim args As New StringBuilder()
-
-        ' Model Path
-        If Not String.IsNullOrEmpty(Settings.ModelPath) Then
-            args.Append($"""{Settings.ModelPath}""")
-        End If
-
-        ' Generate arguments from ServerParameterCollection
-        If Settings.ServerParameters IsNot Nothing Then
-            For Each param In Settings.ServerParameters
-                If param.HasLocalValue Then
-                    Dim argument = GenerateArgumentFromParameter(param)
-                    If Not String.IsNullOrEmpty(argument) Then
-                        args.Append($" {argument}")
-                    End If
-                End If
-            Next
-        End If
-
-        Return args.ToString().Trim()
-    End Function
-
-    Private Function GenerateArgumentFromParameter(param As ServerParameterItem) As String
-        If param.Metadata Is Nothing Then Return Nothing
-
-        Select Case param.Metadata.Editor.ToLower()
-            Case "checkbox"
-                If param.Value.BooleanValue.HasValue AndAlso param.Value.BooleanValue.Value Then
-                    Return param.Argument
-                End If
-                
-            Case "numberupdown"
-                If param.Value.DoubleValue.HasValue Then
-                    Return $"{param.Argument} {param.Value.DoubleValue.Value}"
-                End If
-                
-            Case "textbox", "filepath", "directory"
-                If Not String.IsNullOrEmpty(param.Value.StringValue) Then
-                    Return $"{param.Argument} ""{param.Value.StringValue}"""
-                End If
-        End Select
-        
-        Return Nothing
     End Function
 
 #End Region
