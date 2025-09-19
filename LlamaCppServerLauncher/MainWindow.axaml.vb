@@ -55,7 +55,7 @@ Partial Public Class MainWindow
         UpdateCommandPreview()
     End Sub
 
-    Private Sub ClearFiltersButton_Click(sender As Object, e As RoutedEventArgs)
+    Private Sub ClearFiltersButton_Click(sender As Object, e As RoutedEventArgs) Handles ClearFiltersButton.Click
         ViewModel.ClearFilters()
     End Sub
 
@@ -132,7 +132,25 @@ Partial Public Class MainWindow
     Private Async Function SaveSettings() As Task
         Dim errorMessage As String = ""
         Try
-            Dim json As String = JsonSerializer.Serialize(ViewModel.Settings, New JsonSerializerOptions With {
+            ' 创建一个新的AppSettings，只保存有值的参数
+            Dim settingsToSave As New AppSettings()
+            
+            ' 复制基本设置
+            settingsToSave.ServerPath = ViewModel.Settings.ServerPath
+            settingsToSave.ModelPath = ViewModel.Settings.ModelPath
+            settingsToSave.Host = ViewModel.Settings.Host
+            settingsToSave.Port = ViewModel.Settings.Port
+            
+            ' 只保存HasLocalValue=True的参数
+            If ViewModel.Settings.ServerParameters IsNot Nothing Then
+                For Each param In ViewModel.Settings.ServerParameters
+                    If param.HasLocalValue Then
+                        settingsToSave.ServerParameters.Add(param)
+                    End If
+                Next
+            End If
+            
+            Dim json As String = JsonSerializer.Serialize(settingsToSave, New JsonSerializerOptions With {
                 .WriteIndented = True
             })
             Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
@@ -156,7 +174,47 @@ Partial Public Class MainWindow
             configFileExists = File.Exists(configFile)
             If configFileExists Then
                 Dim json As String = Await File.ReadAllTextAsync(configFile)
-                ViewModel.Settings = JsonSerializer.Deserialize(Of AppSettings)(json)
+                Dim loadedSettings As AppSettings = JsonSerializer.Deserialize(Of AppSettings)(json)
+                
+                ' 先重置当前所有参数到默认值
+                For Each existingParam In ViewModel.Settings.ServerParameters
+                    existingParam.ClearLocalValue()
+                Next
+                
+                ' 重置基本设置
+                ViewModel.Settings.ServerPath = ""
+                ViewModel.Settings.ModelPath = ""
+                ViewModel.Settings.Host = ""
+                ViewModel.Settings.Port = 8080
+                
+                ' 然后应用加载的设置
+                If loadedSettings.ServerParameters IsNot Nothing Then
+                    For Each loadedParam In loadedSettings.ServerParameters
+                        ' 找到对应的参数并更新其值
+                        Dim existingParam = ViewModel.Settings.ServerParameters.FirstOrDefault(Function(p) p.Argument = loadedParam.Argument)
+                        If existingParam IsNot Nothing Then
+                            ' 复制值而不是整个对象
+                            If loadedParam.Value.StringValue IsNot Nothing Then
+                                existingParam.Value.StringValue = loadedParam.Value.StringValue
+                            End If
+                            If loadedParam.Value.DoubleValue.HasValue Then
+                                existingParam.Value.DoubleValue = loadedParam.Value.DoubleValue.Value
+                            End If
+                            If loadedParam.Value.BooleanValue.HasValue Then
+                                existingParam.Value.BooleanValue = loadedParam.Value.BooleanValue.Value
+                            End If
+                        End If
+                    Next
+                End If
+                
+                ' 更新基本设置
+                ViewModel.Settings.ServerPath = loadedSettings.ServerPath
+                ViewModel.Settings.ModelPath = loadedSettings.ModelPath
+                ViewModel.Settings.Host = loadedSettings.Host
+                ViewModel.Settings.Port = loadedSettings.Port
+                
+                ' 触发UI更新
+                ViewModel.LoadSettingsSync()
                 UpdateCommandPreview()
                 Await MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success")
             End If
@@ -269,6 +327,10 @@ Partial Public Class MainWindow
             End If
         End If
     End Function
+
+    Private Sub MainWindow_Activated(sender As Object, e As EventArgs) Handles Me.Activated
+        ActiveWindow = Me
+    End Sub
 
 #End Region
 

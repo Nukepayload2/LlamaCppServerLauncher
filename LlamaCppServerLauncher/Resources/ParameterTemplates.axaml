@@ -4,73 +4,101 @@
 
   <!-- Boolean Parameter Template (Checkbox) -->
   <DataTemplate x:Key="BooleanParameterTemplate" DataType="local:ServerParameterItem">
-	<CheckBox Content="{Binding Metadata.Explanation}"
-			  IsChecked="{Binding Value.BooleanValue}"
-			  HorizontalAlignment="Stretch" />
+	<Grid RowDefinitions="Auto,*" Margin="0,5">
+	  <TextBlock Grid.Row="0"
+				 Text="{Binding Metadata.Explanation}"
+				 Margin="0,0,0,5"
+				 TextWrapping="Wrap"
+				 FontSize="12"
+				 Foreground="#666" />
+	  <CheckBox Grid.Row="1"
+				Content="{Binding Argument}"
+				IsChecked="{Binding Value.BooleanValue}"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Top" />
+	</Grid>
   </DataTemplate>
 
   <!-- String Parameter Template (TextBox) -->
   <DataTemplate x:Key="StringParameterTemplate" DataType="local:ServerParameterItem">
-	<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
-	  <TextBlock Grid.Row="0" Grid.Column="0"
+	<Grid RowDefinitions="Auto,*" Margin="0,5">
+	  <TextBlock Grid.Row="0"
 				 Text="{Binding Metadata.Explanation}"
-				 Margin="0,0,10,0"
-				 VerticalAlignment="Center" />
-	  <TextBox Grid.Row="0" Grid.Column="1"
+				 Margin="0,0,0,5"
+				 TextWrapping="Wrap"
+				 FontSize="12"
+				 Foreground="#666" />
+	  <TextBox Grid.Row="1"
 			   Text="{Binding Value.StringValue}"
-			   Watermark="{Binding Argument}" />
+			   Watermark="{Binding Argument}"
+			   VerticalAlignment="Top" />
 	</Grid>
   </DataTemplate>
 
   <!-- Number Parameter Template (NumericUpDown) -->
   <DataTemplate x:Key="NumberParameterTemplate" DataType="local:ServerParameterItem">
-	<Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto">
-	  <TextBlock Grid.Row="0" Grid.Column="0"
+	<Grid RowDefinitions="Auto,*" Margin="0,5">
+	  <TextBlock Grid.Row="0"
 				 Text="{Binding Metadata.Explanation}"
-				 Margin="0,0,10,0"
-				 VerticalAlignment="Center" />
-	  <NumericUpDown Grid.Row="0" Grid.Column="1"
+				 Margin="0,0,0,5"
+				 TextWrapping="Wrap"
+				 FontSize="12"
+				 Foreground="#666" />
+	  <NumericUpDown Grid.Row="1"
 					 Value="{Binding Value.DoubleValue}"
 					 FormatString="0"
 					 Minimum="0"
 					 Maximum="1000000"
-					 Increment="1" />
+					 Increment="1"
+					 VerticalAlignment="Top" />
 	</Grid>
   </DataTemplate>
 
   <!-- File Path Parameter Template -->
   <DataTemplate x:Key="FilePathParameterTemplate" DataType="local:ServerParameterItem">
-	<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto">
-	  <TextBlock Grid.Row="0" Grid.Column="0"
+	<Grid RowDefinitions="Auto,Auto" Margin="0,5">
+	  <TextBlock Grid.Row="0"
 				 Text="{Binding Metadata.Explanation}"
-				 Margin="0,0,10,0"
+				 Margin="0,0,0,5"
+				 TextWrapping="Wrap"
+				 FontSize="12"
+				 Foreground="#666" />
+	  <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+		<TextBox Grid.Column="0"
+				 Text="{Binding Value.StringValue}"
+				 Watermark="{Binding Argument}"
+				 IsReadOnly="True"
 				 VerticalAlignment="Center" />
-	  <TextBox Grid.Row="0" Grid.Column="1"
-			   Text="{Binding Value.StringValue}"
-			   Watermark="{Binding Argument}"
-			   IsReadOnly="True" />
-	  <Button Grid.Row="0" Grid.Column="2"
-			  Content="Browse..."
-			  MinWidth="80"
-			  Command="{Binding BrowseFilePathCommand}" />
+		<Button Grid.Column="1"
+				Content="Browse..."
+				MinWidth="80"
+				Margin="5,0,0,0"
+				Command="{Binding BrowseFilePathCommand}" />
+	  </Grid>
 	</Grid>
   </DataTemplate>
 
   <!-- Directory Parameter Template -->
   <DataTemplate x:Key="DirectoryParameterTemplate" DataType="local:ServerParameterItem">
-	<Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto">
-	  <TextBlock Grid.Row="0" Grid.Column="0"
+	<Grid RowDefinitions="Auto,Auto" Margin="0,5">
+	  <TextBlock Grid.Row="0"
 				 Text="{Binding Metadata.Explanation}"
-				 Margin="0,0,10,0"
+				 Margin="0,0,0,5"
+				 TextWrapping="Wrap"
+				 FontSize="12"
+				 Foreground="#666" />
+	  <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
+		<TextBox Grid.Column="0"
+				 Text="{Binding Value.StringValue}"
+				 Watermark="{Binding Argument}"
+				 IsReadOnly="True"
 				 VerticalAlignment="Center" />
-	  <TextBox Grid.Row="0" Grid.Column="1"
-			   Text="{Binding Value.StringValue}"
-			   Watermark="{Binding Argument}"
-			   IsReadOnly="True" />
-	  <Button Grid.Row="0" Grid.Column="2"
-			  Content="Browse..."
-			  MinWidth="80"
-			  Command="{Binding BrowseDirectoryCommand}" />
+		<Button Grid.Column="1"
+				Content="Browse..."
+				MinWidth="80"
+				Margin="5,0,0,0"
+				Command="{Binding BrowseDirectoryCommand}" />
+	  </Grid>
 	</Grid>
   </DataTemplate>
 

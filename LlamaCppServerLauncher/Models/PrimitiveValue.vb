@@ -45,6 +45,7 @@ Public Class PrimitiveValue
                    _doubleValue IsNot Nothing
     End Sub
 
+    <JsonIgnore>
     Public Property HasValue As Boolean
         Get
             Return _hasValue

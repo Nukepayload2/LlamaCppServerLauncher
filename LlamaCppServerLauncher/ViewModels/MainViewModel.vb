@@ -198,7 +198,7 @@ Public Class MainViewModel
     End Sub
 
     Private Sub OnDebounceTimerTick(sender As Object, e As EventArgs)
-        ' DispatcherTimer自动在UI线程上执行
+        _debounceTimer.IsEnabled = False
         UpdateFilteredParameters()
     End Sub
 

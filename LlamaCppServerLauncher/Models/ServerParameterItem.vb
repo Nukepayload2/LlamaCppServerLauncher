@@ -75,7 +75,7 @@ Public Class ServerParameterItem
                 Value.StringValue = DirectCast(defaultValue, String)
         End Select
     End Sub
-    
+
     Private Sub UpdateHasLocalValue(sender As Object, e As ComponentModel.PropertyChangedEventArgs)
         _hasLocalValue = Value.HasValue
         OnPropertyChanged(NameOf(HasLocalValue))

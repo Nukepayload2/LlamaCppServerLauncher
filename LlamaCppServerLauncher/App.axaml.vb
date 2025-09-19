@@ -22,7 +22,7 @@ Partial Public Class App
 			_MainWindow = New MainWindow
 			desktop.MainWindow = MainWindow
 		End If
-
+		My.Application = Me
 		MyBase.OnFrameworkInitializationCompleted()
 	End Sub
 End Class
