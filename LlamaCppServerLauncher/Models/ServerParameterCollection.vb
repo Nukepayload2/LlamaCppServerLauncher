@@ -3,20 +3,22 @@ Imports System.Windows.Input
 
 Public Class ServerParameterCollection
     Inherits ObservableCollection(Of ServerParameterItem)
-    
+
     Public ReadOnly Property ClearLocalValue As ICommand = New ClearLocalValueCommand(Me)
-    
+
     Public Sub New()
         MyBase.New()
-        InitializeFromMetadata()
     End Sub
-    
-    Private Sub InitializeFromMetadata()
+
+    Public Event HasLocalValuesChanged As EventHandler
+
+    Public Sub InitializeFromMetadata()
         For Each metadata In ServerParameterMetadata.AllParameters
-            Add(New ServerParameterItem(metadata.Argument))
+            Dim param As New ServerParameterItem(metadata.Argument)
+            Add(param)
         Next
     End Sub
-    
+
     Public Function GetParametersWithLocalValue() As IEnumerable(Of ServerParameterItem)
         Return Me.Where(Function(p) p.HasLocalValue)
     End Function

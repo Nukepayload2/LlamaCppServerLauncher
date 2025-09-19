@@ -6,6 +6,7 @@
     <ApplicationManifest>My Project\app.manifest</ApplicationManifest>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <RootNamespace>LlamaCppServerLauncher</RootNamespace>
+	<NoWarn></NoWarn>
   </PropertyGroup>
 
 

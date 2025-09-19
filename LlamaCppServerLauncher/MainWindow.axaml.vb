@@ -129,18 +129,22 @@ Partial Public Class MainWindow
         End If
     End Function
 
+    Private Shared ReadOnly s_saveOptions As New JsonSerializerOptions With {
+        .WriteIndented = True, .DefaultIgnoreCondition = Serialization.JsonIgnoreCondition.WhenWritingNull
+    }
+
     Private Async Function SaveSettings() As Task
         Dim errorMessage As String = ""
         Try
             ' 创建一个新的AppSettings，只保存有值的参数
             Dim settingsToSave As New AppSettings()
-            
+
             ' 复制基本设置
             settingsToSave.ServerPath = ViewModel.Settings.ServerPath
             settingsToSave.ModelPath = ViewModel.Settings.ModelPath
             settingsToSave.Host = ViewModel.Settings.Host
             settingsToSave.Port = ViewModel.Settings.Port
-            
+
             ' 只保存HasLocalValue=True的参数
             If ViewModel.Settings.ServerParameters IsNot Nothing Then
                 For Each param In ViewModel.Settings.ServerParameters
@@ -149,10 +153,8 @@ Partial Public Class MainWindow
                     End If
                 Next
             End If
-            
-            Dim json As String = JsonSerializer.Serialize(settingsToSave, New JsonSerializerOptions With {
-                .WriteIndented = True
-            })
+
+            Dim json As String = JsonSerializer.Serialize(settingsToSave, s_saveOptions)
             Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
             Await File.WriteAllTextAsync(configFile, json)
             Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, "Success")
@@ -174,19 +176,18 @@ Partial Public Class MainWindow
             configFileExists = File.Exists(configFile)
             If configFileExists Then
                 Dim json As String = Await File.ReadAllTextAsync(configFile)
-                Dim loadedSettings As AppSettings = JsonSerializer.Deserialize(Of AppSettings)(json)
-                
+                Dim loadedSettings = JsonSerializer.Deserialize(Of AppSettings.IoModel)(json)
+
                 ' 先重置当前所有参数到默认值
-                For Each existingParam In ViewModel.Settings.ServerParameters
-                    existingParam.ClearLocalValue()
-                Next
-                
+                ViewModel.Settings.ServerParameters.Clear()
+                ViewModel.Settings.ServerParameters.InitializeFromMetadata()
+
                 ' 重置基本设置
                 ViewModel.Settings.ServerPath = ""
                 ViewModel.Settings.ModelPath = ""
                 ViewModel.Settings.Host = ""
                 ViewModel.Settings.Port = 8080
-                
+
                 ' 然后应用加载的设置
                 If loadedSettings.ServerParameters IsNot Nothing Then
                     For Each loadedParam In loadedSettings.ServerParameters
@@ -206,13 +207,10 @@ Partial Public Class MainWindow
                         End If
                     Next
                 End If
-                
+
                 ' 更新基本设置
-                ViewModel.Settings.ServerPath = loadedSettings.ServerPath
-                ViewModel.Settings.ModelPath = loadedSettings.ModelPath
-                ViewModel.Settings.Host = loadedSettings.Host
-                ViewModel.Settings.Port = loadedSettings.Port
-                
+                ViewModel.Settings.NotifyBasicPropertiesChanged()
+
                 ' 触发UI更新
                 ViewModel.LoadSettingsSync()
                 UpdateCommandPreview()

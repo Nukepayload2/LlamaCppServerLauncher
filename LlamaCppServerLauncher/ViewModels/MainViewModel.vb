@@ -12,13 +12,13 @@ Public Class MainViewModel
 
 #Region " Fields "
 
-    Private _settings As New AppSettings()
+    Private _settings As AppSettings = AppSettings.WithServerParameters
     Private _filterText As String = ""
     Private _selectedCategory As String = "所有分类"
     Private _showModifiedOnly As Boolean = False
     Private _filteredParameters As List(Of ServerParameterItem)
     Private _availableCategories As List(Of String)
-    
+
     ' 防抖相关字段
     Private _debounceTimer As DispatcherTimer
     Private Const DEBOUNCE_DELAY As Integer = 300 ' 300毫秒防抖延迟
@@ -69,18 +69,18 @@ Public Class MainViewModel
     Public ReadOnly Property AvailableCategories As List(Of String)
         Get
             If _availableCategories IsNot Nothing Then Return _availableCategories
-            
+
             If Settings.ServerParameters Is Nothing Then
                 _availableCategories = New List(Of String) From {"所有分类"}
                 Return _availableCategories
             End If
-            
+
             Dim categories = Settings.ServerParameters.Select(Function(p) p.Metadata?.Category).
                                               Where(Function(c) Not String.IsNullOrEmpty(c)).
                                               Distinct().
                                               OrderBy(Function(c) c).
                                               ToList()
-            
+
             _availableCategories = New List(Of String) From {"所有分类"}
             _availableCategories.AddRange(categories)
             Return _availableCategories
@@ -90,7 +90,7 @@ Public Class MainViewModel
     Public ReadOnly Property FilteredParameters As List(Of ServerParameterItem)
         Get
             If _filteredParameters IsNot Nothing Then Return _filteredParameters
-            
+
             Return ComputeFilteredParameters()
         End Get
     End Property
@@ -128,6 +128,8 @@ Public Class MainViewModel
     Public Sub New()
         LoadSettingsSync()
         InitializeDebounceTimer()
+        ' 为所有参数订阅属性变化事件
+        SubscribeToParameterChanges()
     End Sub
 
 #End Region
@@ -138,6 +140,24 @@ Public Class MainViewModel
         FilterText = ""
         SelectedCategory = "所有分类"
         ShowModifiedOnly = False
+    End Sub
+
+    Private Sub SubscribeToParameterChanges()
+        If Settings.ServerParameters IsNot Nothing Then
+            For Each param In Settings.ServerParameters
+                AddHandler param.PropertyChanged, AddressOf OnParameterPropertyChanged
+            Next
+        End If
+    End Sub
+
+    Private Sub OnParameterPropertyChanged(sender As Object, e As PropertyChangedEventArgs)
+        ' 当参数的HasLocalValue状态变化时，更新统计属性
+        If e.PropertyName = "HasLocalValue" Then
+            OnPropertyChanged(NameOf(TotalParameters))
+            OnPropertyChanged(NameOf(ModifiedParameters))
+            OnPropertyChanged(NameOf(DefaultParameters))
+            OnPropertyChanged(NameOf(ParameterCountText))
+        End If
     End Sub
 
     Public Function UpdateCommandPreview() As String
@@ -169,17 +189,6 @@ Public Class MainViewModel
     End Function
 
     Public Sub LoadSettingsSync()
-        Try
-            Dim configFile As String = IO.Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
-            If IO.File.Exists(configFile) Then
-                Dim json As String = IO.File.ReadAllText(configFile)
-                Settings = JsonSerializer.Deserialize(Of AppSettings)(json)
-            End If
-        Catch
-            ' If loading fails, use default settings
-            Settings = New AppSettings()
-        End Try
-        
         ' Reset cached values
         _filteredParameters = Nothing
         _availableCategories = Nothing

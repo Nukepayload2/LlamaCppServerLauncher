@@ -5,31 +5,19 @@ Imports System.Windows.Input
 
 Public Class ServerParameterItem
     Inherits ObservableBase
-    
-    Private _argument As String
-    Private _hasLocalValue As Boolean = False
-    Private _metadata As ServerParameterMetadata
 
     Public Property Argument As String
-        Get
-            Return _argument
-        End Get
-        Set
-            SetProperty(_argument, Value)
-        End Set
-    End Property
 
     Public ReadOnly Property Value As New PrimitiveValue
 
     <JsonIgnore>
-    Public Property HasLocalValue As Boolean
+    Public ReadOnly Property HasLocalValue As Boolean
         Get
-            Return _hasLocalValue
+            Return Value.HasValue
         End Get
-        Private Set
-            SetProperty(_hasLocalValue, Value)
-        End Set
     End Property
+
+    Private _metadata As ServerParameterMetadata
 
     <JsonIgnore>
     Public Property Metadata As ServerParameterMetadata
@@ -53,17 +41,16 @@ Public Class ServerParameterItem
     Public Sub New(argument As String)
         _argument = argument
         _metadata = ServerParameterMetadata.GetMetadataByArgument(argument)
-        
+
         If _metadata IsNot Nothing Then
             SetDefaultValue(_metadata.DefaultValue)
         End If
-        
         AddHandler Value.PropertyChanged, AddressOf UpdateHasLocalValue
     End Sub
-    
+
     Private Sub SetDefaultValue(defaultValue As Object)
         If defaultValue Is Nothing Then Return
-        
+
         Select Case defaultValue.GetType()
             Case GetType(Boolean)
                 Value.BooleanValue = DirectCast(defaultValue, Boolean)
@@ -74,17 +61,19 @@ Public Class ServerParameterItem
             Case GetType(String)
                 Value.StringValue = DirectCast(defaultValue, String)
         End Select
+
+        Value.HasValue = False
     End Sub
 
     Private Sub UpdateHasLocalValue(sender As Object, e As ComponentModel.PropertyChangedEventArgs)
-        _hasLocalValue = Value.HasValue
-        OnPropertyChanged(NameOf(HasLocalValue))
+        If e.PropertyName = NameOf(Value.HasValue) Then
+            OnPropertyChanged(NameOf(HasLocalValue))
+        End If
     End Sub
 
     Public Sub ClearLocalValue()
         If _metadata IsNot Nothing Then
             SetDefaultValue(_metadata.DefaultValue)
-            Value.HasValue = False
         Else
             Value.Clear()
         End If
