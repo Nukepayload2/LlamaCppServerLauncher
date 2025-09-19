@@ -5,17 +5,22 @@ Public Class AppSettings
 
     Public Shared Function WithServerParameters() As AppSettings
         Dim settings As New AppSettings
-        settings.ServerParameters.InitializeFromMetadata()
+        settings.ResetToDefault()
         Return settings
     End Function
+
+    Public Sub ResetToDefault()
+        ServerParameters.Clear()
+        ServerParameters.InitializeFromMetadata()
+        _ServerParameterByName = ServerParameters.ToDictionary(Function(it) it.Argument, Function(it) it)
+    End Sub
 
     Public Class IoModel
         Public Property ServerParameters As ServerParameterItem()
     End Class
 
     Public ReadOnly Property ServerParameters As New ServerParameterCollection
-    Public ReadOnly Property ServerParameterByName As Dictionary(Of String, ServerParameterItem) =
-        ServerParameters.ToDictionary(Function(it) it.Argument, Function(it) it)
+    Public ReadOnly Property ServerParameterByName As Dictionary(Of String, ServerParameterItem)
 
     ' 便捷属性访问器
     Public Property ServerPath As String
@@ -54,33 +59,33 @@ Public Class AppSettings
         End Set
     End Property
 
-    ' 命令行生成
-    Public Function GenerateCommandLine() As String
-        Return _ServerParameters.GenerateCommandLine()
-    End Function
-
     ' 私有帮助方法
     Private Function GetParameterValue(argument As String) As String
-        Dim parameter = _ServerParameters.FirstOrDefault(Function(p) p.Argument = argument)
-        Return If(parameter IsNot Nothing AndAlso parameter.Value.StringValue IsNot Nothing,
-                   parameter.Value.StringValue, "")
+        Dim parameter As ServerParameterItem = Nothing
+        If ServerParameterByName.TryGetValue(argument, parameter) Then
+            Return If(parameter.Value.StringValue IsNot Nothing, parameter.Value.StringValue, "")
+        End If
+        Return ""
     End Function
 
     Private Function GetParameterIntegerValue(argument As String) As Integer?
-        Dim parameter = _ServerParameters.FirstOrDefault(Function(p) p.Argument = argument)
-        Return parameter.Value.DoubleValue
+        Dim parameter As ServerParameterItem = Nothing
+        If ServerParameterByName.TryGetValue(argument, parameter) Then
+            Return parameter.Value.DoubleValue
+        End If
+        Return Nothing
     End Function
 
     Private Sub SetParameterValue(argument As String, value As String)
-        Dim parameter = _ServerParameters.FirstOrDefault(Function(p) p.Argument = argument)
-        If parameter IsNot Nothing Then
+        Dim parameter As ServerParameterItem = Nothing
+        If ServerParameterByName.TryGetValue(argument, parameter) Then
             parameter.Value.StringValue = value
         End If
     End Sub
 
     Private Sub SetParameterIntegerValue(argument As String, value As Integer?)
-        Dim parameter = _ServerParameters.FirstOrDefault(Function(p) p.Argument = argument)
-        If parameter IsNot Nothing Then
+        Dim parameter As ServerParameterItem = Nothing
+        If ServerParameterByName.TryGetValue(argument, parameter) Then
             parameter.Value.DoubleValue = value
         End If
     End Sub

@@ -13,7 +13,7 @@ Public Class ParameterEditorTemplateSelector
 
         ' 从资源字典中获取对应的模板
         Dim templateKey = GetTemplateKey(item.Metadata?.Editor)
-        
+
         ' 查找资源字典中的模板
         Dim template = FindDataTemplate(templateKey)
         If template IsNot Nothing Then
@@ -22,7 +22,7 @@ Public Class ParameterEditorTemplateSelector
                 .ContentTemplate = template
             }
         End If
-        
+
         ' 如果找不到模板，返回默认的文本块
         Return New TextBlock With {.Text = $"Template not found: {templateKey}"}
     End Function
@@ -42,7 +42,7 @@ Public Class ParameterEditorTemplateSelector
         Catch ex As Exception
             ' 忽略异常，返回Nothing
         End Try
-        
+
         Return Nothing
     End Function
 

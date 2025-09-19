@@ -137,23 +137,18 @@ Partial Public Class MainWindow
         Dim errorMessage As String = ""
         Try
             ' 创建一个新的AppSettings，只保存有值的参数
-            Dim settingsToSave As New AppSettings()
-
-            ' 复制基本设置
-            settingsToSave.ServerPath = ViewModel.Settings.ServerPath
-            settingsToSave.ModelPath = ViewModel.Settings.ModelPath
-            settingsToSave.Host = ViewModel.Settings.Host
-            settingsToSave.Port = ViewModel.Settings.Port
+            Dim settingsToSave As New AppSettings.IoModel()
 
             ' 只保存HasLocalValue=True的参数
+            Dim params As New List(Of ServerParameterItem)
             If ViewModel.Settings.ServerParameters IsNot Nothing Then
                 For Each param In ViewModel.Settings.ServerParameters
                     If param.HasLocalValue Then
-                        settingsToSave.ServerParameters.Add(param)
+                        params.Add(param)
                     End If
                 Next
             End If
-
+            settingsToSave.ServerParameters = params.ToArray
             Dim json As String = JsonSerializer.Serialize(settingsToSave, s_saveOptions)
             Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
             Await File.WriteAllTextAsync(configFile, json)
@@ -179,8 +174,7 @@ Partial Public Class MainWindow
                 Dim loadedSettings = JsonSerializer.Deserialize(Of AppSettings.IoModel)(json)
 
                 ' 先重置当前所有参数到默认值
-                ViewModel.Settings.ServerParameters.Clear()
-                ViewModel.Settings.ServerParameters.InitializeFromMetadata()
+                ViewModel.Settings.ResetToDefault()
 
                 ' 重置基本设置
                 ViewModel.Settings.ServerPath = ""
@@ -192,8 +186,8 @@ Partial Public Class MainWindow
                 If loadedSettings.ServerParameters IsNot Nothing Then
                     For Each loadedParam In loadedSettings.ServerParameters
                         ' 找到对应的参数并更新其值
-                        Dim existingParam = ViewModel.Settings.ServerParameters.FirstOrDefault(Function(p) p.Argument = loadedParam.Argument)
-                        If existingParam IsNot Nothing Then
+                        Dim existingParam As ServerParameterItem = Nothing
+                        If ViewModel.Settings.ServerParameterByName.TryGetValue(loadedParam.Argument, existingParam) Then
                             ' 复制值而不是整个对象
                             If loadedParam.Value.StringValue IsNot Nothing Then
                                 existingParam.Value.StringValue = loadedParam.Value.StringValue

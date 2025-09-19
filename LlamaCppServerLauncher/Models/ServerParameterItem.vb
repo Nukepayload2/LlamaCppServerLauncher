@@ -48,6 +48,12 @@ Public Class ServerParameterItem
         AddHandler Value.PropertyChanged, AddressOf UpdateHasLocalValue
     End Sub
 
+    <JsonConstructor>
+    Public Sub New(argument As String, value As PrimitiveValue)
+        Me.Argument = argument
+        Me.Value = value
+    End Sub
+
     Private Sub SetDefaultValue(defaultValue As Object)
         If defaultValue Is Nothing Then Return
 

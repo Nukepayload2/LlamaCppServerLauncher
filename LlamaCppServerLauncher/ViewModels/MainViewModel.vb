@@ -235,8 +235,8 @@ Public Class MainViewModel
         ' Text filter
         If Not String.IsNullOrEmpty(FilterText) Then
             Dim searchText = FilterText.ToLower()
-            filtered = filtered.Where(Function(p) p.Argument.ToLower().Contains(searchText) OrElse
-                                     (p.Metadata?.Explanation?.ToLower().Contains(searchText) = True))
+            filtered = filtered.Where(Function(p) p.Argument.Contains(searchText, StringComparison.OrdinalIgnoreCase) OrElse
+                                     (p.Metadata?.Explanation?.Contains(searchText, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault)
         End If
         
         ' Category filter
