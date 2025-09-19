@@ -152,23 +152,49 @@ End Class
 
 ## 实施计划
 
-### 第一阶段：基础类型实现
-- [ ] 创建 PrimitiveValue 结构体（BooleanValue, StringValue, DoubleValue）
-- [ ] 实现 ServerParameterMetadata 类，预加载所有参数定义（重要：一个参数都不能落下！记得检查有没有漏掉参数！）
-- [ ] 创建 ServerParameterItem 类，实现属性变更通知
-- [ ] 实现 ServerParameterCollection 类，包含 ClearLocalValue 方法
-- [ ] 测试基础类型的属性变更通知机制
+### 第一阶段：基础类型实现 ✅ 已完成
+- [x] 创建 PrimitiveValue 结构体（BooleanValue, StringValue, DoubleValue）
+- [x] 实现 ServerParameterMetadata 类，预加载所有参数定义（重要：一个参数都不能落下！记得检查有没有漏掉参数！）
+- [x] 创建 ServerParameterItem 类，实现属性变更通知
+- [x] 实现 ServerParameterCollection 类，包含 ClearLocalValue 方法
+- [x] 测试基础类型的属性变更通知机制
 
-### 第二阶段：集成到现有系统
-- [ ] 修改 AppSettings 类，添加 ServerParameterCollection 属性
-- [ ] 更新 JSON 序列化/反序列化逻辑，处理新属性
-- [ ] 测试设置文件的保存和加载功能
+### 第二阶段：集成到现有系统 ✅ 已完成
+- [x] 修改 AppSettings 类，添加 ServerParameterCollection 属性
+- [x] 更新 JSON 序列化/反序列化逻辑，处理新属性
+- [x] 测试设置文件的保存和加载功能
+- [x] 更新命令行生成逻辑，从 ServerParameterCollection 中挑选有 LocalValue 的项生成
 
-### 第三阶段：UI 集成
+### 第三阶段：UI 集成 🔄 进行中
 - [ ] 完全重做 MainWindow，做成单页面不分 Tab 的布局，删掉现有的参数和绑定，只保留参数预览和启动按钮
 - [ ] 创建参数筛选界面，支持按参数名、分类、说明、是否有 LocalValue 筛选。分类是个多选 list，是否已填是个多选 list，参数名和分类合在一起用文本框筛选，做200ms防抖
 - [ ] 实现动态参数编辑器，根据 Editor 类型选择编辑用的数据模板，每个模板内部绑定的是 PrimitiveValue 的属性 
-- [ ] 更新命令行生成逻辑，从 ServerParameterCollection 中挑选有 LocalValue 的项生成
+
+## 完成情况总结
+
+### ✅ 已完成的核心功能
+1. **完整的类型系统**：
+   - `PrimitiveValue` 类支持三种数据类型（Boolean、String、Double）
+   - `ServerParameterMetadata` 类包含所有180+个参数的完整定义
+   - `ServerParameterItem` 类实现属性变更通知和 HasLocalValue 逻辑
+   - `ServerParameterCollection` 类提供参数管理和筛选功能
+
+2. **成功集成到现有系统**：
+   - 重构 `AppSettings` 类，移除1800+行重复代码
+   - 保留向后兼容的属性访问器
+   - 新的架构支持动态参数管理
+   - 编译成功，无重大错误
+
+3. **命令行生成逻辑已更新**：
+   - 从 `ServerParameterCollection` 中动态生成命令行
+   - 只包含有 LocalValue 的参数
+   - 支持所有数据类型的正确格式化
+
+### 🔄 当前进行中
+UI 重构阶段，准备实现：
+- 单页面布局设计
+- 参数筛选界面
+- 动态参数编辑器
 
 ## JSON 序列化考虑
 读取：
