@@ -4,12 +4,18 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:res="clr-namespace:LlamaCppServerLauncher.My.Resources"
         xmlns:local="clr-namespace:LlamaCppServerLauncher"
+        xmlns:converters="clr-namespace:LlamaCppServerLauncher.Converters"
         mc:Ignorable="d" d:DesignWidth="1200" d:DesignHeight="800"
         x:Class="LlamaCppServerLauncher.MainWindow"
-        x:DataType="local:AppSettings"
+        x:DataType="local:MainWindow"
         Title="{x:Static res:Resources.AppTitle}"
         Width="1200" Height="800"
         MinWidth="800" MinHeight="600">
+    
+    <Window.Resources>
+        <converters:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
+        <converters:BooleanToStatusConverter x:Key="BooleanToStatusConverter" />
+    </Window.Resources>
     
     <Grid RowDefinitions="Auto,*,Auto">
         <!-- Header -->
@@ -20,204 +26,158 @@
                        Margin="10"/>
         </Border>
         
-        <!-- Main Content -->
-        <TabControl Grid.Row="1" Margin="10">
-            <!-- Basic Settings Tab -->
-            <TabItem Header="{x:Static res:Resources.BasicSettingsTabHeader}">
-                <ScrollViewer>
-                    <StackPanel Margin="10" Spacing="10">
-                        <!-- Server Path -->
-                        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
-                            <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ServerPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBox Grid.Column="1" Text="{Binding ServerPath}" Margin="0,0,10,0"/>
-                            <Button Grid.Column="2" x:Name="BrowseServerButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
-                        </Grid>
+        <!-- Main Content Area -->
+        <Grid Grid.Row="1" ColumnDefinitions="300,*" Margin="10">
+            <!-- Left Panel - Parameter Filter and List -->
+            <Border Grid.Column="0" BorderBrush="#ddd" BorderThickness="1" CornerRadius="4">
+                <Grid RowDefinitions="Auto,*,Auto">
+                    <!-- Filter Controls -->
+                    <StackPanel Grid.Row="0" Margin="10" Spacing="10">
+                        <TextBlock Text="参数筛选" FontWeight="Bold" FontSize="14"/>
                         
-                        <!-- Model Path -->
-                        <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
-                            <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ModelPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                            <TextBox Grid.Column="1" Text="{Binding ModelPath}" Margin="0,0,10,0"/>
-                            <Button Grid.Column="2" x:Name="BrowseModelButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
-                        </Grid>
+                        <!-- Search Box -->
+                        <TextBox x:Name="SearchTextBox" 
+                                 Watermark="搜索参数名、说明..."
+                                 Text="{Binding FilterText, Mode=TwoWay}"
+                                 KeyUp="SearchTextBox_KeyUp"/>
                         
-                        <!-- Basic Parameters -->
-                        <Expander Header="{x:Static res:Resources.BasicParametersExpander}" IsExpanded="True">
-                            <StackPanel Margin="10,5" Spacing="5">
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ThreadsLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding Threads}" Minimum="1" Maximum="64" FormatString="0"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ContextSizeLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding CtxSize}" Minimum="512" Maximum="8192" FormatString="0"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.GpuLayersLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding NGpuLayers}" Minimum="0" Maximum="100" FormatString="0"/>
-                                </Grid>
-                            </StackPanel>
-                        </Expander>
+                        <!-- Category Filter -->
+                        <ComboBox x:Name="CategoryComboBox" 
+                                  Margin="0,5"
+                                  ItemsSource="{Binding AvailableCategories}"
+                                  SelectedItem="{Binding SelectedCategory}"
+                                  PlaceholderText="所有分类"/>
                         
-                        <!-- Network Settings -->
-                        <Expander Header="{x:Static res:Resources.NetworkSettingsExpander}" IsExpanded="True">
-                            <StackPanel Margin="10,5" Spacing="5">
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.HostLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <TextBox Grid.Column="1" Text="{Binding Host}"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.PortLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding Port}" Minimum="1" Maximum="65535" FormatString="0"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TimeoutLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding Timeout}" Minimum="10" Maximum="3600" FormatString="0"/>
-                                </Grid>
-                            </StackPanel>
-                        </Expander>
+                        <!-- Show Modified Only -->
+                        <CheckBox x:Name="ShowModifiedOnlyCheckBox"
+                                  Content="仅显示已修改参数"
+                                  IsChecked="{Binding ShowModifiedOnly}"
+                                  Margin="0,5"/>
+                        
+                        <!-- Clear Filters Button -->
+                        <Button x:Name="ClearFiltersButton"
+                                Content="清除筛选"
+                                Click="ClearFiltersButton_Click"
+                                HorizontalAlignment="Stretch"/>
                     </StackPanel>
-                </ScrollViewer>
-            </TabItem>
+                    
+                    <!-- Parameter List -->
+                    <ScrollViewer Grid.Row="1" Margin="10,0,10,10">
+                        <ItemsControl ItemsSource="{Binding FilteredParameters}"
+                                      ItemTemplate="{StaticResource ParameterItemTemplate}"/>
+                    </ScrollViewer>
+                    
+                    <!-- Parameter Count -->
+                    <TextBlock Grid.Row="2" 
+                               Text="{Binding ParameterCountText}"
+                               HorizontalAlignment="Center"
+                               Margin="10"
+                               Foreground="Gray"
+                               FontSize="12"/>
+                </Grid>
+            </Border>
             
-            <!-- Sampling Settings Tab -->
-            <TabItem Header="{x:Static res:Resources.SamplingSettingsTabHeader}">
-                <ScrollViewer>
-                    <StackPanel Margin="10" Spacing="10">
-                        <Expander Header="{x:Static res:Resources.SamplingParametersExpander}" IsExpanded="True">
-                            <StackPanel Margin="10,5" Spacing="5">
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TemperatureLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding Temperature}" Minimum="0" Maximum="2" Increment="0.1" FormatString="0.0"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TopPLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding TopP}" Minimum="0" Maximum="1" Increment="0.05" FormatString="0.00"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.TopKLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding TopK}" Minimum="0" Maximum="100" FormatString="0"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.RepeatPenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding RepeatPenalty}" Minimum="0" Maximum="2" Increment="0.1" FormatString="0.0"/>
-                                </Grid>
-                            </StackPanel>
-                        </Expander>
-                        
-                        <Expander Header="{x:Static res:Resources.AdvancedSamplingExpander}">
-                            <StackPanel Margin="10,5" Spacing="5">
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.MinPLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding MinP}" Minimum="0" Maximum="1" Increment="0.05" FormatString="0.00"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.PresencePenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding PresencePenalty}" Minimum="-2" Maximum="2" Increment="0.1" FormatString="0.0"/>
-                                </Grid>
-                                
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.FrequencyPenaltyLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding FrequencyPenalty}" Minimum="-2" Maximum="2" Increment="0.1" FormatString="0.0"/>
-                                </Grid>
-                            </StackPanel>
-                        </Expander>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-            
-            <!-- Advanced Settings Tab -->
-            <TabItem Header="{x:Static res:Resources.AdvancedSettingsTabHeader}">
-                <ScrollViewer>
-                    <StackPanel Margin="10" Spacing="10">
-                        <Expander Header="{x:Static res:Resources.MemoryManagementExpander}" IsExpanded="True">
-                            <StackPanel Margin="10,5" Spacing="5">
-                                <CheckBox Content="{x:Static res:Resources.MlockCheckBox}" IsChecked="{Binding Mlock}" Margin="0,3"/>
-                                <CheckBox Content="{x:Static res:Resources.NoMmapCheckBox}" IsChecked="{Binding NoMmap}" Margin="0,3"/>
-                                <CheckBox Content="{x:Static res:Resources.NoKVOffloadCheckBox}" IsChecked="{Binding NoKVOffload}" Margin="0,3"/>
-                                <CheckBox Content="{x:Static res:Resources.NoRepackCheckBox}" IsChecked="{Binding NoRepack}" Margin="0,3"/>
-                            </StackPanel>
-                        </Expander>
-                        
-                        <Expander Header="{x:Static res:Resources.CpuThreadManagementExpander}">
-                            <StackPanel Margin="10,5" Spacing="5">
-                                <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                    <TextBlock Grid.Column="0" Text="{x:Static res:Resources.BatchThreadsLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                    <NumericUpDown Grid.Column="1" Value="{Binding ThreadsBatch}" Minimum="-1" Maximum="64" FormatString="0"/>
-                                </Grid>
-                                
-                                <CheckBox Content="{x:Static res:Resources.KVUnifiedCheckBox}" IsChecked="{Binding KVUnified}" Margin="0,3"/>
-                                <CheckBox Content="{x:Static res:Resources.FlashAttentionCheckBox}" IsChecked="{Binding FlashAttention}" Margin="0,3"/>
-                            </StackPanel>
-                        </Expander>
-                        
-                        <Expander Header="{x:Static res:Resources.LoggingExpander}">
-                            <StackPanel Margin="10,5" Spacing="5">
-                                <CheckBox Content="{x:Static res:Resources.VerboseCheckBox}" IsChecked="{Binding Verbose}" Margin="0,3"/>
-                                <CheckBox Content="{x:Static res:Resources.LogColorsCheckBox}" IsChecked="{Binding LogColors}" Margin="0,3"/>
-                                <CheckBox Content="{x:Static res:Resources.LogTimestampsCheckBox}" IsChecked="{Binding LogTimestamps}" Margin="0,3"/>
-                                <CheckBox Content="{x:Static res:Resources.MetricsCheckBox}" IsChecked="{Binding Metrics}" Margin="0,3"/>
-                                <CheckBox Content="{x:Static res:Resources.SlotsCheckBox}" IsChecked="{Binding Slots}" Margin="0,3"/>
-                            </StackPanel>
-                        </Expander>
-                    </StackPanel>
-                </ScrollViewer>
-            </TabItem>
-            
-            <!-- Command Preview Tab -->
-            <TabItem Header="{x:Static res:Resources.CommandPreviewTabHeader}">
+            <!-- Right Panel - Main Settings -->
+            <ScrollViewer Grid.Column="1" Margin="10,0,0,0">
                 <StackPanel Margin="10" Spacing="10">
-                    <TextBlock Text="{x:Static res:Resources.GeneratedCommandLineLabel}" FontWeight="Bold"/>
+                    <!-- Essential Settings -->
+                    <Expander Header="基本设置" IsExpanded="True">
+                        <StackPanel Margin="10,5" Spacing="5">
+                            <!-- Server Path -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
+                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ServerPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox Grid.Column="1" Text="{Binding Settings.ServerPath}" Margin="0,0,10,0"/>
+                                <Button Grid.Column="2" x:Name="BrowseServerButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
+                            </Grid>
+                            
+                            <!-- Model Path -->
+                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
+                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ModelPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox Grid.Column="1" Text="{Binding Settings.ModelPath}" Margin="0,0,10,0"/>
+                                <Button Grid.Column="2" x:Name="BrowseModelButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
+                            </Grid>
+                            
+                            <!-- Network Settings -->
+                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.HostLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <TextBox Grid.Column="1" Text="{Binding Settings.Host}"/>
+                            </Grid>
+                            
+                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
+                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.PortLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                <NumericUpDown Grid.Column="1" Value="{Binding Settings.Port}" Minimum="1" Maximum="65535" FormatString="0"/>
+                            </Grid>
+                        </StackPanel>
+                    </Expander>
                     
-                    <!-- Update Button -->
-                    <Button x:Name="UpdateCommandPreviewButton" 
-                            Content="Update Command Preview" 
-                            HorizontalAlignment="Left"
-                            MinWidth="180"
-                            Background="#2196F3" 
-                            Foreground="White"/>
+                    <!-- Command Preview -->
+                    <Expander Header="命令预览" IsExpanded="True">
+                        <StackPanel Margin="10,5" Spacing="10">
+                            <Button x:Name="UpdateCommandPreviewButton" 
+                                    Content="更新命令预览" 
+                                    HorizontalAlignment="Left"
+                                    MinWidth="180"
+                                    Background="#2196F3" 
+                                    Foreground="White"
+                                    Click="UpdateCommandPreviewButton_Click"/>
+                            
+                            <TextBox x:Name="CommandPreviewTextBox" 
+                                     TextWrapping="Wrap" 
+                                     VerticalAlignment="Stretch"
+                                     MinHeight="150"
+                                     IsReadOnly="True"
+                                     FontFamily="Consolas, monospace"
+                                     Background="#f8f8f8"/>
+                            
+                            <Button x:Name="CopyCommandButton" 
+                                    Content="{x:Static res:Resources.CopyCommandButton}" 
+                                    HorizontalAlignment="Right"
+                                    MinWidth="120"
+                                    Click="CopyCommandButton_Click"/>
+                        </StackPanel>
+                    </Expander>
                     
-                    <!-- Command Preview Text Box -->
-                    <TextBox x:Name="CommandPreviewTextBox" 
-                             TextWrapping="Wrap" 
-                             VerticalAlignment="Stretch"
-                             MinHeight="150"
-                             IsReadOnly="True"
-                             FontFamily="Consolas, monospace"
-                             Background="#f8f8f8"/>
-                    
-                    <!-- Copy Button -->
-                    <Button x:Name="CopyCommandButton" 
-                            Content="{x:Static res:Resources.CopyCommandButton}" 
-                            HorizontalAlignment="Right"
-                            MinWidth="120"/>
+                    <!-- Statistics -->
+                    <Expander Header="参数统计" IsExpanded="False">
+                        <StackPanel Margin="10,5" Spacing="5">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="总参数数量：" Margin="0,2"/>
+                                <TextBlock Grid.Column="1" Text="{Binding TotalParameters}" Margin="0,2"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="已修改参数：" Margin="0,2"/>
+                                <TextBlock Grid.Column="1" Text="{Binding ModifiedParameters}" Margin="0,2" Foreground="Green"/>
+                            </Grid>
+                            <Grid ColumnDefinitions="Auto,*">
+                                <TextBlock Grid.Column="0" Text="默认参数：" Margin="0,2"/>
+                                <TextBlock Grid.Column="1" Text="{Binding DefaultParameters}" Margin="0,2" Foreground="Gray"/>
+                            </Grid>
+                        </StackPanel>
+                    </Expander>
                 </StackPanel>
-            </TabItem>
-        </TabControl>
+            </ScrollViewer>
+        </Grid>
         
         <!-- Footer with Controls -->
         <Border Grid.Row="2" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,1,0,0" Padding="10">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
                 <Button x:Name="StartServerButton" Content="{x:Static res:Resources.StartServerButton}" 
                         Background="#4CAF50" Foreground="White"
-                        MinWidth="120" Height="35"/>
+                        MinWidth="120" Height="35"
+                        Click="StartServerButton_Click"/>
                 <Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}" 
                         Background="#f44336" Foreground="White"
                         IsEnabled="False"
-                        MinWidth="120" Height="35"/>
+                        MinWidth="120" Height="35"
+                        Click="StopServerButton_Click"/>
                 <Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}" 
                         Background="#2196F3" Foreground="White"
-                        MinWidth="120" Height="35"/>
+                        MinWidth="120" Height="35"
+                        Click="SaveSettingsButton_Click"/>
                 <Button x:Name="LoadSettingsButton" Content="{x:Static res:Resources.LoadSettingsButton}" 
                         Background="#FF9800" Foreground="White"
-                        MinWidth="120" Height="35"/>
+                        MinWidth="120" Height="35"
+                        Click="LoadSettingsButton_Click"/>
             </StackPanel>
         </Border>
     </Grid>

@@ -3,30 +3,25 @@
              xmlns:converters="using:LlamaCppServerLauncher.Converters"
              x:Class="LlamaCppServerLauncher.App"
              RequestedThemeVariant="Default">
-             <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
+  <!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
-    <Application.DataTemplates>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceInclude Source="/Resources/ParameterTemplates.axaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Application.DataTemplates>
+  <Application.Resources>
+	<ResourceDictionary>
+	  <ResourceDictionary.MergedDictionaries>
+		<ResourceInclude Source="/Resources/ParameterTemplates.axaml" />
+	  </ResourceDictionary.MergedDictionaries>
+	  <converters:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
+	  <converters:BooleanToStatusConverter x:Key="BooleanToStatusConverter" />
+	</ResourceDictionary>
+  </Application.Resources>
 
-    <Application.Resources>
-        <ResourceDictionary>
-            <converters:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
-            <converters:BooleanToStatusConverter x:Key="BooleanToStatusConverter" />
-        </ResourceDictionary>
-    </Application.Resources>
-
-    <Application.Styles>
-        <FluentTheme />
-        <Style Selector="Button.clear-button">
-            <Setter Property="Background" Value="#FFF44336" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="Padding" Value="8,4" />
-            <Setter Property="CornerRadius" Value="4" />
-        </Style>
-    </Application.Styles>
+  <Application.Styles>
+	<FluentTheme />
+	<Style Selector="Button.clear-button">
+	  <Setter Property="Background" Value="#FFF44336" />
+	  <Setter Property="Foreground" Value="White" />
+	  <Setter Property="Padding" Value="8,4" />
+	  <Setter Property="CornerRadius" Value="4" />
+	</Style>
+  </Application.Styles>
 </Application>
