@@ -193,7 +193,7 @@ Public Class MainViewModel
 
     Private Async Sub LoadLastSettings()
         Await LoadSettingsAsync(Nothing)
-        CommandPreview = UpdateCommandPreview()
+        UpdateCommandPreview()
     End Sub
 
     Public Sub ClearFilters()
@@ -221,7 +221,8 @@ Public Class MainViewModel
     End Sub
 
     Public Function UpdateCommandPreview() As String
-        Dim fullCommand As New StringBuilder()
+        Dim fullCommand As New StringBuilder
+        Dim startParams As New StringBuilder
 
         ' Server Path
         Dim serverPathParam = Settings.ServerParameterByName("--server-path")
@@ -236,14 +237,14 @@ Public Class MainViewModel
                     Dim argument = GenerateArgumentFromParameter(param)
                     If Not String.IsNullOrEmpty(argument) Then
                         fullCommand.Append($" {argument}")
+                        startParams.Append($" {argument}")
                     End If
                 End If
             Next
         End If
 
-        Dim result = fullCommand.ToString().Trim()
-        CommandPreview = result
-        Return result
+        CommandPreview = fullCommand.ToString
+        Return startParams.ToString
     End Function
 
     Public Sub LoadSettingsSync()
@@ -338,8 +339,6 @@ Public Class MainViewModel
             cancellationToken.ThrowIfCancellationRequested()
             Dim args As String = UpdateCommandPreview()
             Dim startInfo As New ProcessStartInfo(serverPath, args) With {
-                .UseShellExecute = True,
-                .CreateNoWindow = False,
                 .WindowStyle = ProcessWindowStyle.Normal
             }
 
@@ -494,7 +493,8 @@ Public Class MainViewModel
 
     Private Async Function CopyCommandToClipboardAsync(cancellationToken As CancellationToken) As Task
         cancellationToken.ThrowIfCancellationRequested()
-        Dim commandText = UpdateCommandPreview()
+        UpdateCommandPreview()
+        Dim commandText = CommandPreview
         If Not String.IsNullOrEmpty(commandText) Then
             Dim errorMessage As String = ""
             Try
