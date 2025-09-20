@@ -246,28 +246,28 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--top-p",
-            .Explanation = "Top-p sampling | Top-p 核心采样。累积概率达到 p 的最小 token 集合中进行采样，限制候选词数量。0.9 表示从累积概率 90% 的词中选择。1.0 表示禁用。适用于控制输出的多样性。",
+            .Explanation = "Top-p sampling (default: 0.9, 1.0 = disabled) | Top-p 核心采样。累积概率达到 p 的最小 token 集合中进行采样，限制候选词数量。0.9 表示从累积概率 90% 的词中选择。1.0 表示禁用。适用于控制输出的多样性，是核采样方法。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.9
         },
         New ServerParameterMetadata With {
             .Argument = "--top-k",
-            .Explanation = "Top-k sampling | Top-k 采样。从概率最高的 k 个 token 中随机选择，限制候选词数量。较高的 k 值增加多样性，较低的 k 值使输出更集中。0 表示禁用，仅从最可能的词中选择。",
+            .Explanation = "Top-k sampling (default: 40, 0 = disabled) | Top-k 采样。从概率最高的 k 个 token 中随机选择，限制候选词数量。较高的 k 值增加多样性，较低的 k 值使输出更集中。0 表示禁用，仅从最可能的词中选择。是传统而有效的采样方法。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 40
         },
         New ServerParameterMetadata With {
             .Argument = "--min-p",
-            .Explanation = "Min-p sampling | Min-p 采样。最小概率采样，过滤掉概率低于最高概率乘以 p 的 token。可防止低质量 token 被选中，提高输出质量。0.0 表示禁用。",
+            .Explanation = "Min-p sampling (default: 0.1, 0.0 = disabled) | Min-p 采样。最小概率采样，过滤掉概率低于最高概率乘以 p 的 token。可防止低质量 token 被选中，提高输出质量。0.0 表示禁用。是一种较新的质量控制采样方法。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.1
         },
         New ServerParameterMetadata With {
             .Argument = "--top-n-sigma",
-            .Explanation = "Top-n sigma sampling | Top-n sigma 采样。基于标准差的采样方法，考虑概率分布的标准差。负值表示禁用。提供另一种控制输出多样性的方法，适用于特定场景。",
+            .Explanation = "Top-n-sigma sampling (default: -1.0, -1.0 = disabled) | Top-n sigma 采样。基于标准差的采样方法，考虑概率分布的标准差。负值表示禁用。提供另一种控制输出多样性的方法，适用于特定场景。使用统计方法进行候选token选择。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = -1.0
@@ -288,7 +288,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--typical",
-            .Explanation = "Typical sampling | 典型采样。局部典型采样，基于 token 的典型性进行选择。参数 p 控制典型性阈值。1.0 表示禁用。适用于生成更加自然和预期的文本。",
+            .Explanation = "Locally typical sampling, parameter p (default: 1.0, 1.0 = disabled) | 典型采样。局部典型采样，基于 token 的典型性进行选择。参数 p 控制典型性阈值。1.0 表示禁用。适用于生成更加自然和预期的文本，减少非常规输出。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 1.0
@@ -421,56 +421,56 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--rope-scale",
-            .Explanation = "RoPE scale factor | RoPE 缩放因子。RoPE 上下文缩放因子，将上下文扩展 N 倍。例如 2.0 表示将上下文长度翻倍。适用于处理超出原始训练长度的长文本，但可能影响性能。",
+            .Explanation = "RoPE context scaling factor, expands context by a factor of N (env: LLAMA_ARG_ROPE_SCALE) | RoPE 缩放因子。RoPE 上下文缩放因子，将上下文扩展 N 倍。例如 2.0 表示将上下文长度翻倍。适用于处理超出原始训练长度的长文本，但可能影响性能和准确性。",
             .Category = "rope",
             .Editor = "numberupdown",
             .DefaultValue = 1.0
         },
         New ServerParameterMetadata With {
             .Argument = "--rope-freq-base",
-            .Explanation = "RoPE frequency base | RoPE 频率基础。RoPE 基础频率，用于 NTK 感知缩放。默认从模型加载。影响位置编码的频率分布，可调整以适应不同的上下文扩展需求。",
+            .Explanation = "RoPE base frequency, used by NTK-aware scaling (default: loaded from model) (env: LLAMA_ARG_ROPE_FREQ_BASE) | RoPE 频率基础。RoPE 基础频率，用于 NTK 感知缩放。默认从模型加载。影响位置编码的频率分布，可调整以适应不同的上下文扩展需求。典型值在10000-100000范围内。",
             .Category = "rope",
             .Editor = "numberupdown",
             .DefaultValue = 0.0
         },
         New ServerParameterMetadata With {
             .Argument = "--rope-freq-scale",
-            .Explanation = "RoPE frequency scale | RoPE 频率缩放。RoPE 频率缩放因子，将上下文扩展 1/N 倍。与 rope-scale 相反作用，用于精细调整位置编码的缩放比例。",
+            .Explanation = "RoPE frequency scaling factor, expands context by a factor of 1/N (env: LLAMA_ARG_ROPE_FREQ_SCALE) | RoPE 频率缩放。RoPE 频率缩放因子，将上下文扩展 1/N 倍。与 rope-scale 相反作用，用于精细调整位置编码的缩放比例。可用于实现更精确的上下文扩展控制。",
             .Category = "rope",
             .Editor = "numberupdown",
             .DefaultValue = 1.0
         },
         New ServerParameterMetadata With {
             .Argument = "--yarn-orig-ctx",
-            .Explanation = "YARN original context | YARN 原始上下文。YaRN：模型的原始上下文大小，0 表示模型训练上下文大小。用于 YaRN 扩展技术，确保位置编码的正确缩放。",
+            .Explanation = "YaRN: original context size of model (default: 0 = model training context size) (env: LLAMA_ARG_YARN_ORIG_CTX) | YARN 原始上下文。YaRN：模型的原始上下文大小，0 表示模型训练上下文大小。用于 YaRN 扩展技术，确保位置编码的正确缩放。设置为0可自动从模型元数据中获取正确的上下文长度。",
             .Category = "rope",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--yarn-ext-factor",
-            .Explanation = "YARN extension factor | YARN 扩展因子。YaRN：外推混合因子，-1.0 表示默认，0.0 表示完全插值。控制 YaRN 如何处理超出原始上下文范围的内容，影响长文本处理质量。",
+            .Explanation = "YaRN: extrapolation mix factor (default: -1.0, 0.0 = full interpolation) (env: LLAMA_ARG_YARN_EXT_FACTOR) | YARN 扩展因子。YaRN：外推混合因子，-1.0 表示默认，0.0 表示完全插值。控制 YaRN 如何处理超出原始上下文范围的内容，影响长文本处理质量。负值启用外推，0.0-1.0 之间控制插值强度。",
             .Category = "rope",
             .Editor = "numberupdown",
             .DefaultValue = -1.0
         },
         New ServerParameterMetadata With {
             .Argument = "--yarn-attn-factor",
-            .Explanation = "YARN attention factor | YARN 注意力因子。YaRN：缩放 sqrt(t) 或注意力幅度。影响注意力机制在长距离上下文中的表现，控制注意力得分的缩放。",
+            .Explanation = "YaRN: scale sqrt(t) or attention magnitude (default: 1.0) (env: LLAMA_ARG_YARN_ATTN_FACTOR) | YARN 注意力因子。YaRN：缩放 sqrt(t) 或注意力幅度。影响注意力机制在长距离上下文中的表现，控制注意力得分的缩放。调整此参数可以优化长距离依赖关系的建模效果。",
             .Category = "rope",
             .Editor = "numberupdown",
             .DefaultValue = 1.0
         },
         New ServerParameterMetadata With {
             .Argument = "--yarn-beta-slow",
-            .Explanation = "YARN beta slow | YARN 慢速 beta。YaRN：高校正维度或 alpha。控制 YaRN 中较慢变化的校正参数，影响位置编码的长期行为。",
+            .Explanation = "YaRN: high correction dim or alpha (default: 1.0) (env: LLAMA_ARG_YARN_BETA_SLOW) | YARN 慢速 beta。YaRN：高校正维度或 alpha。控制 YaRN 中较慢变化的校正参数，影响位置编码的长期行为。较大的值增强长期位置编码的准确性，但可能影响短期精度。",
             .Category = "rope",
             .Editor = "numberupdown",
             .DefaultValue = 1.0
         },
         New ServerParameterMetadata With {
             .Argument = "--yarn-beta-fast",
-            .Explanation = "YARN beta fast | YARN 快速 beta。YaRN：低校正维度或 beta。控制 YaRN 中快速变化的校正参数，影响位置编码的短期精度。",
+            .Explanation = "YaRN: low correction dim or beta (default: 32.0) (env: LLAMA_ARG_YARN_BETA_FAST) | YARN 快速 beta。YaRN：低校正维度或 beta。控制 YaRN 中快速变化的校正参数，影响位置编码的短期精度。默认值 32.0 提供良好的短期精度平衡。",
             .Category = "rope",
             .Editor = "numberupdown",
             .DefaultValue = 32.0
