@@ -224,16 +224,10 @@ Public Class MainViewModel
             fullCommand.Append($"""{serverPathParam.Value.StringValue}""")
         End If
 
-        ' Model Path
-        Dim modelPathParam = Settings.ServerParameterByName("--model")
-        If modelPathParam IsNot Nothing AndAlso Not String.IsNullOrEmpty(modelPathParam.Value.StringValue) Then
-            fullCommand.Append($"""{modelPathParam.Value.StringValue}""")
-        End If
-
         ' Generate arguments from ServerParameterCollection
         If Settings.ServerParameters IsNot Nothing Then
             For Each param In Settings.ServerParameters
-                If param.HasLocalValue AndAlso param.Argument <> "--server-path" AndAlso param.Argument <> "--model" Then
+                If param.HasLocalValue AndAlso param.Argument <> "--server-path" Then
                     Dim argument = GenerateArgumentFromParameter(param)
                     If Not String.IsNullOrEmpty(argument) Then
                         fullCommand.Append($" {argument}")
