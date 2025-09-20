@@ -883,322 +883,322 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--chat-template",
-            .Explanation = "Chat template",
+            .Explanation = "Set custom jinja chat template | 设置自定义 jinja 聊天模板。指定自定义的 Jinja 聊天模板，用于格式化对话输入。如果指定了 suffix/prefix，模板将被禁用。除非在此标志前设置 --jinja，否则只接受常用的内置模板。内置模板列表：bailing, chatglm3, chatglm4, chatml, command-r, deepseek, deepseek2, deepseek3, exaone3, exaone4, falcon3, gemma, gigachat, glmedge, gpt-oss, granite, hunyuan-dense, hunyuan-moe, kimi-k2, llama2, llama2-sys, llama2-sys-bos, llama2-sys-strip, llama3, llama4, megrez, minicpm, mistral-v1, mistral-v3, mistral-v3-tekken, mistral-v7, mistral-v7-tekken, monarch, openchat, orion, phi3, phi4, rwkv-world, seed_oss, smolvlm, vicuna, vicuna-orca, yandex, zephyr",
             .Category = "chat",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--chat-template-file",
-            .Explanation = "Chat template file",
+            .Explanation = "Set custom jinja chat template file | 设置自定义 jinja 聊天模板文件。从文件加载自定义的 Jinja 聊天模板，用于格式化对话输入。如果指定了 suffix/prefix，模板将被禁用。除非在此标志前设置 --jinja，否则只接受常用的内置模板。内置模板列表：bailing, chatglm3, chatglm4, chatml, command-r, deepseek, deepseek2, deepseek3, exaone3, exaone4, falcon3, gemma, gigachat, glmedge, gpt-oss, granite, hunyuan-dense, hunyuan-moe, kimi-k2, llama2, llama2-sys, llama2-sys-bos, llama2-sys-strip, llama3, llama4, megrez, minicpm, mistral-v1, mistral-v3, mistral-v3-tekken, mistral-v7, mistral-v7-tekken, monarch, openchat, orion, phi3, phi4, rwkv-world, seed_oss, smolvlm, vicuna, vicuna-orca, yandex, zephyr",
             .Category = "chat",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--chat-template-kwargs",
-            .Explanation = "Chat template kwargs",
+            .Explanation = "Set additional params for the json template parser | 为 json 模板解析器设置额外参数。为 Jinja 模板解析器提供额外的配置参数，用于自定义模板行为和渲染选项。允许调整模板的解析方式和变量处理。",
             .Category = "chat",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--no-prefill-assistant",
-            .Explanation = "Disable prefill assistant",
+            .Explanation = "Whether to prefill the assistant's response if the last message is an assistant message | 是否在最后一条消息是助手消息时预填充助手的回复。默认启用预填充。设置此标志后，如果最后一条消息是助手消息，则将其视为完整消息而不进行预填充。适用于需要完全控制助手响应的场景。",
             .Category = "chat",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--model-alias",
-            .Explanation = "Model alias",
+            .Explanation = "Set alias for model name (to be used by REST API) | 为模型名称设置别名（供 REST API 使用）。为模型指定一个友好的别名，在 API 调用中使用此别名而不是模型文件名。便于模型管理和版本控制，支持在运行时动态切换模型。",
             .Category = "chat",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--reverse-prompt",
-            .Explanation = "Reverse prompt",
+            .Explanation = "Halt generation at PROMPT, return control in interactive mode | 在指定提示符处停止生成，在交互模式下返回控制权。当模型生成到指定的提示字符串时自动停止，适用于对话系统、代码生成等需要精确控制输出长度的场景。",
             .Category = "chat",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--special",
-            .Explanation = "Special tokens",
+            .Explanation = "Special tokens output enabled | 启用特殊 token 输出。控制是否在输出中包含特殊 token（如 BOS、EOS、PAD 等）。默认为 false。对于需要完整 token 级别控制的场景（如模型调试、数据预处理）很有用。",
             .Category = "chat",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--no-warmup",
-            .Explanation = "Disable warmup",
+            .Explanation = "Skip warming up the model with an empty run | 跳过使用空运行预热模型。在开始正式推理前跳过模型预热步骤，可加快启动速度但可能影响第一次推理的性能。适用于快速测试和开发环境。",
             .Category = "chat",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--spm-infill",
-            .Explanation = "SPM infill",
+            .Explanation = "Use Suffix/Prefix/Middle pattern for infill (instead of Prefix/Suffix/Middle) as some models prefer this | 使用 Suffix/Prefix/Middle 模式进行填充（而不是 Prefix/Suffix/Middle），因为某些模型更倾向于这种模式。默认为禁用。适用于代码补全、文本修复等填充任务，不同的模型可能需要不同的填充模式。",
             .Category = "chat",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--mmproj",
-            .Explanation = "Multimodal projection",
+            .Explanation = "Path to a multimodal projector file. see tools/mtmd/README.md. note: if -hf is used, this argument can be omitted | 多模态投影文件路径。参见 tools/mtmd/README.md。注意：如果使用 -hf 参数，此参数可以省略。多模态投影文件用于处理图像、视频等多模态输入，使模型能够理解和生成与视觉内容相关的文本响应。",
             .Category = "multimodal",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--mmproj-url",
-            .Explanation = "Multimodal projection URL",
+            .Explanation = "URL to a multimodal projector file. see tools/mtmd/README.md | 多模态投影文件 URL。参见 tools/mtmd/README.md。从网络 URL 加载多模态投影文件，支持远程部署和动态下载多模态处理组件。确保 URL 可访问且文件格式兼容。",
             .Category = "multimodal",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--no-mmproj",
-            .Explanation = "Disable multimodal projection",
+            .Explanation = "Explicitly disable multimodal projector, useful when using -hf | 显式禁用多模态投影器，在使用 -hf 时很有用。强制禁用多模态功能，即使在使用 Hugging Face 模型时也是如此。适用于纯文本推理场景，避免不必要的多模态组件加载。",
             .Category = "multimodal",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--no-mmproj-offload",
-            .Explanation = "Disable multimodal projection offload",
+            .Explanation = "Do not offload multimodal projector to GPU | 不将多模态投影器卸载到 GPU。强制多模态投影器在 CPU 上运行，避免 GPU 内存占用。在 GPU 内存有限或遇到兼容性问题时使用。可能影响性能，但提高系统稳定性。",
             .Category = "multimodal",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--pooling",
-            .Explanation = "Pooling method",
+            .Explanation = "Pooling type for embeddings, use model default if unspecified | 嵌入的池化类型，如果未指定则使用模型默认值。池化类型影响如何将 token 级别的嵌入聚合为句子级别或文档级别的表示。可选值：none（不池化）、mean（平均值池化）、cls（CLS token 池化）、last（最后一个 token 池化）、rank（排序池化）。",
             .Category = "embedding",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "embd-bge-small-en-default",
-            .Explanation = "BGE small EN default",
+            .Explanation = "Use default bge-small-en-v1.5 model (note: can download weights from the internet) | 使用默认的 bge-small-en-v1.5 模型（注意：可以从互联网下载权重）。BGE（BAAI General Embedding）是一个高质量的英文文本嵌入模型，适用于语义搜索、文本相似度计算等任务。启用后将自动下载所需模型文件。",
             .Category = "embedding",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "embd-e5-small-en-default",
-            .Explanation = "E5 small EN default",
+            .Explanation = "Use default e5-small-v2 model (note: can download weights from the internet) | 使用默认的 e5-small-v2 模型（注意：可以从互联网下载权重）。E5 是一个基于对比学习的文本嵌入模型，在各种语义相似度任务中表现优异。特别适合短文本匹配和语义检索应用。",
             .Category = "embedding",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "embd-gte-small-default",
-            .Explanation = "GTE small default",
+            .Explanation = "Use default gte-small model (note: can download weights from the internet) | 使用默认的 gte-small 模型（注意：可以从互联网下载权重）。GTE（General Text Embedding）是一个通用的文本嵌入模型，在多种语言和任务上都具有良好的性能，特别适合多语言应用场景。",
             .Category = "embedding",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--model-draft",
-            .Explanation = "Draft model",
+            .Explanation = "Draft model for speculative decoding (default: unused) | 用于投机解码的草稿模型（默认：未使用）。投机解码使用一个较小的草稿模型快速生成候选 token，然后由主模型验证，可显著提高推理速度。草稿模型应该比主模型小但质量相近，以确保较高的接受率。",
             .Category = "draft",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--ctx-size-draft",
-            .Explanation = "Draft context size",
+            .Explanation = "Size of the prompt context for the draft model (default: 0, 0 = loaded from model) | 草稿模型的提示词上下文大小（默认：0，0 = 从模型加载）。草稿模型的上下文窗口大小，可以与主模型不同。设置为 0 将从模型元数据中加载默认值。较大的上下文可能提高草稿质量但增加内存使用。",
             .Category = "draft",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--threads-draft",
-            .Explanation = "Draft threads",
+            .Explanation = "Number of threads to use during generation (default: same as --threads) | 生成期间使用的线程数（默认：与 --threads 相同）。草稿模型推理时使用的 CPU 线程数，默认与主模型线程设置相同。可以根据草稿模型的特性和系统负载进行独立调整以优化性能。",
             .Category = "draft",
             .Editor = "numberupdown",
             .DefaultValue = -1
         },
         New ServerParameterMetadata With {
             .Argument = "--threads-batch-draft",
-            .Explanation = "Draft batch threads",
+            .Explanation = "Number of threads to use during batch and prompt processing (default: same as --threads-draft) | 批处理和提示词处理期间使用的线程数（默认：与 --threads-draft 相同）。草稿模型的批处理专用线程数，默认与草稿生成线程相同。分开设置可以优化批处理和生成的性能平衡。",
             .Category = "draft",
             .Editor = "numberupdown",
             .DefaultValue = -1
         },
         New ServerParameterMetadata With {
             .Argument = "--device-draft",
-            .Explanation = "Draft device",
+            .Explanation = "Comma-separated list of devices to use for offloading the draft model (none = don't offload). Use --list-devices to see a list of available devices | 用于卸载草稿模型的逗号分隔设备列表（none = 不卸载）。使用 --list-devices 查看可用设备列表。草稿模型可以与主模型使用不同的设备配置，以优化资源利用和性能。",
             .Category = "draft",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--n-gpu-layers-draft",
-            .Explanation = "Draft GPU layers",
+            .Explanation = "Number of layers to store in VRAM for the draft model | 存储在草稿模型 VRAM 中的层数。草稿模型卸载到 GPU 的神经网络层数，可以与主模型的 GPU 层数设置不同。合理的设置可以在保证性能的同时最大化资源利用效率。",
             .Category = "draft",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--draft-max",
-            .Explanation = "Draft max",
+            .Explanation = "Number of tokens to draft for speculative decoding (default: 16) | 投机解码的草稿 token 数量（默认：16）。草稿模型单次生成的最大 token 数，影响投机解码的效率。较大的值可能提高速度但增加草稿被拒绝的风险，需要根据模型质量和应用场景进行调整。",
             .Category = "draft",
             .Editor = "numberupdown",
             .DefaultValue = 16
         },
         New ServerParameterMetadata With {
             .Argument = "--draft-min",
-            .Explanation = "Draft min",
+            .Explanation = "Minimum number of draft tokens to use for speculative decoding (default: 0) | 投机解码使用的最小草稿 token 数量（默认：0）。当草稿生成质量较低时，实际生成的 token 数量可能低于此值。设置为 0 表示不限制最小值，允许灵活的投机策略。",
             .Category = "draft",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--draft-p-min",
-            .Explanation = "Draft p min",
+            .Explanation = "Minimum speculative decoding probability (greedy) (default: 0.8) | 最小投机解码概率（贪婪模式）（默认：0.8）。草稿 token 被接受的最小概率阈值，高于此值的 token 将被接受。较高的阈值提高输出质量但可能减少速度提升，较低的阈值增加速度但可能降低质量。",
             .Category = "draft",
             .Editor = "numberupdown",
             .DefaultValue = 0.8
         },
         New ServerParameterMetadata With {
             .Argument = "--cache-type-k-draft",
-            .Explanation = "Draft cache type K",
+            .Explanation = "KV cache data type for K for the draft model. Allowed values: f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1 (default: f16) | 草稿模型的 KV 缓存 K 键数据类型。允许值：f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1（默认：f16）。草稿模型的 KV 缓存数据类型可以与主模型不同，允许在精度和内存效率间进行独立优化。",
             .Category = "draft",
             .Editor = "textbox",
             .DefaultValue = "f16"
         },
         New ServerParameterMetadata With {
             .Argument = "--cache-type-v-draft",
-            .Explanation = "Draft cache type V",
+            .Explanation = "KV cache data type for V for the draft model. Allowed values: f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1 (default: f16) | 草稿模型的 KV 缓存 V 值数据类型。允许值：f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1（默认：f16）。通常与 K 设置相同类型以保持一致性，但可以根据草稿模型的特性进行独立配置。",
             .Category = "draft",
             .Editor = "textbox",
             .DefaultValue = "f16"
         },
         New ServerParameterMetadata With {
             .Argument = "--override-tensor-draft",
-            .Explanation = "Draft override tensor",
+            .Explanation = "Override tensor buffer type for draft model | 覆盖草稿模型的张量缓冲区类型。允许为草稿模型指定不同的张量缓冲区类型，格式为 <张量名称模式>=<缓冲区类型>。可用于优化草稿模型的内存使用和计算效率，或解决兼容性问题。",
             .Category = "draft",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--spec-replace",
-            .Explanation = "Speculative replace",
+            .Explanation = "Translate the string in TARGET into DRAFT if the draft model and main model are not compatible | 如果草稿模型和主模型不兼容，将 TARGET 中的字符串翻译为 DRAFT。当草稿模型和主模型使用不同的 tokenizer 或词汇表时，此参数可用于处理 token 映射问题，确保投机解码的正确工作。",
             .Category = "draft",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--model-vocoder",
-            .Explanation = "Vocoder model",
+            .Explanation = "Vocoder model for audio generation (default: unused) | 用于音频生成的声码器模型（默认：未使用）。声码器模型将文本转换为语音，实现文本到语音（TTS）功能。需要与支持的语音合成模型配合使用，可生成自然流畅的语音输出。",
             .Category = "vocoder",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--tts-use-guide-tokens",
-            .Explanation = "TTS use guide tokens",
+            .Explanation = "Use guide tokens to improve TTS word recall | 使用引导标记改善 TTS 词召回率。在文本到语音合成中使用引导标记来提高单词识别准确性。通过在文本中添加特殊的引导标记，帮助模型更好地理解单词边界和发音，从而改善语音合成的质量。",
             .Category = "vocoder",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--swa-checkpoints",
-            .Explanation = "SWA checkpoints",
+            .Explanation = "Max number of SWA checkpoints per slot to create (default: 3). See [more info](https://github.com/ggml-org/llama.cpp/pull/15293) | 每个 slot 创建的最大 SWA 检查点数（默认：3）。[更多信息](https://github.com/ggml-org/llama.cpp/pull/15293)。滑动窗口注意力（SWA）检查点用于管理长上下文处理中的状态，更多的检查点可以提高长文本处理的连续性但增加内存使用。",
             .Category = "checkpoint",
             .Editor = "numberupdown",
             .DefaultValue = 3
         },
         New ServerParameterMetadata With {
             .Argument = "--cache-reuse",
-            .Explanation = "Cache reuse",
+            .Explanation = "Min chunk size to attempt reusing from the cache via KV shifting (default: 0). See [card](https://ggml.ai/f0.png) | 通过 KV 移位尝试重用缓存的最小块大小（默认：0）。参见[卡片](https://ggml.ai/f0.png)。缓存重用机制可以通过移动 KV 缓存来重用之前计算的状态，提高连续推理的效率，特别是在相似的提示词序列中。",
             .Category = "functionality",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--slot-prompt-similarity",
-            .Explanation = "Slot prompt similarity",
+            .Explanation = "How much the prompt of a request must match the prompt of a slot in order to use that slot (default: 0.50, 0.0 = disabled) | 请求的提示词必须与 slot 的提示词匹配的程度才能使用该 slot（默认：0.50，0.0 = 禁用）。slot 相似度阈值用于决定是否重用现有的处理 slot，较高的值提高重用的准确性但可能降低命中率，较低的值增加重用机会但可能影响质量。",
             .Category = "functionality",
             .Editor = "numberupdown",
             .DefaultValue = 0.5
         },
         New ServerParameterMetadata With {
             .Argument = "--list-devices",
-            .Explanation = "List devices",
+            .Explanation = "Print list of available devices and exit | 打印可用设备列表并退出。列出系统中所有可用于模型推理的设备（CPU、GPU 等），包括设备类型、内存信息和支持的功能。帮助用户了解可用的硬件资源和进行设备选择配置。",
             .Category = "functionality",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--help",
-            .Explanation = "Show help",
+            .Explanation = "Print usage and exit | 打印使用说明并退出。显示完整的命令行参数列表和简短描述，帮助用户了解所有可用的配置选项。包含所有参数的基本用法、默认值和简短说明，是获取帮助信息的主要方式。",
             .Category = "help",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--usage",
-            .Explanation = "Show usage",
+            .Explanation = "Print usage and exit | 打印使用说明并退出。与 --help 功能相同，显示命令行的使用方法和参数说明。提供另一种获取帮助信息的方式，确保用户能够方便地访问使用文档。",
             .Category = "help",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--version",
-            .Explanation = "Show version",
+            .Explanation = "Show version and build info | 显示版本和构建信息。输出当前软件的版本号、构建日期、提交信息等详细信息。用于版本确认、问题诊断和功能兼容性检查，确保用户了解正在使用的具体版本。",
             .Category = "help",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--completion-bash",
-            .Explanation = "Bash completion",
+            .Explanation = "Print source-able bash completion script for llama.cpp | 打印可用于 source 的 llama.cpp bash 完成脚本。输出 bash shell 的命令行自动完成脚本，可用于配置 shell 自动完成功能。提供更便捷的命令行使用体验，减少手动输入参数的工作量。",
             .Category = "help",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "fim-qwen1.5b-default",
-            .Explanation = "FIM Qwen 1.5B default",
+            .Explanation = "Use default Qwen 2.5 Coder 1.5B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 1.5B（注意：可以从互联网下载权重）。这是一个专门用于代码填充（Fill-in-the-Middle）的 1.5B 参数模型，适用于代码补全、代码修复等任务。启用后将自动下载所需模型文件。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "fim-qwen3b-default",
-            .Explanation = "FIM Qwen 3B default",
+            .Explanation = "Use default Qwen 2.5 Coder 3B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 3B（注意：可以从互联网下载权重）。这是一个 3B 参数的代码填充模型，在代码补全质量上优于 1.5B 版本，适用于更复杂的代码生成和修复任务。平衡了性能和资源使用。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "fim-qwen7b-default",
-            .Explanation = "FIM Qwen 7B default",
+            .Explanation = "Use default Qwen 2.5 Coder 7B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 7B（注意：可以从互联网下载权重）。这是一个 7B 参数的高质量代码填充模型，在代码理解、生成和修复方面具有出色的性能。适用于对代码质量要求较高的专业场景。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "fim-qwen7b-spec",
-            .Explanation = "FIM Qwen 7B spec",
+            .Explanation = "Use Qwen 2.5 Coder 7B + 0.5B draft for speculative decoding (note: can download weights from the internet) | 使用 Qwen 2.5 Coder 7B + 0.5B 草稿模型进行投机解码（注意：可以从互联网下载权重）。这是一个优化的代码填充配置，使用 7B 主模型配合 0.5B 草稿模型，通过投机解码技术显著提高推理速度，同时保持高质量的代码生成能力。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "fim-qwen14b-spec",
-            .Explanation = "FIM Qwen 14B spec",
+            .Explanation = "Use Qwen 2.5 Coder 14B + 0.5B draft for speculative decoding (note: can download weights from the internet) | 使用 Qwen 2.5 Coder 14B + 0.5B 草稿模型进行投机解码（注意：可以从互联网下载权重）。这是一个高性能的代码填充配置，使用 14B 主模型配合 0.5B 草稿模型，提供顶级的代码理解、生成和修复能力，同时通过投机解码实现快速的推理速度。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "fim-qwen30b-default",
-            .Explanation = "FIM Qwen 30B default",
+            .Explanation = "Use default Qwen 3 Coder 30B A3B Instruct (note: can download weights from the internet) | 使用默认的 Qwen 3 Coder 30B A3B Instruct（注意：可以从互联网下载权重）。这是一个超大型的 30B 参数代码模型，具有最强的代码理解和生成能力，适用于最复杂的代码任务和专业的开发场景。需要较高的硬件配置才能有效运行。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
