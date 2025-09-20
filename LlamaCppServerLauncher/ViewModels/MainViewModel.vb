@@ -159,14 +159,38 @@ Public Class MainViewModel
         End Set
     End Property
 
+    Public Property ServerRunning As Boolean
+        Get
+            Return _serverRunning
+        End Get
+        Set(value As Boolean)
+            If SetProperty(_serverRunning, value) Then
+                ' 当服务器状态变化时，更新命令的可用状态
+                UpdateCommandCanExecute()
+            End If
+        End Set
+    End Property
+
 #Region " Commands "
 
     Public ReadOnly Property UpdateCommandPreviewCommand As ICommand = New RelayCommand(Function(param, cancellationToken) UpdateCommandPreviewAsync(cancellationToken))
     Public ReadOnly Property ClearFiltersCommand As ICommand = New RelayCommand(AddressOf ClearFilters)
     Public ReadOnly Property BrowseServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForServerAsync(cancellationToken))
     Public ReadOnly Property BrowseModelCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForModelAsync(cancellationToken))
-    Public ReadOnly Property StartServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) StartServerAsync(cancellationToken))
-    Public ReadOnly Property StopServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) StopServer(cancellationToken))
+    Private ReadOnly _startServerCommand As New RelayCommand(Function(param, cancellationToken) StartServerAsync(cancellationToken), Function(param) Not ServerRunning)
+    Private ReadOnly _stopServerCommand As New RelayCommand(Function(param, cancellationToken) StopServer(cancellationToken), Function(param) ServerRunning)
+
+    Public ReadOnly Property StartServerCommand As ICommand
+        Get
+            Return _startServerCommand
+        End Get
+    End Property
+
+    Public ReadOnly Property StopServerCommand As ICommand
+        Get
+            Return _stopServerCommand
+        End Get
+    End Property
     Public ReadOnly Property SaveSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) SaveSettingsAsync(cancellationToken))
     Public ReadOnly Property LoadSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) LoadSettingsAsync(cancellationToken))
     Public ReadOnly Property CopyCommandCommand As ICommand = New RelayCommand(Function(param, cancellationToken) CopyCommandToClipboardAsync(cancellationToken))
@@ -200,6 +224,12 @@ Public Class MainViewModel
         FilterText = ""
         SelectedCategory = "所有分类"
         ShowModifiedOnly = False
+    End Sub
+
+    Private Sub UpdateCommandCanExecute()
+        ' 触发服务器控制命令的 CanExecuteChanged 事件
+        _startServerCommand.RaiseCanExecuteChanged()
+        _stopServerCommand.RaiseCanExecuteChanged()
     End Sub
 
     Private Sub SubscribeToParameterChanges()
@@ -313,7 +343,7 @@ Public Class MainViewModel
 
     Private Async Function StartServerAsync(cancellationToken As CancellationToken) As Task
         cancellationToken.ThrowIfCancellationRequested()
-        If _serverRunning Then
+        If ServerRunning Then
             Await MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning", My.Application.MainWindow)
             Return
         End If
@@ -343,7 +373,7 @@ Public Class MainViewModel
             }
 
             _serverProcess = Process.Start(startInfo)
-            _serverRunning = True
+            ServerRunning = True
 
             ' 启动状态检查定时器
             StatusCheckTimer.IsEnabled = True
@@ -358,7 +388,7 @@ Public Class MainViewModel
     End Function
 
     Private Async Function StopServer(cancel2 As CancellationToken) As Task
-        If Not _serverRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
+        If Not ServerRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
             Return
         End If
 
@@ -386,7 +416,7 @@ Public Class MainViewModel
         Catch
             ' Ignore kill errors
         Finally
-            _serverRunning = False
+            ServerRunning = False
             _serverProcess = Nothing
             ' 停止状态检查定时器
             StatusCheckTimer.IsEnabled = False
@@ -394,8 +424,8 @@ Public Class MainViewModel
     End Function
 
     Private Sub CheckServerStatus() Handles StatusCheckTimer.Tick
-        If Not _serverRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
-            _serverRunning = False
+        If Not ServerRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
+            ServerRunning = False
             _serverProcess = Nothing
             StatusCheckTimer.IsEnabled = False
         End If

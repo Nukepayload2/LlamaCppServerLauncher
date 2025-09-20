@@ -20,11 +20,11 @@
   <Grid RowDefinitions="Auto,*,Auto">
 	<!-- Header with Search -->
 	<Border Grid.Row="0" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="10">
-	  <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="2">
+	  <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="4">
 		<!-- Category Filter -->
 		<ComboBox Grid.Column="0"
 				  x:Name="CategoryComboBox"
-				  Margin="2"
+				  Margin="4"
 				  ItemsSource="{Binding AvailableCategories}"
 				  SelectedItem="{Binding SelectedCategory}"
 				  PlaceholderText="所有分类"
@@ -56,12 +56,12 @@
 	</Border>
 
 	<!-- Main Content Area -->
-	<Grid Grid.Row="1" ColumnDefinitions="*,350" Margin="10">
+	<Grid Grid.Row="1" ColumnDefinitions="*,350" Margin="8">
 	  <!-- Left Panel - Parameter List (Auto width) -->
 	  <Border Grid.Column="0" BorderBrush="#ddd" BorderThickness="1" CornerRadius="4">
 		<Grid RowDefinitions="Auto,*">
 		  <!-- Parameter List Header -->
-		  <Grid Grid.Row="0" Margin="10,10,10,5">
+		  <Grid Grid.Row="0" Margin="8,8,8,4">
 			<Grid.ColumnDefinitions>
 			  <ColumnDefinition Width="*"/>
 			  <ColumnDefinition Width="Auto"/>
@@ -80,7 +80,7 @@
 		  </Grid>
 
 		  <!-- Parameter List -->
-		  <ScrollViewer Grid.Row="1" Margin="10,0,10,10">
+		  <ScrollViewer Grid.Row="1" Margin="8,0,8,8">
 			<ItemsRepeater ItemsSource="{Binding FilteredParameters}"
 						   ItemTemplate="{StaticResource ParameterItemTemplate}"/>
 		  </ScrollViewer>
@@ -88,12 +88,12 @@
 	  </Border>
 
 	  <!-- Right Panel - Main Settings (Fixed Width) -->
-	  <ScrollViewer Grid.Column="1" Margin="10,0,0,0">
-		<StackPanel Margin="10" Spacing="10">
+	  <ScrollViewer Grid.Column="1">
+		<StackPanel Margin="8,0,0,0" Spacing="8">
 
 		  <!-- Command Preview -->
 		  <Expander Header="命令预览" IsExpanded="True" HorizontalAlignment="Stretch">
-			<StackPanel Margin="10,5" Spacing="10">
+			<StackPanel Margin="8,4" Spacing="8">
 			  <Button x:Name="UpdateCommandPreviewButton"
 					  Content="更新命令预览"
 					  HorizontalAlignment="Left"
@@ -102,7 +102,7 @@
 			  <TextBox Text="{Binding CommandPreview}"
 					   TextWrapping="Wrap"
 					   VerticalAlignment="Stretch"
-					   MinHeight="150"
+					   MinHeight="152"
 					   IsReadOnly="True"
 					   FontFamily="Consolas, monospace"
 					   Background="#f8f8f8"/>
@@ -116,7 +116,7 @@
 
 		  <!-- Statistics -->
 		  <Expander Header="参数统计" IsExpanded="True" HorizontalAlignment="Stretch">
-			<StackPanel Margin="10,5" Spacing="5">
+			<StackPanel Margin="8,4" Spacing="4">
 			  <Grid ColumnDefinitions="Auto,*">
 				<TextBlock Grid.Column="0" Text="总参数数量：" Margin="0,2"/>
 				<TextBlock Grid.Column="1" Text="{Binding TotalParameters}" Margin="0,2"/>
@@ -137,13 +137,12 @@
 
 	<!-- Footer with Controls -->
 	<Border Grid.Row="2" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,1,0,0" Padding="10">
-	  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+	  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
 		<Button x:Name="StartServerButton" Content="{x:Static res:Resources.StartServerButton}"
 				Background="#4CAF50" Foreground="White"
 				Command="{Binding StartServerCommand}"/>
 		<Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}"
 				Background="#f44336" Foreground="White"
-				IsEnabled="False"
 				Command="{Binding StopServerCommand}"/>
 		<Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}"
 				Command="{Binding SaveSettingsCommand}"/>

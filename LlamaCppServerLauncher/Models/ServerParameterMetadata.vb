@@ -476,7 +476,7 @@ Public Class ServerParameterMetadata
             .DefaultValue = 32.0
         },
         New ServerParameterMetadata With {
-            .Argument = "--flash-attn",
+            .Argument = "--flash-attn on",
             .Explanation = "Enable flash attention | 启用 Flash Attention。启用 Flash Attention 优化算法，显著提高注意力计算效率，减少内存使用和计算时间。需要硬件支持，可大幅提升长文本处理性能。",
             .Category = "hardware",
             .Editor = "checkbox",
