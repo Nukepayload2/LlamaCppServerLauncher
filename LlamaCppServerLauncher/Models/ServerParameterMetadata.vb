@@ -106,7 +106,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--numa",
-            .Explanation = "attempt optimizations that help on some NUMA systems - distribute, isolate, numactl | NUMA 配置。尝试在某些 NUMA 系统上进行优化：distribute（均匀分布）、isolate（仅限起始节点）、numactl（使用 numactl 提供的 CPU 映射）。适合多 CPU 架构优化。",
+            .Explanation = "attempt optimizations that help on some NUMA systems - distribute: spread execution evenly over all nodes - isolate: only spawn threads on CPUs on the node that execution started on - numactl: use the CPU map provided by numactl | NUMA 配置。尝试在某些 NUMA 系统上进行优化：distribute（均匀分布）、isolate（仅限起始节点）、numactl（使用 numactl 提供的 CPU 映射）。适合多 CPU 架构优化。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
@@ -540,7 +540,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--override-kv",
-            .Explanation = "Override KV cache | 覆盖 KV 缓存。高级选项，按键覆盖模型元数据。可多次指定。类型：int、float、bool、str。示例：--override-kv tokenizer.ggml.add_bos_token=bool:false。用于自定义模型行为和配置。",
+            .Explanation = "advanced option to override model metadata by key. may be specified multiple times. types: int, float, bool, str. example: --override-kv tokenizer.ggml.add_bos_token=bool:false | 覆盖 KV 缓存。高级选项，按键覆盖模型元数据。可多次指定。类型：int、float、bool、str。示例：--override-kv tokenizer.ggml.add_bos_token=bool:false。用于自定义模型行为和配置。",
             .Category = "model",
             .Editor = "textbox",
             .DefaultValue = ""
@@ -554,7 +554,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--keep",
-            .Explanation = "Keep model in memory | 保留初始提示 token 数量。从初始提示中保留的 token 数量，0 表示不保留，-1 表示全部保留。用于维护对话上下文和状态，确保连贯的交互体验。",
+            .Explanation = "number of tokens to keep from the initial prompt (default: 0, -1 = all) | 保留初始提示 token 数量。从初始提示中保留的 token 数量，0 表示不保留，-1 表示全部保留。用于维护对话上下文和状态，确保连贯的交互体验。",
             .Category = "model",
             .Editor = "numberupdown",
             .DefaultValue = 0
@@ -631,56 +631,56 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--log-disable",
-            .Explanation = "Disable logging | 禁用日志记录。完全禁用所有日志输出，减少控制台噪音和提高性能。在生产环境中可能有用，但会影响问题诊断和监控能力。",
+            .Explanation = "Log disable | 禁用日志记录。完全禁用所有日志输出，减少控制台噪音和提高性能。在生产环境中可能有用，但会影响问题诊断和监控能力。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--log-file",
-            .Explanation = "Log file path | 日志文件路径。将日志输出重定向到指定文件，便于长期保存和分析日志。支持日志轮转和归档，适合生产环境部署和问题追踪。",
+            .Explanation = "Log to file | 日志文件路径。将日志输出重定向到指定文件，便于长期保存和分析日志。支持日志轮转和归档，适合生产环境部署和问题追踪。",
             .Category = "logging",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--log-colors",
-            .Explanation = "Enable log colors | 启用日志颜色。为不同级别的日志消息添加颜色，提高可读性和快速识别问题。在支持颜色的终端中特别有用，便于快速定位错误和警告信息。",
+            .Explanation = "Enable colored logging | 启用日志颜色。为不同级别的日志消息添加颜色，提高可读性和快速识别问题。在支持颜色的终端中特别有用，便于快速定位错误和警告信息。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--verbose",
-            .Explanation = "Verbose logging | 详细日志记录。将详细级别设置为无限（即记录所有消息），适用于调试。提供最详细的内部状态信息，帮助诊断复杂问题。",
+            .Explanation = "Set verbosity level to infinity (i.e. log all messages, useful for debugging) | 详细日志记录。将详细级别设置为无限（即记录所有消息），适用于调试。提供最详细的内部状态信息，帮助诊断复杂问题。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--offline",
-            .Explanation = "Offline mode | 离线模式。强制使用缓存，防止网络访问。适用于网络受限环境或确保完全本地运行，避免意外下载或外部依赖。",
+            .Explanation = "Offline mode: forces use of cache, prevents network access | 离线模式。强制使用缓存，防止网络访问。适用于网络受限环境或确保完全本地运行，避免意外下载或外部依赖。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--verbosity",
-            .Explanation = "Verbosity level | 详细级别。设置详细程度阈值，高于此级别的消息将被忽略。提供精细的日志级别控制，平衡信息量和性能影响。",
+            .Explanation = "Set the verbosity threshold. Messages with a higher verbosity will be ignored. | 详细级别。设置详细程度阈值，高于此级别的消息将被忽略。提供精细的日志级别控制，平衡信息量和性能影响。",
             .Category = "logging",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--log-prefix",
-            .Explanation = "Log prefix | 日志前缀。在日志消息中启用前缀，包含时间戳、级别等信息。提高日志的结构化和可读性，便于日志分析和过滤。",
+            .Explanation = "Enable prefix in log messages | 日志前缀。在日志消息中启用前缀，包含时间戳、级别等信息。提高日志的结构化和可读性，便于日志分析和过滤。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--log-timestamps",
-            .Explanation = "Log timestamps | 日志时间戳。在日志消息中启用时间戳，记录事件发生的精确时间。对于性能分析、问题追踪和审计日志非常重要。",
+            .Explanation = "Enable timestamps in log messages | 日志时间戳。在日志消息中启用时间戳，记录事件发生的精确时间。对于性能分析、问题追踪和审计日志非常重要。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -722,133 +722,133 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--path",
-            .Explanation = "Server path | 服务器路径。提供静态文件的路径，用于 Web UI 和其他静态资源。空值表示不提供静态文件服务。支持相对路径和绝对路径。",
+            .Explanation = "path to serve static files from (default: ) | 服务器路径。提供静态文件的路径，用于 Web UI 和其他静态资源。空值表示不提供静态文件服务。支持相对路径和绝对路径。",
             .Category = "network",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--api-prefix",
-            .Explanation = "API prefix | API 前缀。服务器提供 API 的前缀路径，不包含尾部斜杠。用于路径组织和反向代理配置，支持多个服务在同一域名下运行。",
+            .Explanation = "prefix path the server serves from, without the trailing slash (default: ) | API 前缀。服务器提供 API 的前缀路径，不包含尾部斜杠。用于路径组织和反向代理配置，支持多个服务在同一域名下运行。",
             .Category = "network",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--timeout",
-            .Explanation = "Timeout | 超时时间。服务器读/写超时时间（秒），默认为 600 秒（10分钟）。控制请求和响应的最大等待时间，防止长时间挂起的连接。",
+            .Explanation = "server read/write timeout in seconds (default: 600) | 超时时间。服务器读/写超时时间（秒），默认为 600 秒（10分钟）。控制请求和响应的最大等待时间，防止长时间挂起的连接。",
             .Category = "network",
             .Editor = "numberupdown",
             .DefaultValue = 600
         },
         New ServerParameterMetadata With {
             .Argument = "--threads-http",
-            .Explanation = "HTTP threads | HTTP 线程。用于处理 HTTP 请求的线程数，-1 表示自动检测。影响服务器的并发处理能力，较高的值支持更多同时连接但增加资源使用。",
+            .Explanation = "number of threads used to process HTTP requests (default: -1) | HTTP 线程。用于处理 HTTP 请求的线程数，-1 表示自动检测。影响服务器的并发处理能力，较高的值支持更多同时连接但增加资源使用。",
             .Category = "network",
             .Editor = "numberupdown",
             .DefaultValue = -1
         },
         New ServerParameterMetadata With {
             .Argument = "--no-webui",
-            .Explanation = "Disable web UI | 禁用 Web UI。禁用内置的 Web 用户界面，仅提供 API 服务。减少资源占用和攻击面，适用于纯 API 使用场景或与其他前端集成的部署。",
+            .Explanation = "Disable the Web UI (default: enabled) | 禁用 Web UI。禁用内置的 Web 用户界面，仅提供 API 服务。减少资源占用和攻击面，适用于纯 API 使用场景或与其他前端集成的部署。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--embeddings",
-            .Explanation = "Enable embeddings | 启用嵌入。仅支持嵌入使用场景，仅适用于专用嵌入模型。提供文本嵌入向量生成功能，用于相似性搜索、聚类和语义理解等任务。",
+            .Explanation = "restrict to only support embedding use case; use only with dedicated embedding models | 启用嵌入。仅支持嵌入使用场景，仅适用于专用嵌入模型。提供文本嵌入向量生成功能，用于相似性搜索、聚类和语义理解等任务。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--reranking",
-            .Explanation = "Enable reranking | 启用重排序。在服务器上启用重排序端点，用于改进搜索结果排序。提供文档重排序功能，提高检索系统的准确性和相关性。",
+            .Explanation = "enable reranking endpoint on server | 启用重排序。在服务器上启用重排序端点，用于改进搜索结果排序。提供文档重排序功能，提高检索系统的准确性和相关性。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--api-key",
-            .Explanation = "API key | API 密钥。用于身份验证的 API 密钥，默认为无。保护服务器免受未授权访问的重要安全措施。建议在生产环境中设置强密钥。",
+            .Explanation = "API key to use for authentication (default: none) | API 密钥。用于身份验证的 API 密钥，默认为无。保护服务器免受未授权访问的重要安全措施。建议在生产环境中设置强密钥。",
             .Category = "server",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--api-key-file",
-            .Explanation = "API key file | API 密钥文件。包含 API 密钥的文件路径，支持多个密钥管理。提供更安全的密钥存储方式，避免在命令行中暴露敏感信息。",
+            .Explanation = "path to file containing API keys (default: none) | API 密钥文件。包含 API 密钥的文件路径，支持多个密钥管理。提供更安全的密钥存储方式，避免在命令行中暴露敏感信息。",
             .Category = "server",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--ssl-key-file",
-            .Explanation = "SSL key file | SSL 密钥文件。PEM 编码的 SSL 私钥文件路径。启用 HTTPS 加密通信，保护数据传输安全。需要与 SSL 证书文件配合使用。",
+            .Explanation = "path to file a PEM-encoded SSL private key | SSL 密钥文件。PEM 编码的 SSL 私钥文件路径。启用 HTTPS 加密通信，保护数据传输安全。需要与 SSL 证书文件配合使用。",
             .Category = "server",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--ssl-cert-file",
-            .Explanation = "SSL certificate file | SSL 证书文件。PEM 编码的 SSL 证书文件路径。启用 HTTPS 安全连接，验证服务器身份。建议使用受信任 CA 签发的证书。",
+            .Explanation = "path to file a PEM-encoded SSL certificate | SSL 证书文件。PEM 编码的 SSL 证书文件路径。启用 HTTPS 安全连接，验证服务器身份。建议使用受信任 CA 签发的证书。",
             .Category = "server",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--cont-batching",
-            .Explanation = "Enable continuous batching | 启用连续批处理。启用连续批处理（也称为动态批处理），提高多用户场景下的吞吐量和资源利用率。默认启用，是现代 LLM 服务的标准配置。",
+            .Explanation = "enable continuous batching (a.k.a dynamic batching) (default: enabled) | 启用连续批处理。启用连续批处理（也称为动态批处理），提高多用户场景下的吞吐量和资源利用率。默认启用，是现代 LLM 服务的标准配置。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = True
         },
         New ServerParameterMetadata With {
             .Argument = "--no-cont-batching",
-            .Explanation = "Disable continuous batching | 禁用连续批处理。禁用连续批处理，回退到传统批处理模式。可能在某些特定场景下需要，但通常会降低整体性能。",
+            .Explanation = "disable continuous batching | 禁用连续批处理。禁用连续批处理，回退到传统批处理模式。可能在某些特定场景下需要，但通常会降低整体性能。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--props",
-            .Explanation = "Enable properties | 启用属性。启用通过 POST /props 更改全局属性的端点。允许运行时配置调整，提供动态参数管理能力。",
+            .Explanation = "enable changing global properties via POST /props (default: disabled) | 启用属性。启用通过 POST /props 更改全局属性的端点。允许运行时配置调整，提供动态参数管理能力。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--metrics",
-            .Explanation = "Enable metrics | 启用指标。启用与 Prometheus 兼容的指标端点，提供性能监控数据。便于集成到监控系统中，实现实时性能跟踪和告警。",
+            .Explanation = "enable prometheus compatible metrics endpoint (default: disabled) | 启用指标。启用与 Prometheus 兼容的指标端点，提供性能监控数据。便于集成到监控系统中，实现实时性能跟踪和告警。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--slots",
-            .Explanation = "Enable slots | 启用槽位。启用槽位监控端点，提供处理槽位的实时状态信息。默认启用，对于监控和调试多用户并发处理非常重要。",
+            .Explanation = "enable slots monitoring endpoint (default: enabled) | 启用槽位。启用槽位监控端点，提供处理槽位的实时状态信息。默认启用，对于监控和调试多用户并发处理非常重要。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = True
         },
         New ServerParameterMetadata With {
             .Argument = "--no-slots",
-            .Explanation = "Disable slots | 禁用槽位。禁用槽位监控端点，减少监控开销但失去处理状态可见性。在不需要监控的简单部署中可考虑使用。",
+            .Explanation = "disables slots monitoring endpoint | 禁用槽位。禁用槽位监控端点，减少监控开销但失去处理状态可见性。在不需要监控的简单部署中可考虑使用。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--slot-save-path",
-            .Explanation = "Slot save path | 槽位保存路径。保存槽位 KV 缓存的路径，默认禁用。支持持久化处理状态，实现会话恢复和状态保持功能。",
+            .Explanation = "path to save slot kv cache (default: disabled) | 槽位保存路径。保存槽位 KV 缓存的路径，默认禁用。支持持久化处理状态，实现会话恢复和状态保持功能。",
             .Category = "server",
             .Editor = "directory",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--jinja",
-            .Explanation = "Enable Jinja templating | 启用 Jinja 模板。使用 Jinja 模板进行聊天，提供更灵活的提示模板支持。允许自定义复杂的提示构建逻辑，满足特定对话需求。",
+            .Explanation = "use jinja template for chat (default: disabled) | 启用 Jinja 模板。使用 Jinja 模板进行聊天，提供更灵活的提示模板支持。允许自定义复杂的提示构建逻辑，满足特定对话需求。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
