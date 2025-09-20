@@ -71,42 +71,42 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--main-gpu",
-            .Explanation = "the GPU to use for the model (with split-mode = none), or for intermediate results and KV (with split-mode = row) (default: 0) | 主 GPU 设备。当 split-mode 为 none 时使用的 GPU，或当 split-mode 为 row 时存储中间结果和 KV 缓存的 GPU。默认为 0。多 GPU 系统中用于负载均衡。",
+            .Explanation = "The GPU to use for the model (with split-mode = none), or for intermediate results and KV (with split-mode = row) (default: 0) | 主 GPU 设备。当 split-mode 为 none 时使用的 GPU，或当 split-mode 为 row 时存储中间结果和 KV 缓存的 GPU。默认为 0。多 GPU 系统中用于负载均衡。",
             .Category = "hardware",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--tensor-split",
-            .Explanation = "fraction of the model to offload to each GPU, comma-separated list of proportions, e.g. 3,1 | 张量分割配置。指定将模型分配到多个 GPU 的比例，逗号分隔的比例列表。例如 '3,1' 表示 GPU 0 分配 75%，GPU 1 分配 25%。用于多 GPU 分布式推理。",
+            .Explanation = "Fraction of the model to offload to each GPU, comma-separated list of proportions, e.g. 3,1 | 张量分割配置。指定将模型分配到多个 GPU 的比例，逗号分隔的比例列表。例如 '3,1' 表示 GPU 0 分配 75%，GPU 1 分配 25%。用于多 GPU 分布式推理。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--split-mode",
-            .Explanation = "how to split the model across multiple GPUs, one of: none (use one GPU only), layer (default), row | 张量分割模式。控制如何在多个 GPU 间分割模型：none（单 GPU）、layer（默认，层分割）、row（行分割）。影响多 GPU 性能和内存使用。",
+            .Explanation = "How to split the model across multiple GPUs, one of: none (use one GPU only), layer (default), row | 张量分割模式。控制如何在多个 GPU 间分割模型：none（单 GPU）、layer（默认，层分割）、row（行分割）。影响多 GPU 性能和内存使用。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = "none"
         },
         New ServerParameterMetadata With {
             .Argument = "--mlock",
-            .Explanation = "force system to keep model in RAM rather than swapping or compressing | 内存锁定模型。强制系统将模型保持在 RAM 中而非交换或压缩，提高性能但增加内存占用。适用于内存充足且需要稳定性能的场景。",
+            .Explanation = "Force system to keep model in RAM rather than swapping or compressing | 内存锁定模型。强制系统将模型保持在 RAM 中而非交换或压缩，提高性能但增加内存占用。适用于内存充足且需要稳定性能的场景。",
             .Category = "hardware",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--no-mmap",
-            .Explanation = "do not memory-map model (slower load but may reduce pageouts if not using mlock) | 禁用内存映射。不使用内存映射加载模型，加载速度较慢但可能减少页面交换。在不使用 mlock 时可用于优化内存管理。",
+            .Explanation = "Do not memory-map model (slower load but may reduce pageouts if not using mlock) | 禁用内存映射。不使用内存映射加载模型，加载速度较慢但可能减少页面交换。在不使用 mlock 时可用于优化内存管理。",
             .Category = "hardware",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--numa",
-            .Explanation = "attempt optimizations that help on some NUMA systems - distribute: spread execution evenly over all nodes - isolate: only spawn threads on CPUs on the node that execution started on - numactl: use the CPU map provided by numactl | NUMA 配置。尝试在某些 NUMA 系统上进行优化：distribute（均匀分布）、isolate（仅限起始节点）、numactl（使用 numactl 提供的 CPU 映射）。适合多 CPU 架构优化。",
+            .Explanation = "Attempt optimizations that help on some NUMA systems - distribute: spread execution evenly over all nodes - isolate: only spawn threads on CPUs on the node that execution started on - numactl: use the CPU map provided by numactl | NUMA 配置。尝试在某些 NUMA 系统上进行优化：distribute（均匀分布）、isolate（仅限起始节点）、numactl（使用 numactl 提供的 CPU 映射）。适合多 CPU 架构优化。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
@@ -162,7 +162,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--cpu-range-batch",
-            .Explanation = "ranges of CPUs for affinity. Complements --cpu-mask-batch | 批处理 CPU 范围。批处理操作的 CPU 亲和性范围，与 --cpu-mask-batch 互补。用于优化批处理操作的 CPU 分配。",
+            .Explanation = "Ranges of CPUs for affinity. Complements --cpu-mask-batch | 批处理 CPU 范围。批处理操作的 CPU 亲和性范围，与 --cpu-mask-batch 互补。用于优化批处理操作的 CPU 分配。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
@@ -295,7 +295,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--repeat-last-n",
-            .Explanation = "last n tokens to consider for penalize (default: 64, 0 = disabled, -1 = ctx_size) | 重复最后 N 个 token。考虑用于惩罚重复的最近 token 数量。0 表示禁用，-1 表示使用整个上下文大小。较大的值可以更好地防止重复，但可能影响自然重复。",
+            .Explanation = "Last n tokens to consider for penalize (default: 64, 0 = disabled, -1 = ctx_size) | 重复最后 N 个 token。考虑用于惩罚重复的最近 token 数量。0 表示禁用，-1 表示使用整个上下文大小。较大的值可以更好地防止重复，但可能影响自然重复。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 64
@@ -323,28 +323,28 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-multiplier",
-            .Explanation = "set DRY sampling multiplier (default: 0.0, 0.0 = disabled) | DRY 采样乘数。设置 DRY（Don't Repeat Yourself）采样的乘数，控制惩罚强度。0.0 表示禁用。高级重复检测方法，比传统重复惩罚更智能。",
+            .Explanation = "Set DRY sampling multiplier (default: 0.0, 0.0 = disabled) | DRY 采样乘数。设置 DRY（Don't Repeat Yourself）采样的乘数，控制惩罚强度。0.0 表示禁用。高级重复检测方法，比传统重复惩罚更智能。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.0
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-base",
-            .Explanation = "set DRY sampling base value (default: 1.75) | DRY 基础值。设置 DRY 采样的基础值，影响惩罚计算的基准。与 dry-multiplier 配合使用，共同控制重复检测的敏感度。",
+            .Explanation = "Set DRY sampling base value (default: 1.75) | DRY 基础值。设置 DRY 采样的基础值，影响惩罚计算的基准。与 dry-multiplier 配合使用，共同控制重复检测的敏感度。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 1.75
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-allowed-length",
-            .Explanation = "set allowed length for DRY sampling (default: 2) | DRY 允许长度。设置 DRY 采样允许的重复序列长度。较小的值限制更多，较大的值允许更多的自然重复。适用于控制文本的流畅度和原创性。",
+            .Explanation = "Set allowed length for DRY sampling (default: 2) | DRY 允许长度。设置 DRY 采样允许的重复序列长度。较小的值限制更多，较大的值允许更多的自然重复。适用于控制文本的流畅度和原创性。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 2
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-penalty-last-n",
-            .Explanation = "set DRY penalty for the last n tokens (default: -1, 0 = disable, -1 = context size) | DRY 惩罚最后 N。设置 DRY 惩罚考虑的最后 N 个 token，-1 表示使用上下文大小，0 表示禁用。控制重复检测的历史窗口大小。",
+            .Explanation = "Set DRY penalty for the last n tokens (default: -1, 0 = disable, -1 = context size) | DRY 惩罚最后 N。设置 DRY 惩罚考虑的最后 N 个 token，-1 表示使用上下文大小，0 表示禁用。控制重复检测的历史窗口大小。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = -1
@@ -365,14 +365,14 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--dynatemp-exp",
-            .Explanation = "dynamic temperature exponent (default: 1.0) | 动态温度指数。动态温度的指数参数，影响温度调整的敏感度。与 dynatemp-range 配合使用，控制动态温度的行为模式。",
+            .Explanation = "Dynamic temperature exponent (default: 1.0) | 动态温度指数。动态温度的指数参数，影响温度调整的敏感度。与 dynatemp-range 配合使用，控制动态温度的行为模式。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 1.0
         },
         New ServerParameterMetadata With {
             .Argument = "--mirostat",
-            .Explanation = "use Mirostat sampling (default: 0, 0 = disabled, 1 = Mirostat, 2 = Mirostat 2.0) | Mirostat 模式。使用 Mirostat 采样算法，自动调节 perplexity 到目标水平。0=禁用，1=Mirostat，2=Mirostat 2.0。启用时忽略 Top K、Nucleus 和 Locally Typical 采样器。",
+            .Explanation = "Use Mirostat sampling (default: 0, 0 = disabled, 1 = Mirostat, 2 = Mirostat 2.0) | Mirostat 模式。使用 Mirostat 采样算法，自动调节 perplexity 到目标水平。0=禁用，1=Mirostat，2=Mirostat 2.0。启用时忽略 Top K、Nucleus 和 Locally Typical 采样器。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0
@@ -393,21 +393,21 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--samplers",
-            .Explanation = "samplers that will be used for generation in the order, separated by ';' (default: penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature) | 采样器配置。指定生成时使用的采样器序列，用分号分隔。默认序列：penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature。采样器的顺序影响最终生成结果。",
+            .Explanation = "Samplers that will be used for generation in the order, separated by ';' (default: penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature) | 采样器配置。指定生成时使用的采样器序列，用分号分隔。默认序列：penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature。采样器的顺序影响最终生成结果。",
             .Category = "sampling",
             .Editor = "textbox",
             .DefaultValue = "penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature"
         },
         New ServerParameterMetadata With {
             .Argument = "--sampling-seq",
-            .Explanation = "simplified sequence for samplers that will be used (default: edskypmxt) | 采样序列。采样器的简化序列表示，每个字符对应一个采样器。默认 'edskypmxt'。提供更简洁的方式来配置采样器顺序，便于快速调整。",
+            .Explanation = "Simplified sequence for samplers that will be used (default: edskypmxt) | 采样序列。采样器的简化序列表示，每个字符对应一个采样器。默认 'edskypmxt'。提供更简洁的方式来配置采样器顺序，便于快速调整。",
             .Category = "sampling",
             .Editor = "textbox",
             .DefaultValue = "edskypmxt"
         },
         New ServerParameterMetadata With {
             .Argument = "--ignore-eos",
-            .Explanation = "ignore end of stream token and continue generating (implies --logit-bias EOS-inf) | 忽略序列结束 token。忽略 EOS（结束序列）token 并继续生成，意味着 --logit-bias EOS-inf。适用于需要强制生成更长的文本或不希望模型提前结束的场景。",
+            .Explanation = "Ignore end of stream token and continue generating (implies --logit-bias EOS-inf) | 忽略序列结束 token。忽略 EOS（结束序列）token 并继续生成，意味着 --logit-bias EOS-inf。适用于需要强制生成更长的文本或不希望模型提前结束的场景。",
             .Category = "sampling",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -540,7 +540,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--override-kv",
-            .Explanation = "advanced option to override model metadata by key. may be specified multiple times. types: int, float, bool, str. example: --override-kv tokenizer.ggml.add_bos_token=bool:false | 覆盖 KV 缓存。高级选项，按键覆盖模型元数据。可多次指定。类型：int、float、bool、str。示例：--override-kv tokenizer.ggml.add_bos_token=bool:false。用于自定义模型行为和配置。",
+            .Explanation = "Advanced option to override model metadata by key. may be specified multiple times. types: int, float, bool, str. example: --override-kv tokenizer.ggml.add_bos_token=bool:false | 覆盖 KV 缓存。高级选项，按键覆盖模型元数据。可多次指定。类型：int、float、bool、str。示例：--override-kv tokenizer.ggml.add_bos_token=bool:false。用于自定义模型行为和配置。",
             .Category = "model",
             .Editor = "textbox",
             .DefaultValue = ""
@@ -554,7 +554,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--keep",
-            .Explanation = "number of tokens to keep from the initial prompt (default: 0, -1 = all) | 保留初始提示 token 数量。从初始提示中保留的 token 数量，0 表示不保留，-1 表示全部保留。用于维护对话上下文和状态，确保连贯的交互体验。",
+            .Explanation = "Number of tokens to keep from the initial prompt (default: 0, -1 = all) | 保留初始提示 token 数量。从初始提示中保留的 token 数量，0 表示不保留，-1 表示全部保留。用于维护对话上下文和状态，确保连贯的交互体验。",
             .Category = "model",
             .Editor = "numberupdown",
             .DefaultValue = 0
@@ -722,28 +722,28 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--path",
-            .Explanation = "path to serve static files from (default: ) | 服务器路径。提供静态文件的路径，用于 Web UI 和其他静态资源。空值表示不提供静态文件服务。支持相对路径和绝对路径。",
+            .Explanation = "Path to serve static files from (default: ) | 服务器路径。提供静态文件的路径，用于 Web UI 和其他静态资源。空值表示不提供静态文件服务。支持相对路径和绝对路径。",
             .Category = "network",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--api-prefix",
-            .Explanation = "prefix path the server serves from, without the trailing slash (default: ) | API 前缀。服务器提供 API 的前缀路径，不包含尾部斜杠。用于路径组织和反向代理配置，支持多个服务在同一域名下运行。",
+            .Explanation = "Prefix path the server serves from, without the trailing slash (default: ) | API 前缀。服务器提供 API 的前缀路径，不包含尾部斜杠。用于路径组织和反向代理配置，支持多个服务在同一域名下运行。",
             .Category = "network",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--timeout",
-            .Explanation = "server read/write timeout in seconds (default: 600) | 超时时间。服务器读/写超时时间（秒），默认为 600 秒（10分钟）。控制请求和响应的最大等待时间，防止长时间挂起的连接。",
+            .Explanation = "Server read/write timeout in seconds (default: 600) | 超时时间。服务器读/写超时时间（秒），默认为 600 秒（10分钟）。控制请求和响应的最大等待时间，防止长时间挂起的连接。",
             .Category = "network",
             .Editor = "numberupdown",
             .DefaultValue = 600
         },
         New ServerParameterMetadata With {
             .Argument = "--threads-http",
-            .Explanation = "number of threads used to process HTTP requests (default: -1) | HTTP 线程。用于处理 HTTP 请求的线程数，-1 表示自动检测。影响服务器的并发处理能力，较高的值支持更多同时连接但增加资源使用。",
+            .Explanation = "Number of threads used to process HTTP requests (default: -1) | HTTP 线程。用于处理 HTTP 请求的线程数，-1 表示自动检测。影响服务器的并发处理能力，较高的值支持更多同时连接但增加资源使用。",
             .Category = "network",
             .Editor = "numberupdown",
             .DefaultValue = -1
@@ -757,14 +757,14 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--embeddings",
-            .Explanation = "restrict to only support embedding use case; use only with dedicated embedding models | 启用嵌入。仅支持嵌入使用场景，仅适用于专用嵌入模型。提供文本嵌入向量生成功能，用于相似性搜索、聚类和语义理解等任务。",
+            .Explanation = "Restrict to only support embedding use case; use only with dedicated embedding models | 启用嵌入。仅支持嵌入使用场景，仅适用于专用嵌入模型。提供文本嵌入向量生成功能，用于相似性搜索、聚类和语义理解等任务。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--reranking",
-            .Explanation = "enable reranking endpoint on server | 启用重排序。在服务器上启用重排序端点，用于改进搜索结果排序。提供文档重排序功能，提高检索系统的准确性和相关性。",
+            .Explanation = "Enable reranking endpoint on server | 启用重排序。在服务器上启用重排序端点，用于改进搜索结果排序。提供文档重排序功能，提高检索系统的准确性和相关性。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -778,77 +778,77 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--api-key-file",
-            .Explanation = "path to file containing API keys (default: none) | API 密钥文件。包含 API 密钥的文件路径，支持多个密钥管理。提供更安全的密钥存储方式，避免在命令行中暴露敏感信息。",
+            .Explanation = "Path to file containing API keys (default: none) | API 密钥文件。包含 API 密钥的文件路径，支持多个密钥管理。提供更安全的密钥存储方式，避免在命令行中暴露敏感信息。",
             .Category = "server",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--ssl-key-file",
-            .Explanation = "path to file a PEM-encoded SSL private key | SSL 密钥文件。PEM 编码的 SSL 私钥文件路径。启用 HTTPS 加密通信，保护数据传输安全。需要与 SSL 证书文件配合使用。",
+            .Explanation = "Path to file a PEM-encoded SSL private key | SSL 密钥文件。PEM 编码的 SSL 私钥文件路径。启用 HTTPS 加密通信，保护数据传输安全。需要与 SSL 证书文件配合使用。",
             .Category = "server",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--ssl-cert-file",
-            .Explanation = "path to file a PEM-encoded SSL certificate | SSL 证书文件。PEM 编码的 SSL 证书文件路径。启用 HTTPS 安全连接，验证服务器身份。建议使用受信任 CA 签发的证书。",
+            .Explanation = "Path to file a PEM-encoded SSL certificate | SSL 证书文件。PEM 编码的 SSL 证书文件路径。启用 HTTPS 安全连接，验证服务器身份。建议使用受信任 CA 签发的证书。",
             .Category = "server",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--cont-batching",
-            .Explanation = "enable continuous batching (a.k.a dynamic batching) (default: enabled) | 启用连续批处理。启用连续批处理（也称为动态批处理），提高多用户场景下的吞吐量和资源利用率。默认启用，是现代 LLM 服务的标准配置。",
+            .Explanation = "Enable continuous batching (a.k.a dynamic batching) (default: enabled) | 启用连续批处理。启用连续批处理（也称为动态批处理），提高多用户场景下的吞吐量和资源利用率。默认启用，是现代 LLM 服务的标准配置。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = True
         },
         New ServerParameterMetadata With {
             .Argument = "--no-cont-batching",
-            .Explanation = "disable continuous batching | 禁用连续批处理。禁用连续批处理，回退到传统批处理模式。可能在某些特定场景下需要，但通常会降低整体性能。",
+            .Explanation = "Disable continuous batching | 禁用连续批处理。禁用连续批处理，回退到传统批处理模式。可能在某些特定场景下需要，但通常会降低整体性能。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--props",
-            .Explanation = "enable changing global properties via POST /props (default: disabled) | 启用属性。启用通过 POST /props 更改全局属性的端点。允许运行时配置调整，提供动态参数管理能力。",
+            .Explanation = "Enable changing global properties via POST /props (default: disabled) | 启用属性。启用通过 POST /props 更改全局属性的端点。允许运行时配置调整，提供动态参数管理能力。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--metrics",
-            .Explanation = "enable prometheus compatible metrics endpoint (default: disabled) | 启用指标。启用与 Prometheus 兼容的指标端点，提供性能监控数据。便于集成到监控系统中，实现实时性能跟踪和告警。",
+            .Explanation = "Enable prometheus compatible metrics endpoint (default: disabled) | 启用指标。启用与 Prometheus 兼容的指标端点，提供性能监控数据。便于集成到监控系统中，实现实时性能跟踪和告警。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--slots",
-            .Explanation = "enable slots monitoring endpoint (default: enabled) | 启用槽位。启用槽位监控端点，提供处理槽位的实时状态信息。默认启用，对于监控和调试多用户并发处理非常重要。",
+            .Explanation = "Enable slots monitoring endpoint (default: enabled) | 启用槽位。启用槽位监控端点，提供处理槽位的实时状态信息。默认启用，对于监控和调试多用户并发处理非常重要。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = True
         },
         New ServerParameterMetadata With {
             .Argument = "--no-slots",
-            .Explanation = "disables slots monitoring endpoint | 禁用槽位。禁用槽位监控端点，减少监控开销但失去处理状态可见性。在不需要监控的简单部署中可考虑使用。",
+            .Explanation = "Disables slots monitoring endpoint | 禁用槽位。禁用槽位监控端点，减少监控开销但失去处理状态可见性。在不需要监控的简单部署中可考虑使用。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--slot-save-path",
-            .Explanation = "path to save slot kv cache (default: disabled) | 槽位保存路径。保存槽位 KV 缓存的路径，默认禁用。支持持久化处理状态，实现会话恢复和状态保持功能。",
+            .Explanation = "Path to save slot kv cache (default: disabled) | 槽位保存路径。保存槽位 KV 缓存的路径，默认禁用。支持持久化处理状态，实现会话恢复和状态保持功能。",
             .Category = "server",
             .Editor = "directory",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--jinja",
-            .Explanation = "use jinja template for chat (default: disabled) | 启用 Jinja 模板。使用 Jinja 模板进行聊天，提供更灵活的提示模板支持。允许自定义复杂的提示构建逻辑，满足特定对话需求。",
+            .Explanation = "Use jinja template for chat (default: disabled) | 启用 Jinja 模板。使用 Jinja 模板进行聊天，提供更灵活的提示模板支持。允许自定义复杂的提示构建逻辑，满足特定对话需求。",
             .Category = "server",
             .Editor = "checkbox",
             .DefaultValue = False
