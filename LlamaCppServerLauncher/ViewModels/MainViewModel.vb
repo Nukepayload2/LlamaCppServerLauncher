@@ -32,7 +32,7 @@ Class MainViewModel
 
     Private _settings As AppSettings = AppSettings.WithServerParameters
     Private _filterText As String = ""
-    Private _selectedCategory As String = "所有分类"
+    Private _selectedCategory As String = My.Resources.AllCategories
     Private _showModifiedOnly As Boolean = False
     Private _filteredParameters As List(Of ServerParameterItem)
     Private _availableCategories As List(Of String)
@@ -106,17 +106,17 @@ Class MainViewModel
             If _availableCategories IsNot Nothing Then Return _availableCategories
 
             If Settings.ServerParameters Is Nothing Then
-                _availableCategories = New List(Of String) From {"所有分类"}
+                _availableCategories = New List(Of String) From {My.Resources.AllCategories}
                 Return _availableCategories
             End If
 
-            Dim categories = Settings.ServerParameters.Select(Function(p) p.Metadata?.Category).
+            Dim categories = ServerParameterMetadata.AllParameters.Select(Function(p) p.Category).
                                               Where(Function(c) Not String.IsNullOrEmpty(c)).
                                               Distinct().
                                               OrderBy(Function(c) c).
                                               ToList()
 
-            _availableCategories = New List(Of String) From {"所有分类"}
+            _availableCategories = New List(Of String) From {My.Resources.AllCategories}
             _availableCategories.AddRange(categories)
             Return _availableCategories
         End Get
@@ -152,7 +152,7 @@ Class MainViewModel
         Get
             Dim filtered = FilteredParameters.Count
             Dim total = TotalParameters
-            Return $"显示 {filtered} / {total} 个参数"
+            Return String.Format(My.Resources.ParameterCountText, filtered, total)
         End Get
     End Property
 
@@ -187,8 +187,6 @@ Class MainViewModel
 
     Public ReadOnly Property UpdateCommandPreviewCommand As ICommand = New RelayCommand(Function(param, cancellationToken) UpdateCommandPreviewAsync(cancellationToken))
     Public ReadOnly Property ClearFiltersCommand As ICommand = New RelayCommand(AddressOf ClearFilters)
-    Public ReadOnly Property BrowseServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForServerAsync(cancellationToken))
-    Public ReadOnly Property BrowseModelCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForModelAsync(cancellationToken))
     Private ReadOnly _startServerCommand As New RelayCommand(Function(param, cancellationToken) StartServerAsync(cancellationToken), Function(param) Not ServerRunning)
     Private ReadOnly _stopServerCommand As New RelayCommand(Function(param, cancellationToken) StopServer(cancellationToken), Function(param) ServerRunning)
     Private ReadOnly _clearOutputCommand As New RelayCommand(AddressOf ClearOutput)
@@ -251,7 +249,7 @@ Class MainViewModel
 
     Public Sub ClearFilters()
         FilterText = ""
-        SelectedCategory = "所有分类"
+        SelectedCategory = My.Resources.AllCategories
         ShowModifiedOnly = False
     End Sub
 
@@ -321,54 +319,6 @@ Class MainViewModel
         cancellationToken.ThrowIfCancellationRequested()
         UpdateCommandPreview()
         Await Task.CompletedTask
-    End Function
-
-    Private Async Function BrowseForServerAsync(cancellationToken As CancellationToken) As Task
-        cancellationToken.ThrowIfCancellationRequested()
-        Dim storageProvider = My.Application.MainWindow.StorageProvider
-        If storageProvider IsNot Nothing Then
-            Dim files = Await storageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
-                .Title = "Select LLaMA.cpp Server Executable",
-                .AllowMultiple = False,
-                .FileTypeFilter = New List(Of FilePickerFileType) From {
-                    New FilePickerFileType("Executable Files") With {
-                        .Patterns = New List(Of String) From {"*.exe"}
-                    }
-                }
-            })
-
-            cancellationToken.ThrowIfCancellationRequested()
-            If files.Count > 0 Then
-                Dim serverPathParam = Settings.ServerParameterByName("--server-path")
-                If serverPathParam IsNot Nothing Then
-                    serverPathParam.Value.StringValue = files(0).Path.LocalPath
-                End If
-            End If
-        End If
-    End Function
-
-    Private Async Function BrowseForModelAsync(cancellationToken As CancellationToken) As Task
-        cancellationToken.ThrowIfCancellationRequested()
-        Dim storageProvider = My.Application.MainWindow.StorageProvider
-        If storageProvider IsNot Nothing Then
-            Dim files = Await storageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
-                .Title = "Select LLaMA.cpp Model File",
-                .AllowMultiple = False,
-                .FileTypeFilter = New List(Of FilePickerFileType) From {
-                    New FilePickerFileType("Model Files") With {
-                        .Patterns = New List(Of String) From {"*.gguf", "*.bin"}
-                    }
-                }
-            })
-
-            cancellationToken.ThrowIfCancellationRequested()
-            If files.Count > 0 Then
-                Dim modelPathParam = Settings.ServerParameterByName("--model")
-                If modelPathParam IsNot Nothing Then
-                    modelPathParam.Value.StringValue = files(0).Path.LocalPath
-                End If
-            End If
-        End If
     End Function
 
     Private Async Function StartServerAsync(cancellationToken As CancellationToken) As Task
@@ -468,7 +418,7 @@ Class MainViewModel
             StatusCheckTimer.IsEnabled = False
 
             ' 添加服务器已停止的消息
-            _serverOutput.Add("[info] 服务器已手动停止")
+            _serverOutput.Add(My.Resources.ServerManuallyStopped)
         End Try
     End Function
 
@@ -498,15 +448,6 @@ Class MainViewModel
                 _serverOutput.Add(errorMessage)
                 _serverLogView.ScrollServerLogToEnd()
             End Sub)
-    End Sub
-
-
-    Private Sub CheckServerStatus() Handles StatusCheckTimer.Tick
-        If Not ServerRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
-            ServerRunning = False
-            _serverProcess = Nothing
-            StatusCheckTimer.IsEnabled = False
-        End If
     End Sub
 
     Private Async Function SaveSettingsAsync(cancellationToken As CancellationToken) As Task
@@ -703,7 +644,7 @@ Class MainViewModel
         End If
 
         ' Category filter
-        If SelectedCategory <> "所有分类" Then
+        If SelectedCategory <> My.Resources.AllCategories Then
             filtered = filtered.Where(Function(p) p.Metadata?.Category = SelectedCategory)
         End If
 
