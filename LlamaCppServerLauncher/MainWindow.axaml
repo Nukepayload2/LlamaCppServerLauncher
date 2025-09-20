@@ -90,38 +90,7 @@
             <!-- Right Panel - Main Settings (Fixed Width) -->
             <ScrollViewer Grid.Column="1" Margin="10,0,0,0">
                 <StackPanel Margin="10" Spacing="10">
-                    <!-- Essential Settings -->
-                    <Expander Header="基本设置" IsExpanded="True" HorizontalAlignment="Stretch">
-                        <StackPanel Margin="10,5" Spacing="5">
-                            <!-- Server Path -->
-                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
-                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ServerPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <TextBox Grid.Column="1" Text="{Binding Settings.ServerPath}" Margin="0,0,10,0"/>
-                                <Button Grid.Column="2" x:Name="BrowseServerButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"
-                                        Command="{Binding BrowseServerCommand}"/>
-                            </Grid>
-                            
-                            <!-- Model Path -->
-                            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
-                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ModelPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <TextBox Grid.Column="1" Text="{Binding Settings.ModelPath}" Margin="0,0,10,0"/>
-                                <Button Grid.Column="2" x:Name="BrowseModelButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"
-                                        Command="{Binding BrowseModelCommand}"/>
-                            </Grid>
-                            
-                            <!-- Network Settings -->
-                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.HostLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <TextBox Grid.Column="1" Text="{Binding Settings.Host}"/>
-                            </Grid>
-                            
-                            <Grid ColumnDefinitions="Auto,*" RowDefinitions="Auto" Margin="0,3">
-                                <TextBlock Grid.Column="0" Text="{x:Static res:Resources.PortLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                                <NumericUpDown Grid.Column="1" Value="{Binding Settings.Port}" Minimum="1" Maximum="65535" FormatString="0"/>
-                            </Grid>
-                        </StackPanel>
-                    </Expander>
-                    
+                                        
                     <!-- Command Preview -->
                     <Expander Header="命令预览" IsExpanded="True" HorizontalAlignment="Stretch">
                         <StackPanel Margin="10,5" Spacing="10">
@@ -150,7 +119,7 @@
                     </Expander>
                     
                     <!-- Statistics -->
-                    <Expander Header="参数统计" IsExpanded="False" HorizontalAlignment="Stretch">
+                    <Expander Header="参数统计" IsExpanded="True" HorizontalAlignment="Stretch">
                         <StackPanel Margin="10,5" Spacing="5">
                             <Grid ColumnDefinitions="Auto,*">
                                 <TextBlock Grid.Column="0" Text="总参数数量：" Margin="0,2"/>

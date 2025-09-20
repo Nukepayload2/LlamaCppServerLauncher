@@ -208,19 +208,21 @@ Public Class MainViewModel
         Dim fullCommand As New StringBuilder()
 
         ' Server Path
-        If Not String.IsNullOrEmpty(Settings.ServerPath) Then
-            fullCommand.Append($"""{Settings.ServerPath}""")
+        Dim serverPathParam = Settings.ServerParameterByName("--server-path")
+        If serverPathParam IsNot Nothing AndAlso Not String.IsNullOrEmpty(serverPathParam.Value.StringValue) Then
+            fullCommand.Append($"""{serverPathParam.Value.StringValue}""")
         End If
 
         ' Model Path
-        If Not String.IsNullOrEmpty(Settings.ModelPath) Then
-            fullCommand.Append($"""{Settings.ModelPath}""")
+        Dim modelPathParam = Settings.ServerParameterByName("--model")
+        If modelPathParam IsNot Nothing AndAlso Not String.IsNullOrEmpty(modelPathParam.Value.StringValue) Then
+            fullCommand.Append($"""{modelPathParam.Value.StringValue}""")
         End If
 
         ' Generate arguments from ServerParameterCollection
         If Settings.ServerParameters IsNot Nothing Then
             For Each param In Settings.ServerParameters
-                If param.HasLocalValue Then
+                If param.HasLocalValue AndAlso param.Argument <> "--server-path" AndAlso param.Argument <> "--model" Then
                     Dim argument = GenerateArgumentFromParameter(param)
                     If Not String.IsNullOrEmpty(argument) Then
                         fullCommand.Append($" {argument}")
@@ -266,7 +268,10 @@ Public Class MainViewModel
 
             cancellationToken.ThrowIfCancellationRequested()
             If files.Count > 0 Then
-                Settings.ServerPath = files(0).Path.LocalPath
+                Dim serverPathParam = Settings.ServerParameterByName("--server-path")
+                If serverPathParam IsNot Nothing Then
+                    serverPathParam.Value.StringValue = files(0).Path.LocalPath
+                End If
             End If
         End If
     End Function
@@ -287,7 +292,10 @@ Public Class MainViewModel
 
             cancellationToken.ThrowIfCancellationRequested()
             If files.Count > 0 Then
-                Settings.ModelPath = files(0).Path.LocalPath
+                Dim modelPathParam = Settings.ServerParameterByName("--model")
+                If modelPathParam IsNot Nothing Then
+                    modelPathParam.Value.StringValue = files(0).Path.LocalPath
+                End If
             End If
         End If
     End Function
@@ -300,13 +308,17 @@ Public Class MainViewModel
         End If
 
         cancellationToken.ThrowIfCancellationRequested()
-        If String.IsNullOrEmpty(Settings.ServerPath) OrElse Not File.Exists(Settings.ServerPath) Then
+        Dim serverPathParam = Settings.ServerParameterByName("--server-path")
+        Dim serverPath As String = If(serverPathParam?.Value.StringValue, "")
+        If String.IsNullOrEmpty(serverPath) OrElse Not File.Exists(serverPath) Then
             Await MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
             Return
         End If
 
         cancellationToken.ThrowIfCancellationRequested()
-        If String.IsNullOrEmpty(Settings.ModelPath) OrElse Not File.Exists(Settings.ModelPath) Then
+        Dim modelPathParam = Settings.ServerParameterByName("--model")
+        Dim modelPath As String = If(modelPathParam?.Value.StringValue, "")
+        If String.IsNullOrEmpty(modelPath) OrElse Not File.Exists(modelPath) Then
             Await MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
             Return
         End If
@@ -315,7 +327,7 @@ Public Class MainViewModel
         Try
             cancellationToken.ThrowIfCancellationRequested()
             Dim args As String = UpdateCommandPreview()
-            Dim startInfo As New ProcessStartInfo(Settings.ServerPath, args) With {
+            Dim startInfo As New ProcessStartInfo(serverPath, args) With {
                 .UseShellExecute = True,
                 .CreateNoWindow = False,
                 .WindowStyle = ProcessWindowStyle.Normal
@@ -413,12 +425,6 @@ Public Class MainViewModel
                 ' 先重置当前所有参数到默认值
                 Settings.ResetToDefault()
 
-                ' 重置基本设置
-                Settings.ServerPath = ""
-                Settings.ModelPath = ""
-                Settings.Host = ""
-                Settings.Port = 8080
-
                 ' 然后应用加载的设置
                 If loadedSettings.ServerParameters IsNot Nothing Then
                     For Each loadedParam In loadedSettings.ServerParameters
@@ -439,8 +445,6 @@ Public Class MainViewModel
                     Next
                 End If
 
-                ' 更新基本设置
-                Settings.NotifyBasicPropertiesChanged()
 
                 ' 触发UI更新
                 LoadSettingsSync()
