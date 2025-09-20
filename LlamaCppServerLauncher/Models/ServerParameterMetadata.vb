@@ -169,35 +169,35 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--cpu-strict-batch",
-            .Explanation = "use strict CPU placement (default: same as --cpu-strict) | 批处理严格 CPU 亲和性。批处理操作的严格 CPU 放置，默认与 --cpu-strict 相同。确保批处理任务在指定的 CPU 上运行。",
+            .Explanation = "Use strict CPU placement (default: same as --cpu-strict) | 批处理严格 CPU 亲和性。批处理操作的严格 CPU 放置，默认与 --cpu-strict 相同。确保批处理任务在指定的 CPU 上运行。",
             .Category = "hardware",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--prio-batch",
-            .Explanation = "set process/thread priority : 0-normal, 1-medium, 2-high, 3-realtime (default: 0) | 批处理进程优先级。批处理操作的进程/线程优先级：0-normal、1-medium、2-high、3-realtime。用于优化批处理任务的调度。",
+            .Explanation = "Set process/thread priority : 0-normal, 1-medium, 2-high, 3-realtime (default: 0) | 批处理进程优先级。批处理操作的进程/线程优先级：0-normal、1-medium、2-high、3-realtime。用于优化批处理任务的调度。",
             .Category = "hardware",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--poll-batch",
-            .Explanation = "use polling to wait for work (default: same as --poll) | 批处理轮询间隔。批处理操作的轮询级别，默认与 --poll 相同。用于优化批处理任务的响应速度和 CPU 使用。",
+            .Explanation = "Use polling to wait for work (default: same as --poll) | 批处理轮询间隔。批处理操作的轮询级别，默认与 --poll 相同。用于优化批处理任务的响应速度和 CPU 使用。",
             .Category = "hardware",
             .Editor = "numberupdown",
             .DefaultValue = 50
         },
         New ServerParameterMetadata With {
             .Argument = "--no-kv-offload",
-            .Explanation = "disable KV offload (default: false) | 禁用 KV 缓存卸载。阻止将 KV 缓存卸载到 GPU，强制所有 KV 缓存保留在 CPU 内存中。在 GPU 内存有限时可用，但可能影响推理速度。",
+            .Explanation = "Disable KV offload (default: false) | 禁用 KV 缓存卸载。阻止将 KV 缓存卸载到 GPU，强制所有 KV 缓存保留在 CPU 内存中。在 GPU 内存有限时可用，但可能影响推理速度。",
             .Category = "kv-cache",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--no-repack",
-            .Explanation = "disable weight repacking (default: false) | 禁用权重重新打包。不重新打包权重，可能在某些情况下加快加载速度，但可能影响后续推理性能。通常建议启用重新打包以获得最佳性能。",
+            .Explanation = "Disable weight repacking (default: false) | 禁用权重重新打包。不重新打包权重，可能在某些情况下加快加载速度，但可能影响后续推理性能。通常建议启用重新打包以获得最佳性能。",
             .Category = "kv-cache",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -351,7 +351,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-sequence-breaker",
-            .Explanation = "add sequence breaker for DRY sampling, clearing out default breakers ('\n', ':', '""', '*') in the process; use ""none"" to not use any sequence breakers | DRY 序列分隔符。添加 DRY 采样的序列分隔符，清除默认分隔符（'\n', ':', '""', '*'）。使用 'none' 不使用任何分隔符。用于自定义重复检测的边界。",
+            .Explanation = "Add sequence breaker for DRY sampling, clearing out default breakers ('\n', ':', '""', '*') in the process; use ""none"" to not use any sequence breakers | DRY 序列分隔符。添加 DRY 采样的序列分隔符，清除默认分隔符（'\n', ':', '""', '*'）。使用 'none' 不使用任何分隔符。用于自定义重复检测的边界。",
             .Category = "sampling",
             .Editor = "textbox",
             .DefaultValue = ""
@@ -547,7 +547,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--no-op-offload",
-            .Explanation = "disable offloading host tensor operations to device (default: false) | 禁用操作符卸载。禁用将主机张量操作卸载到设备的功能。在设备内存有限或遇到兼容性问题时使用。可能影响性能，但提高稳定性。",
+            .Explanation = "Disable offloading host tensor operations to device (default: false) | 禁用操作符卸载。禁用将主机张量操作卸载到设备的功能。在设备内存有限或遇到兼容性问题时使用。可能影响性能，但提高稳定性。",
             .Category = "model",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -624,7 +624,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--n-cpu-moe-draft",
-            .Explanation = "keep the Mixture of Experts (MoE) weights of the first N layers in the CPU for the draft model (env: LLAMA_ARG_N_CPU_MOE_DRAFT) | CPU MoE 草稿数量。对于草稿模型，将前 N 层的混合专家（MoE）权重保持在 CPU 中。在投机解码中精细控制草稿模型的 MoE 行为。",
+            .Explanation = "Keep the Mixture of Experts (MoE) weights of the first N layers in the CPU for the draft model (env: LLAMA_ARG_N_CPU_MOE_DRAFT) | CPU MoE 草稿数量。对于草稿模型，将前 N 层的混合专家（MoE）权重保持在 CPU 中。在投机解码中精细控制草稿模型的 MoE 行为。",
             .Category = "moe",
             .Editor = "numberupdown",
             .DefaultValue = 0
@@ -967,7 +967,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--no-mmproj-offload",
-            .Explanation = "do not offload multimodal projector to GPU (default: false) | 不将多模态投影器卸载到 GPU。强制多模态投影器在 CPU 上运行，避免 GPU 内存占用。在 GPU 内存有限或遇到兼容性问题时使用。可能影响性能，但提高系统稳定性。",
+            .Explanation = "Do not offload multimodal projector to GPU (default: false) | 不将多模态投影器卸载到 GPU。强制多模态投影器在 CPU 上运行，避免 GPU 内存占用。在 GPU 内存有限或遇到兼容性问题时使用。可能影响性能，但提高系统稳定性。",
             .Category = "multimodal",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -981,21 +981,21 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--embd-bge-small-en-default",
-            .Explanation = "use default bge-small-en-v1.5 model (note: can download weights from the internet) | 使用默认的 bge-small-en-v1.5 模型（注意：可以从互联网下载权重）。BGE（BAAI General Embedding）是一个高质量的英文文本嵌入模型，适用于语义搜索、文本相似度计算等任务。启用后将自动下载所需模型文件。",
+            .Explanation = "Use default bge-small-en-v1.5 model (note: can download weights from the internet) | 使用默认的 bge-small-en-v1.5 模型（注意：可以从互联网下载权重）。BGE（BAAI General Embedding）是一个高质量的英文文本嵌入模型，适用于语义搜索、文本相似度计算等任务。启用后将自动下载所需模型文件。",
             .Category = "embedding",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--embd-e5-small-en-default",
-            .Explanation = "use default e5-small-v2 model (note: can download weights from the internet) | 使用默认的 e5-small-v2 模型（注意：可以从互联网下载权重）。E5 是一个基于对比学习的文本嵌入模型，在各种语义相似度任务中表现优异。特别适合短文本匹配和语义检索应用。",
+            .Explanation = "Use default e5-small-v2 model (note: can download weights from the internet) | 使用默认的 e5-small-v2 模型（注意：可以从互联网下载权重）。E5 是一个基于对比学习的文本嵌入模型，在各种语义相似度任务中表现优异。特别适合短文本匹配和语义检索应用。",
             .Category = "embedding",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--embd-gte-small-default",
-            .Explanation = "use default gte-small model (note: can download weights from the internet) | 使用默认的 gte-small 模型（注意：可以从互联网下载权重）。GTE（General Text Embedding）是一个通用的文本嵌入模型，在多种语言和任务上都具有良好的性能，特别适合多语言应用场景。",
+            .Explanation = "Use default gte-small model (note: can download weights from the internet) | 使用默认的 gte-small 模型（注意：可以从互联网下载权重）。GTE（General Text Embedding）是一个通用的文本嵌入模型，在多种语言和任务上都具有良好的性能，特别适合多语言应用场景。",
             .Category = "embedding",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -1079,14 +1079,14 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--override-tensor-draft",
-            .Explanation = "override tensor buffer type for draft model | 覆盖草稿模型的张量缓冲区类型。允许为草稿模型指定不同的张量缓冲区类型，格式为 <张量名称模式>=<缓冲区类型>。可用于优化草稿模型的内存使用和计算效率，或解决兼容性问题。",
+            .Explanation = "Override tensor buffer type for draft model | 覆盖草稿模型的张量缓冲区类型。允许为草稿模型指定不同的张量缓冲区类型，格式为 <张量名称模式>=<缓冲区类型>。可用于优化草稿模型的内存使用和计算效率，或解决兼容性问题。",
             .Category = "draft",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--spec-replace",
-            .Explanation = "translate the string in TARGET into DRAFT if the draft model and main model are not compatible | 如果草稿模型和主模型不兼容，将 TARGET 中的字符串翻译为 DRAFT。当草稿模型和主模型使用不同的 tokenizer 或词汇表时，此参数可用于处理 token 映射问题，确保投机解码的正确工作。",
+            .Explanation = "Translate the string in TARGET into DRAFT if the draft model and main model are not compatible | 如果草稿模型和主模型不兼容，将 TARGET 中的字符串翻译为 DRAFT。当草稿模型和主模型使用不同的 tokenizer 或词汇表时，此参数可用于处理 token 映射问题，确保投机解码的正确工作。",
             .Category = "draft",
             .Editor = "textbox",
             .DefaultValue = ""
@@ -1163,42 +1163,42 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--fim-qwen-1.5b-default",
-            .Explanation = "use default Qwen 2.5 Coder 1.5B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 1.5B（注意：可以从互联网下载权重）。这是一个专门用于代码填充（Fill-in-the-Middle）的 1.5B 参数模型，适用于代码补全、代码修复等任务。启用后将自动下载所需模型文件。",
+            .Explanation = "Use default Qwen 2.5 Coder 1.5B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 1.5B（注意：可以从互联网下载权重）。这是一个专门用于代码填充（Fill-in-the-Middle）的 1.5B 参数模型，适用于代码补全、代码修复等任务。启用后将自动下载所需模型文件。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--fim-qwen-3b-default",
-            .Explanation = "use default Qwen 2.5 Coder 3B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 3B（注意：可以从互联网下载权重）。这是一个 3B 参数的代码填充模型，在代码补全质量上优于 1.5B 版本，适用于更复杂的代码生成和修复任务。平衡了性能和资源使用。",
+            .Explanation = "Use default Qwen 2.5 Coder 3B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 3B（注意：可以从互联网下载权重）。这是一个 3B 参数的代码填充模型，在代码补全质量上优于 1.5B 版本，适用于更复杂的代码生成和修复任务。平衡了性能和资源使用。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--fim-qwen-7b-default",
-            .Explanation = "use default Qwen 2.5 Coder 7B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 7B（注意：可以从互联网下载权重）。这是一个 7B 参数的高质量代码填充模型，在代码理解、生成和修复方面具有出色的性能。适用于对代码质量要求较高的专业场景。",
+            .Explanation = "Use default Qwen 2.5 Coder 7B (note: can download weights from the internet) | 使用默认的 Qwen 2.5 Coder 7B（注意：可以从互联网下载权重）。这是一个 7B 参数的高质量代码填充模型，在代码理解、生成和修复方面具有出色的性能。适用于对代码质量要求较高的专业场景。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--fim-qwen-7b-spec",
-            .Explanation = "use Qwen 2.5 Coder 7B + 0.5B draft for speculative decoding (note: can download weights from the internet) | 使用 Qwen 2.5 Coder 7B + 0.5B 草稿模型进行投机解码（注意：可以从互联网下载权重）。这是一个优化的代码填充配置，使用 7B 主模型配合 0.5B 草稿模型，通过投机解码技术显著提高推理速度，同时保持高质量的代码生成能力。",
+            .Explanation = "Use Qwen 2.5 Coder 7B + 0.5B draft for speculative decoding (note: can download weights from the internet) | 使用 Qwen 2.5 Coder 7B + 0.5B 草稿模型进行投机解码（注意：可以从互联网下载权重）。这是一个优化的代码填充配置，使用 7B 主模型配合 0.5B 草稿模型，通过投机解码技术显著提高推理速度，同时保持高质量的代码生成能力。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--fim-qwen-14b-spec",
-            .Explanation = "use Qwen 2.5 Coder 14B + 0.5B draft for speculative decoding (note: can download weights from the internet) | 使用 Qwen 2.5 Coder 14B + 0.5B 草稿模型进行投机解码（注意：可以从互联网下载权重）。这是一个高性能的代码填充配置，使用 14B 主模型配合 0.5B 草稿模型，提供顶级的代码理解、生成和修复能力，同时通过投机解码实现快速的推理速度。",
+            .Explanation = "Use Qwen 2.5 Coder 14B + 0.5B draft for speculative decoding (note: can download weights from the internet) | 使用 Qwen 2.5 Coder 14B + 0.5B 草稿模型进行投机解码（注意：可以从互联网下载权重）。这是一个高性能的代码填充配置，使用 14B 主模型配合 0.5B 草稿模型，提供顶级的代码理解、生成和修复能力，同时通过投机解码实现快速的推理速度。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--fim-qwen-30b-default",
-            .Explanation = "use default Qwen 3 Coder 30B A3B Instruct (note: can download weights from the internet) | 使用默认的 Qwen 3 Coder 30B A3B Instruct（注意：可以从互联网下载权重）。这是一个超大型的 30B 参数代码模型，具有最强的代码理解和生成能力，适用于最复杂的代码任务和专业的开发场景。需要较高的硬件配置才能有效运行。",
+            .Explanation = "Use default Qwen 3 Coder 30B A3B Instruct (note: can download weights from the internet) | 使用默认的 Qwen 3 Coder 30B A3B Instruct（注意：可以从互联网下载权重）。这是一个超大型的 30B 参数代码模型，具有最强的代码理解和生成能力，适用于最复杂的代码任务和专业的开发场景。需要较高的硬件配置才能有效运行。",
             .Category = "preset",
             .Editor = "checkbox",
             .DefaultValue = False
