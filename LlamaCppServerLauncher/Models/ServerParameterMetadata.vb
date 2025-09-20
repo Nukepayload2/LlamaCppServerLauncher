@@ -8,21 +8,21 @@ Public Class ServerParameterMetadata
     Public Shared ReadOnly Property AllParameters As New List(Of ServerParameterMetadata) From {
         New ServerParameterMetadata With {
             .Argument = "--server-path",
-            .Explanation = "Server executable path | 服务器可执行文件路径。指定 llama.cpp HTTP 服务器的可执行文件位置，可以是绝对路径或相对路径。默认为空的字符串，需要用户手动指定。",
+            .Explanation = "Server executable path (default: empty string, must be specified manually) | 服务器可执行文件路径。指定 llama.cpp HTTP 服务器的可执行文件位置，可以是绝对路径或相对路径。默认为空字符串，需要用户手动指定。支持 llama-server.exe 或其他兼容的服务器可执行文件。",
             .Category = "common",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--model",
-            .Explanation = "Model file path | 模型文件路径。指定要加载的 GGUF 模型文件路径，支持本地文件路径或网络 URL。如果使用 --hf-repo 或 --model-url，此参数可选。默认为 models/$filename 格式。",
+            .Explanation = "Model path (default: `models/$filename` with filename from `--hf-file` or `--model-url` if set, otherwise models/7B/ggml-model-f16.gguf) (env: LLAMA_ARG_MODEL) | 模型文件路径。指定要加载的 GGUF 模型文件路径，支持本地文件路径或网络 URL。如果使用 --hf-repo 或 --model-url，此参数可选。默认根据 --hf-file 或 --model-url 设置为 models/$filename，否则为 models/7B/ggml-model-f16.gguf。",
             .Category = "common",
             .Editor = "filepath",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--threads",
-            .Explanation = "Number of threads to use during generation (default: -1) (env: LLAMA_ARG_THREADS) | 生成过程中使用的线程数。指定模型推理过程中使用的 CPU 线程数，直接影响推理速度和 CPU 使用率。建议设置为 CPU 逻辑核心数。默认为 -1 表示自动检测。",
+            .Explanation = "Number of threads to use during generation (default: -1, -1 = auto detect) (env: LLAMA_ARG_THREADS) | 生成过程中使用的线程数。指定模型推理过程中使用的 CPU 线程数，直接影响推理速度和 CPU 使用率。建议设置为 CPU 逻辑核心数。默认为 -1 表示自动检测为系统可用的逻辑核心数。",
             .Category = "common",
             .Editor = "numberupdown",
             .DefaultValue = 4
@@ -64,7 +64,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--n-gpu-layers",
-            .Explanation = "Number of GPU layers | GPU 层数。指定卸载到 VRAM 的神经网络层数，可显著加速推理。0 表示仅使用 CPU。设置为 -1 或足够大的数字可将整个模型移至 GPU。",
+            .Explanation = "Number of layers to store in VRAM (env: LLAMA_ARG_N_GPU_LAYERS) | GPU 层数。指定卸载到 VRAM 的神经网络层数，可显著加速推理。0 表示仅使用 CPU。设置为 -1 或足够大的数字可将整个模型移至 GPU。较高的层数可大幅提升推理速度，但需要足够的 GPU 显存。",
             .Category = "hardware",
             .Editor = "numberupdown",
             .DefaultValue = 0
@@ -239,7 +239,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--temperature",
-            .Explanation = "Temperature for sampling | 采样温度。控制生成文本的随机性，较低的值（如 0.2）使输出更确定性，较高的值（如 1.0）增加随机性和创造性。默认 0.8 提供良好的平衡。",
+            .Explanation = "Temperature for sampling (default: 0.8) | 采样温度。控制生成文本的随机性，较低的值（如 0.2）使输出更确定性，较高的值（如 1.0）增加随机性和创造性。默认 0.8 提供良好的平衡。值越低输出越保守，越高越创造性但可能不连贯。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.8
@@ -274,14 +274,14 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--xtc-probability",
-            .Explanation = "XTC probability | XTC 概率。排除最常见 token 的概率，用于减少重复和常见短语。0.0 表示禁用，较高的值可以增加文本的原创性和多样性。",
+            .Explanation = "XTC probability (default: 0.0, 0.0 = disabled) | XTC 概率。排除最常见 token 的概率，用于减少重复和常见短语。0.0 表示禁用，较高的值可以增加文本的原创性和多样性。XTC (Exclude Top Common) 是一种新颖的重复减少技术。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.0
         },
         New ServerParameterMetadata With {
             .Argument = "--xtc-threshold",
-            .Explanation = "XTC threshold | XTC 阈值。XTC 采样的阈值参数，控制排除 token 的严格程度。1.0 表示禁用。与 xtc-probability 配合使用，共同控制文本生成的特征。",
+            .Explanation = "XTC threshold (default: 0.1, 1.0 = disabled) | XTC 阈值。XTC 采样的阈值参数，控制排除 token 的严格程度。1.0 表示禁用。与 xtc-probability 配合使用，共同控制文本生成的特征。较低的阈值更严格地排除常见 token。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.1
@@ -302,21 +302,21 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--repeat-penalty",
-            .Explanation = "Repeat penalty | 重复惩罚。惩罚重复的 token 序列，减少文本重复。1.0 表示禁用，大于 1.0 的值会降低重复 token 的概率。适用于减少重复性回答和提高文本多样性。",
+            .Explanation = "Penalize repeat sequence of tokens (default: 1.0, 1.0 = disabled) | 重复惩罚。惩罚重复的 token 序列，减少文本重复。1.0 表示禁用，大于 1.0 的值会降低重复 token 的概率。适用于减少重复性回答和提高文本多样性。典型值为 1.1-1.2。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 1.0
         },
         New ServerParameterMetadata With {
             .Argument = "--presence-penalty",
-            .Explanation = "Presence penalty | 存在惩罚。alpha 存在惩罚，基于 token 是否已经出现过进行惩罚。0.0 表示禁用。正数鼓励讨论新话题，负数鼓励重复。适用于保持对话的多样性和新鲜度。",
+            .Explanation = "Repeat alpha presence penalty (default: 0.0, 0.0 = disabled) | 存在惩罚。alpha 存在惩罚，基于 token 是否已经出现过进行惩罚。0.0 表示禁用。正数鼓励讨论新话题，负数鼓励重复。适用于保持对话的多样性和新鲜度。比频率惩罚更关注话题转换。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.0
         },
         New ServerParameterMetadata With {
             .Argument = "--frequency-penalty",
-            .Explanation = "Frequency penalty | 频率惩罚。alpha 频率惩罚，基于 token 出现的频率进行惩罚。0.0 表示禁用。比存在惩罚更直接地控制重复，适用于精细调整文本生成质量。",
+            .Explanation = "Repeat alpha frequency penalty (default: 0.0, 0.0 = disabled) | 频率惩罚。alpha 频率惩罚，基于 token 出现的频率进行惩罚。0.0 表示禁用。比存在惩罚更直接地控制重复，适用于精细调整文本生成质量。惩罚强度与出现频率成正比。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.0
@@ -358,7 +358,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--dynatemp-range",
-            .Explanation = "Dynamic temperature range | 动态温度范围。动态温度范围，根据生成上下文动态调整温度。0.0 表示禁用。可以根据上下文内容自动调整输出的随机性，提供更智能的生成控制。",
+            .Explanation = "Dynamic temperature range (default: 0.0, 0.0 = disabled) | 动态温度范围。动态温度范围，根据生成上下文动态调整温度。0.0 表示禁用。可以根据上下文内容自动调整输出的随机性，提供更智能的生成控制。结合 dynatemp-exp 使用效果更佳。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.0
@@ -484,7 +484,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--n-parallel",
-            .Explanation = "Number of parallel processes | 并行进程数量。并行解码的序列数量，支持多用户同时使用。较高的值可提高并发性能，但增加内存和计算资源需求。适用于多用户聊天、批量处理等场景。",
+            .Explanation = "Number of parallel sequences to decode (default: 1) (env: LLAMA_ARG_N_PARALLEL) | 并行进程数量。并行解码的序列数量，支持多用户同时使用。较高的值可提高并发性能，但增加内存和计算资源需求。适用于多用户聊天、批量处理等场景。",
             .Category = "common",
             .Editor = "numberupdown",
             .DefaultValue = 1
@@ -708,14 +708,14 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--host",
-            .Explanation = "Server host | 服务器主机。服务器监听的 IP 地址，或如果地址以 .sock 结尾则绑定到 UNIX 套接字。默认为 127.0.0.1（仅本地访问）。设置为 0.0.0.0 允许外部访问。",
+            .Explanation = "Server host (default: 127.0.0.1) | 服务器主机。服务器监听的 IP 地址，或如果地址以 .sock 结尾则绑定到 UNIX 套接字。默认为 127.0.0.1（仅本地访问）。设置为 0.0.0.0 允许外部访问。生产环境中需要考虑网络安全配置。",
             .Category = "network",
             .Editor = "textbox",
             .DefaultValue = "127.0.0.1"
         },
         New ServerParameterMetadata With {
             .Argument = "--port",
-            .Explanation = "Server port | 服务器端口。服务器监听的端口号，默认为 8080。确保端口未被其他服务占用，且防火墙配置允许访问。支持 1-65535 范围内的端口号。",
+            .Explanation = "Server port (default: 8080) | 服务器端口。服务器监听的端口号，默认为 8080。确保端口未被其他服务占用，且防火墙配置允许访问。支持 1-65535 范围内的端口号。生产环境中建议使用非特权端口（>1024）。",
             .Category = "network",
             .Editor = "numberupdown",
             .DefaultValue = 8080
