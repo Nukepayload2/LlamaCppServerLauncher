@@ -166,7 +166,7 @@ Public Class MainViewModel
     Public ReadOnly Property BrowseServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForServerAsync(cancellationToken))
     Public ReadOnly Property BrowseModelCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForModelAsync(cancellationToken))
     Public ReadOnly Property StartServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) StartServerAsync(cancellationToken))
-    Public ReadOnly Property StopServerCommand As ICommand = New RelayCommand(AddressOf StopServer)
+    Public ReadOnly Property StopServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) StopServer(cancellationToken))
     Public ReadOnly Property SaveSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) SaveSettingsAsync(cancellationToken))
     Public ReadOnly Property LoadSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) LoadSettingsAsync(cancellationToken))
     Public ReadOnly Property CopyCommandCommand As ICommand = New RelayCommand(Function(param, cancellationToken) CopyCommandToClipboardAsync(cancellationToken))
@@ -359,7 +359,7 @@ Public Class MainViewModel
         End If
     End Function
 
-    Private Async Function StopServer() As Task
+    Private Async Function StopServer(cancel2 As CancellationToken) As Task
         If Not _serverRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
             Return
         End If
@@ -367,6 +367,7 @@ Public Class MainViewModel
         Try
             ' Send graceful shutdown signal using CTRL_C_EVENT
             Dim result = GenerateConsoleCtrlEvent(CTRL_C_EVENT, _serverProcess.SessionId)
+            cancel2.ThrowIfCancellationRequested()
 
             If result Then
                 ' Wait up to 3 seconds for graceful shutdown
