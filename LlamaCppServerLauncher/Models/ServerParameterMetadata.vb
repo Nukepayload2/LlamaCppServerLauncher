@@ -71,98 +71,98 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--main-gpu",
-            .Explanation = "Main GPU to use | 主 GPU 设备。当 split-mode 为 none 时使用的 GPU，或当 split-mode 为 row 时存储中间结果和 KV 缓存的 GPU。默认为 0。多 GPU 系统中用于负载均衡。",
+            .Explanation = "the GPU to use for the model (with split-mode = none), or for intermediate results and KV (with split-mode = row) (default: 0) | 主 GPU 设备。当 split-mode 为 none 时使用的 GPU，或当 split-mode 为 row 时存储中间结果和 KV 缓存的 GPU。默认为 0。多 GPU 系统中用于负载均衡。",
             .Category = "hardware",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--tensor-split",
-            .Explanation = "Tensor split configuration | 张量分割配置。指定将模型分配到多个 GPU 的比例，逗号分隔的比例列表。例如 '3,1' 表示 GPU 0 分配 75%，GPU 1 分配 25%。用于多 GPU 分布式推理。",
+            .Explanation = "fraction of the model to offload to each GPU, comma-separated list of proportions, e.g. 3,1 | 张量分割配置。指定将模型分配到多个 GPU 的比例，逗号分隔的比例列表。例如 '3,1' 表示 GPU 0 分配 75%，GPU 1 分配 25%。用于多 GPU 分布式推理。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--split-mode",
-            .Explanation = "Split mode for tensors | 张量分割模式。控制如何在多个 GPU 间分割模型：none（单 GPU）、layer（默认，层分割）、row（行分割）。影响多 GPU 性能和内存使用。",
+            .Explanation = "how to split the model across multiple GPUs, one of: none (use one GPU only), layer (default), row | 张量分割模式。控制如何在多个 GPU 间分割模型：none（单 GPU）、layer（默认，层分割）、row（行分割）。影响多 GPU 性能和内存使用。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = "none"
         },
         New ServerParameterMetadata With {
             .Argument = "--mlock",
-            .Explanation = "Lock model in memory | 内存锁定模型。强制系统将模型保持在 RAM 中而非交换或压缩，提高性能但增加内存占用。适用于内存充足且需要稳定性能的场景。",
+            .Explanation = "force system to keep model in RAM rather than swapping or compressing | 内存锁定模型。强制系统将模型保持在 RAM 中而非交换或压缩，提高性能但增加内存占用。适用于内存充足且需要稳定性能的场景。",
             .Category = "hardware",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--no-mmap",
-            .Explanation = "Disable memory mapping | 禁用内存映射。不使用内存映射加载模型，加载速度较慢但可能减少页面交换。在不使用 mlock 时可用于优化内存管理。",
+            .Explanation = "do not memory-map model (slower load but may reduce pageouts if not using mlock) | 禁用内存映射。不使用内存映射加载模型，加载速度较慢但可能减少页面交换。在不使用 mlock 时可用于优化内存管理。",
             .Category = "hardware",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--numa",
-            .Explanation = "NUMA configuration | NUMA 配置。尝试在某些 NUMA 系统上进行优化：distribute（均匀分布）、isolate（仅限起始节点）、numactl（使用 numactl 提供的 CPU 映射）。适合多 CPU 架构优化。",
+            .Explanation = "attempt optimizations that help on some NUMA systems - distribute, isolate, numactl | NUMA 配置。尝试在某些 NUMA 系统上进行优化：distribute（均匀分布）、isolate（仅限起始节点）、numactl（使用 numactl 提供的 CPU 映射）。适合多 CPU 架构优化。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--device",
-            .Explanation = "Device to use | 使用的设备。逗号分隔的设备列表用于卸载（none 表示不卸载）。使用 --list-devices 查看可用设备列表。支持 CPU、GPU 等多种设备类型。",
+            .Explanation = "Comma-separated list of devices to use for offloading (none = don't offload). Use --list-devices to see a list of available devices (env: LLAMA_ARG_DEVICE) | 使用的设备。逗号分隔的设备列表用于卸载（none 表示不卸载）。使用 --list-devices 查看可用设备列表。支持 CPU、GPU 等多种设备类型。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--cpu-mask",
-            .Explanation = "CPU mask | CPU 掩码。CPU 亲和性的十六进制掩码，与 cpu-range 互补。任意长度的十六进制字符串，用于精确控制进程在特定 CPU 核心上运行。",
+            .Explanation = "CPU affinity mask: arbitrarily long hex. Complements cpu-range (default: """") | CPU 掩码。CPU 亲和性的十六进制掩码，与 cpu-range 互补。任意长度的十六进制字符串，用于精确控制进程在特定 CPU 核心上运行。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--cpu-range",
-            .Explanation = "CPU range | CPU 范围。CPU 亲和性的范围，格式为 lo-hi。与 --cpu-mask 互补，用于指定进程可使用的 CPU 核心范围。",
+            .Explanation = "Range of CPUs for affinity. Complements --cpu-mask | CPU 范围。CPU 亲和性的范围，格式为 lo-hi。与 --cpu-mask 互补，用于指定进程可使用的 CPU 核心范围。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--cpu-strict",
-            .Explanation = "Strict CPU affinity | 严格 CPU 亲和性。使用严格的 CPU 放置，确保进程只在指定的 CPU 上运行。提高性能稳定性，但可能降低灵活性。",
+            .Explanation = "Use strict CPU placement (default: 0) | 严格 CPU 亲和性。使用严格的 CPU 放置，确保进程只在指定的 CPU 上运行。提高性能稳定性，但可能降低灵活性。",
             .Category = "hardware",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--prio",
-            .Explanation = "Process priority | 进程优先级。设置进程/线程优先级：low(-1)、normal(0)、medium(1)、high(2)、realtime(3)。较高的优先级可获得更多 CPU 时间，但可能影响系统稳定性。",
+            .Explanation = "Set process/thread priority : low(-1), normal(0), medium(1), high(2), realtime(3) (default: 0) | 进程优先级。设置进程/线程优先级：low(-1)、normal(0)、medium(1)、high(2)、realtime(3)。较高的优先级可获得更多 CPU 时间，但可能影响系统稳定性。",
             .Category = "hardware",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--poll",
-            .Explanation = "Poll interval | 轮询间隔。使用轮询级别等待工作（0 - 无轮询）。影响响应速度和 CPU 使用率的平衡。较高的轮询级别可提高响应速度但增加 CPU 使用。",
+            .Explanation = "Use polling level to wait for work (0 - no polling, default: 50) | 轮询间隔。使用轮询级别等待工作（0 - 无轮询）。影响响应速度和 CPU 使用率的平衡。较高的轮询级别可提高响应速度但增加 CPU 使用。",
             .Category = "hardware",
             .Editor = "numberupdown",
             .DefaultValue = 50
         },
         New ServerParameterMetadata With {
             .Argument = "--cpu-mask-batch",
-            .Explanation = "CPU mask for batch | 批处理 CPU 掩码。批处理操作的 CPU 亲和性掩码，与 --cpu-mask-batch 互补。默认与 --cpu-mask 相同，用于优化批处理性能。",
+            .Explanation = "CPU affinity mask: arbitrarily long hex. Complements cpu-range-batch (default: same as --cpu-mask) | 批处理 CPU 掩码。批处理操作的 CPU 亲和性掩码，与 --cpu-range-batch 互补。默认与 --cpu-mask 相同，用于优化批处理性能。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
         },
         New ServerParameterMetadata With {
             .Argument = "--cpu-range-batch",
-            .Explanation = "CPU range for batch | 批处理 CPU 范围。批处理操作的 CPU 亲和性范围，与 --cpu-mask-batch 互补。用于优化批处理操作的 CPU 分配。",
+            .Explanation = "ranges of CPUs for affinity. Complements --cpu-mask-batch | 批处理 CPU 范围。批处理操作的 CPU 亲和性范围，与 --cpu-mask-batch 互补。用于优化批处理操作的 CPU 分配。",
             .Category = "hardware",
             .Editor = "textbox",
             .DefaultValue = ""
@@ -295,7 +295,7 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--repeat-last-n",
-            .Explanation = "Repeat last N tokens | 重复最后 N 个 token。考虑用于惩罚重复的最近 token 数量。0 表示禁用，-1 表示使用整个上下文大小。较大的值可以更好地防止重复，但可能影响自然重复。",
+            .Explanation = "last n tokens to consider for penalize (default: 64, 0 = disabled, -1 = ctx_size) | 重复最后 N 个 token。考虑用于惩罚重复的最近 token 数量。0 表示禁用，-1 表示使用整个上下文大小。较大的值可以更好地防止重复，但可能影响自然重复。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 64
@@ -323,28 +323,28 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-multiplier",
-            .Explanation = "DRY multiplier | DRY 采样乘数。设置 DRY（Don't Repeat Yourself）采样的乘数，控制惩罚强度。0.0 表示禁用。高级重复检测方法，比传统重复惩罚更智能。",
+            .Explanation = "set DRY sampling multiplier (default: 0.0, 0.0 = disabled) | DRY 采样乘数。设置 DRY（Don't Repeat Yourself）采样的乘数，控制惩罚强度。0.0 表示禁用。高级重复检测方法，比传统重复惩罚更智能。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.0
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-base",
-            .Explanation = "DRY base | DRY 基础值。设置 DRY 采样的基础值，影响惩罚计算的基准。与 dry-multiplier 配合使用，共同控制重复检测的敏感度。",
+            .Explanation = "set DRY sampling base value (default: 1.75) | DRY 基础值。设置 DRY 采样的基础值，影响惩罚计算的基准。与 dry-multiplier 配合使用，共同控制重复检测的敏感度。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 1.75
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-allowed-length",
-            .Explanation = "DRY allowed length | DRY 允许长度。设置 DRY 采样允许的重复序列长度。较小的值限制更多，较大的值允许更多的自然重复。适用于控制文本的流畅度和原创性。",
+            .Explanation = "set allowed length for DRY sampling (default: 2) | DRY 允许长度。设置 DRY 采样允许的重复序列长度。较小的值限制更多，较大的值允许更多的自然重复。适用于控制文本的流畅度和原创性。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 2
         },
         New ServerParameterMetadata With {
             .Argument = "--dry-penalty-last-n",
-            .Explanation = "DRY penalty last N | DRY 惩罚最后 N。设置 DRY 惩罚考虑的最后 N 个 token，-1 表示使用上下文大小，0 表示禁用。控制重复检测的历史窗口大小。",
+            .Explanation = "set DRY penalty for the last n tokens (default: -1, 0 = disable, -1 = context size) | DRY 惩罚最后 N。设置 DRY 惩罚考虑的最后 N 个 token，-1 表示使用上下文大小，0 表示禁用。控制重复检测的历史窗口大小。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = -1
@@ -365,56 +365,56 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--dynatemp-exp",
-            .Explanation = "Dynamic temperature exponent | 动态温度指数。动态温度的指数参数，影响温度调整的敏感度。与 dynatemp-range 配合使用，控制动态温度的行为模式。",
+            .Explanation = "dynamic temperature exponent (default: 1.0) | 动态温度指数。动态温度的指数参数，影响温度调整的敏感度。与 dynatemp-range 配合使用，控制动态温度的行为模式。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 1.0
         },
         New ServerParameterMetadata With {
             .Argument = "--mirostat",
-            .Explanation = "Mirostat mode | Mirostat 模式。使用 Mirostat 采样算法，自动调节 perplexity 到目标水平。0=禁用，1=Mirostat，2=Mirostat 2.0。启用时忽略 Top K、Nucleus 和 Locally Typical 采样器。",
+            .Explanation = "use Mirostat sampling (default: 0, 0 = disabled, 1 = Mirostat, 2 = Mirostat 2.0) | Mirostat 模式。使用 Mirostat 采样算法，自动调节 perplexity 到目标水平。0=禁用，1=Mirostat，2=Mirostat 2.0。启用时忽略 Top K、Nucleus 和 Locally Typical 采样器。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0
         },
         New ServerParameterMetadata With {
             .Argument = "--mirostat-lr",
-            .Explanation = "Mirostat learning rate | Mirostat 学习率。Mirostat 算法的学习率参数 eta，控制 perplexity 调节的速度。较高的值响应更快但可能不稳定，较低的值更稳定但响应较慢。",
+            .Explanation = "Mirostat learning rate, parameter eta (default: 0.1) | Mirostat 学习率。Mirostat 算法的学习率参数 eta，控制 perplexity 调节的速度。较高的值响应更快但可能不稳定，较低的值更稳定但响应较慢。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 0.1
         },
         New ServerParameterMetadata With {
             .Argument = "--mirostat-ent",
-            .Explanation = "Mirostat entropy | Mirostat 熵。Mirostat 算法的目标熵参数 tau，控制生成文本的不可预测性。较高的值产生更多样化的输出，较低的值产生更可预测的输出。",
+            .Explanation = "Mirostat target entropy, parameter tau (default: 5.0) | Mirostat 熵。Mirostat 算法的目标熵参数 tau，控制生成文本的不可预测性。较高的值产生更多样化的输出，较低的值产生更可预测的输出。",
             .Category = "sampling",
             .Editor = "numberupdown",
             .DefaultValue = 5.0
         },
         New ServerParameterMetadata With {
             .Argument = "--samplers",
-            .Explanation = "Samplers configuration | 采样器配置。指定生成时使用的采样器序列，用分号分隔。默认序列：penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature。采样器的顺序影响最终生成结果。",
+            .Explanation = "samplers that will be used for generation in the order, separated by ';' (default: penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature) | 采样器配置。指定生成时使用的采样器序列，用分号分隔。默认序列：penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature。采样器的顺序影响最终生成结果。",
             .Category = "sampling",
             .Editor = "textbox",
             .DefaultValue = "penalties;dry;top_n_sigma;top_k;typ_p;top_p;min_p;xtc;temperature"
         },
         New ServerParameterMetadata With {
             .Argument = "--sampling-seq",
-            .Explanation = "Sampling sequence | 采样序列。采样器的简化序列表示，每个字符对应一个采样器。默认 'edskypmxt'。提供更简洁的方式来配置采样器顺序，便于快速调整。",
+            .Explanation = "simplified sequence for samplers that will be used (default: edskypmxt) | 采样序列。采样器的简化序列表示，每个字符对应一个采样器。默认 'edskypmxt'。提供更简洁的方式来配置采样器顺序，便于快速调整。",
             .Category = "sampling",
             .Editor = "textbox",
             .DefaultValue = "edskypmxt"
         },
         New ServerParameterMetadata With {
             .Argument = "--ignore-eos",
-            .Explanation = "Ignore end of sequence token | 忽略序列结束 token。忽略 EOS（结束序列）token 并继续生成，意味着 --logit-bias EOS-inf。适用于需要强制生成更长的文本或不希望模型提前结束的场景。",
+            .Explanation = "ignore end of stream token and continue generating (implies --logit-bias EOS-inf) | 忽略序列结束 token。忽略 EOS（结束序列）token 并继续生成，意味着 --logit-bias EOS-inf。适用于需要强制生成更长的文本或不希望模型提前结束的场景。",
             .Category = "sampling",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--rope-scaling",
-            .Explanation = "RoPE scaling type | RoPE 缩放类型。Rotary Position Embedding 频率缩放方法，可选值：none、linear、yarn。除非模型指定，否则默认为 linear。用于扩展模型上下文长度，提高长文本处理能力。",
+            .Explanation = "RoPE frequency scaling method, defaults to linear unless specified by the model | RoPE 缩放类型。Rotary Position Embedding 频率缩放方法，可选值：none、linear、yarn。除非模型指定，否则默认为 linear。用于扩展模型上下文长度，提高长文本处理能力。",
             .Category = "rope",
             .Editor = "textbox",
             .DefaultValue = "none"
