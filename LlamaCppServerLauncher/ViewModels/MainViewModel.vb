@@ -3,7 +3,12 @@ Imports System.Linq
 Imports System.Text
 Imports System.Text.Json
 Imports System.IO
+Imports System.Threading.Tasks
 Imports Avalonia.Threading
+Imports Avalonia.Platform.Storage
+Imports Avalonia.Controls
+Imports System.Windows.Input
+Imports System.Diagnostics
 Imports LlamaCppServerLauncher.Helpers
 
 Public Class MainViewModel
@@ -20,8 +25,20 @@ Public Class MainViewModel
     Private _availableCategories As List(Of String)
 
     ' 防抖相关字段
-    Private _debounceTimer As DispatcherTimer
+    Private WithEvents DebounceTimer As New DispatcherTimer With {
+        .Interval = TimeSpan.FromMilliseconds(DEBOUNCE_DELAY)
+    }
     Private Const DEBOUNCE_DELAY As Integer = 300 ' 300毫秒防抖延迟
+
+    ' 服务器管理相关字段
+    Private _serverProcess As Process
+    Private _serverRunning As Boolean = False
+    Private WithEvents StatusCheckTimer As New DispatcherTimer With {
+        .Interval = TimeSpan.FromSeconds(1)
+    }
+
+    ' 命令预览字段
+    Private _commandPreview As String = ""
 
 #End Region
 
@@ -121,6 +138,29 @@ Public Class MainViewModel
         End Get
     End Property
 
+    Public Property CommandPreview As String
+        Get
+            Return _commandPreview
+        End Get
+        Set(value As String)
+            SetProperty(_commandPreview, value)
+        End Set
+    End Property
+
+#Region " Commands "
+
+    Public ReadOnly Property UpdateCommandPreviewCommand As ICommand = New RelayCommand(AddressOf UpdateCommandPreviewAsync)
+    Public ReadOnly Property ClearFiltersCommand As ICommand = New RelayCommand(AddressOf ClearFilters)
+    Public ReadOnly Property BrowseServerCommand As ICommand = New RelayCommand(AddressOf BrowseForServerAsync)
+    Public ReadOnly Property BrowseModelCommand As ICommand = New RelayCommand(AddressOf BrowseForModelAsync)
+    Public ReadOnly Property StartServerCommand As ICommand = New RelayCommand(AddressOf StartServerAsync)
+    Public ReadOnly Property StopServerCommand As ICommand = New RelayCommand(AddressOf StopServer)
+    Public ReadOnly Property SaveSettingsCommand As ICommand = New RelayCommand(AddressOf SaveSettingsAsync)
+    Public ReadOnly Property LoadSettingsCommand As ICommand = New RelayCommand(AddressOf LoadSettingsAsync)
+    Public ReadOnly Property CopyCommandCommand As ICommand = New RelayCommand(AddressOf CopyCommandToClipboardAsync)
+
+#End Region
+
 #End Region
 
 #Region " Constructor "
@@ -128,8 +168,11 @@ Public Class MainViewModel
     Public Sub New()
         LoadSettingsSync()
         InitializeDebounceTimer()
+        InitializeStatusCheckTimer()
         ' 为所有参数订阅属性变化事件
         SubscribeToParameterChanges()
+        ' 初始化命令预览
+        CommandPreview = UpdateCommandPreview()
     End Sub
 
 #End Region
@@ -185,7 +228,9 @@ Public Class MainViewModel
             Next
         End If
 
-        Return fullCommand.ToString().Trim()
+        Dim result = fullCommand.ToString().Trim()
+        CommandPreview = result
+        Return result
     End Function
 
     Public Sub LoadSettingsSync()
@@ -195,26 +240,251 @@ Public Class MainViewModel
         UpdateFilteredParameters()
     End Sub
 
+#Region " Command Methods "
+
+    Private Async Sub UpdateCommandPreviewAsync()
+        ' 手动触发命令预览更新
+        UpdateCommandPreview()
+        Await Task.CompletedTask
+    End Sub
+
+    Private Async Sub BrowseForServerAsync()
+        Dim storageProvider = My.Application.MainWindow.StorageProvider
+        If storageProvider IsNot Nothing Then
+            Dim files = Await storageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
+                .Title = "Select LLaMA.cpp Server Executable",
+                .AllowMultiple = False,
+                .FileTypeFilter = New List(Of FilePickerFileType) From {
+                    New FilePickerFileType("Executable Files") With {
+                        .Patterns = New List(Of String) From {"*.exe"}
+                    }
+                }
+            })
+
+            If files.Count > 0 Then
+                Settings.ServerPath = files(0).Path.LocalPath
+            End If
+        End If
+    End Sub
+
+    Private Async Sub BrowseForModelAsync()
+        Dim storageProvider = My.Application.MainWindow.StorageProvider
+        If storageProvider IsNot Nothing Then
+            Dim files = Await storageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
+                .Title = "Select LLaMA.cpp Model File",
+                .AllowMultiple = False,
+                .FileTypeFilter = New List(Of FilePickerFileType) From {
+                    New FilePickerFileType("Model Files") With {
+                        .Patterns = New List(Of String) From {"*.gguf", "*.bin"}
+                    }
+                }
+            })
+
+            If files.Count > 0 Then
+                Settings.ModelPath = files(0).Path.LocalPath
+            End If
+        End If
+    End Sub
+
+    Private Async Sub StartServerAsync()
+        If _serverRunning Then
+            Await MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning", My.Application.MainWindow)
+            Return
+        End If
+
+        If String.IsNullOrEmpty(Settings.ServerPath) OrElse Not File.Exists(Settings.ServerPath) Then
+            Await MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            Return
+        End If
+
+        If String.IsNullOrEmpty(Settings.ModelPath) OrElse Not File.Exists(Settings.ModelPath) Then
+            Await MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            Return
+        End If
+
+        Dim errorMessage As String = ""
+        Try
+            Dim args As String = UpdateCommandPreview()
+            Dim startInfo As New ProcessStartInfo(Settings.ServerPath, args) With {
+                .UseShellExecute = True,
+                .CreateNoWindow = False,
+                .WindowStyle = ProcessWindowStyle.Normal
+            }
+
+            _serverProcess = Process.Start(startInfo)
+            _serverRunning = True
+
+            ' 启动状态检查定时器
+            StatusCheckTimer.IsEnabled = True
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync($"Failed to start server: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+        End If
+    End Sub
+
+    Private Sub StopServer()
+        If Not _serverRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
+            Return
+        End If
+
+        Try
+            _serverProcess.Kill()
+        Catch
+            ' Ignore kill errors
+        Finally
+            _serverRunning = False
+            _serverProcess = Nothing
+            ' 停止状态检查定时器
+            StatusCheckTimer.IsEnabled = False
+        End Try
+    End Sub
+
+    Private Sub CheckServerStatus() Handles StatusCheckTimer.Tick
+        If Not _serverRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
+            _serverRunning = False
+            _serverProcess = Nothing
+            StatusCheckTimer.IsEnabled = False
+        End If
+    End Sub
+
+    Private Async Sub SaveSettingsAsync()
+        Dim errorMessage As String = ""
+        Try
+            ' 创建一个新的AppSettings，只保存有值的参数
+            Dim settingsToSave As New AppSettings.IoModel()
+
+            ' 只保存HasLocalValue=True的参数
+            Dim params As New List(Of ServerParameterItem)
+            If Settings.ServerParameters IsNot Nothing Then
+                For Each param In Settings.ServerParameters
+                    If param.HasLocalValue Then
+                        params.Add(param)
+                    End If
+                Next
+            End If
+            settingsToSave.ServerParameters = params.ToArray
+
+            Dim json As String = JsonSerializer.Serialize(settingsToSave, New JsonSerializerOptions With {
+                .WriteIndented = True,
+                .DefaultIgnoreCondition = Serialization.JsonIgnoreCondition.WhenWritingNull
+            })
+            Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
+            Await File.WriteAllTextAsync(configFile, json)
+
+            Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync($"Error saving settings: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+        End If
+    End Sub
+
+    Private Async Sub LoadSettingsAsync()
+        Dim errorMessage As String = ""
+        Dim configFileExists As Boolean = False
+
+        Try
+            Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
+            configFileExists = File.Exists(configFile)
+            If configFileExists Then
+                Dim json As String = Await File.ReadAllTextAsync(configFile)
+                Dim loadedSettings = JsonSerializer.Deserialize(Of AppSettings.IoModel)(json)
+
+                ' 先重置当前所有参数到默认值
+                Settings.ResetToDefault()
+
+                ' 重置基本设置
+                Settings.ServerPath = ""
+                Settings.ModelPath = ""
+                Settings.Host = ""
+                Settings.Port = 8080
+
+                ' 然后应用加载的设置
+                If loadedSettings.ServerParameters IsNot Nothing Then
+                    For Each loadedParam In loadedSettings.ServerParameters
+                        ' 找到对应的参数并更新其值
+                        Dim existingParam As ServerParameterItem = Nothing
+                        If Settings.ServerParameterByName.TryGetValue(loadedParam.Argument, existingParam) Then
+                            ' 复制值而不是整个对象
+                            If loadedParam.Value.StringValue IsNot Nothing Then
+                                existingParam.Value.StringValue = loadedParam.Value.StringValue
+                            End If
+                            If loadedParam.Value.DoubleValue.HasValue Then
+                                existingParam.Value.DoubleValue = loadedParam.Value.DoubleValue.Value
+                            End If
+                            If loadedParam.Value.BooleanValue.HasValue Then
+                                existingParam.Value.BooleanValue = loadedParam.Value.BooleanValue.Value
+                            End If
+                        End If
+                    Next
+                End If
+
+                ' 更新基本设置
+                Settings.NotifyBasicPropertiesChanged()
+
+                ' 触发UI更新
+                LoadSettingsSync()
+
+                Await MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
+            End If
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync($"Error loading settings: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+        ElseIf Not configFileExists Then
+            Await MsgBoxAsync("No configuration file found. Using default settings.", MsgBoxButtons.Ok, "Info", My.Application.MainWindow)
+        End If
+    End Sub
+
+    Private Async Sub CopyCommandToClipboardAsync()
+        Dim commandText = UpdateCommandPreview()
+        If Not String.IsNullOrEmpty(commandText) Then
+            Dim errorMessage As String = ""
+            Try
+                Await My.Application.MainWindow.Clipboard.SetTextAsync(commandText)
+                Await MsgBoxAsync(My.Resources.CommandCopied, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
+            Catch ex As Exception
+                errorMessage = ex.Message
+            End Try
+
+            If Not String.IsNullOrEmpty(errorMessage) Then
+                Await MsgBoxAsync($"Failed to copy command: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            End If
+        End If
+    End Sub
+
+#End Region
+
 #End Region
 
 #Region " Private Methods "
 
     Private Sub InitializeDebounceTimer()
-        _debounceTimer = New DispatcherTimer With {
-            .Interval = TimeSpan.FromMilliseconds(DEBOUNCE_DELAY)
-        }
-        AddHandler _debounceTimer.Tick, AddressOf OnDebounceTimerTick
+        ' 定时器已使用WithEvents声明并初始化
+        DebounceTimer.IsEnabled = False
     End Sub
 
-    Private Sub OnDebounceTimerTick(sender As Object, e As EventArgs)
-        _debounceTimer.IsEnabled = False
+    Private Sub InitializeStatusCheckTimer()
+        ' 定时器已使用WithEvents声明并初始化
+        StatusCheckTimer.IsEnabled = False
+    End Sub
+
+    Private Sub OnDebounceTimerTick(sender As Object, e As EventArgs) Handles DebounceTimer.Tick
+        DebounceTimer.IsEnabled = False
         UpdateFilteredParameters()
     End Sub
 
     Private Sub DebounceUpdateFilteredParameters()
         ' 重置定时器，取消之前的待执行操作
-        _debounceTimer.Stop()
-        _debounceTimer.Start()
+        DebounceTimer.Stop()
+        DebounceTimer.Start()
     End Sub
 
     Private Sub UpdateFilteredParameters()
@@ -229,26 +499,26 @@ Public Class MainViewModel
 
     Private Function ComputeFilteredParameters() As List(Of ServerParameterItem)
         If Settings.ServerParameters Is Nothing Then Return New List(Of ServerParameterItem)()
-        
+
         Dim filtered = Settings.ServerParameters.AsEnumerable()
-        
+
         ' Text filter
         If Not String.IsNullOrEmpty(FilterText) Then
             Dim searchText = FilterText.ToLower()
             filtered = filtered.Where(Function(p) p.Argument.Contains(searchText, StringComparison.OrdinalIgnoreCase) OrElse
                                      (p.Metadata?.Explanation?.Contains(searchText, StringComparison.OrdinalIgnoreCase)).GetValueOrDefault)
         End If
-        
+
         ' Category filter
         If SelectedCategory <> "所有分类" Then
             filtered = filtered.Where(Function(p) p.Metadata?.Category = SelectedCategory)
         End If
-        
+
         ' Modified only filter
         If ShowModifiedOnly Then
             filtered = filtered.Where(Function(p) p.HasLocalValue)
         End If
-        
+
         Return filtered.OrderBy(Function(p) p.Argument).ToList()
     End Function
 
@@ -260,18 +530,18 @@ Public Class MainViewModel
                 If param.Value.BooleanValue.HasValue AndAlso param.Value.BooleanValue.Value Then
                     Return param.Argument
                 End If
-                
+
             Case "numberupdown"
                 If param.Value.DoubleValue.HasValue Then
                     Return $"{param.Argument} {param.Value.DoubleValue.Value}"
                 End If
-                
+
             Case "textbox", "filepath", "directory"
                 If Not String.IsNullOrEmpty(param.Value.StringValue) Then
                     Return $"{param.Argument} ""{param.Value.StringValue}"""
                 End If
         End Select
-        
+
         Return Nothing
     End Function
 
@@ -281,10 +551,14 @@ Public Class MainViewModel
 
     Public Sub Dispose() Implements IDisposable.Dispose
         ' 释放定时器资源
-        If _debounceTimer IsNot Nothing Then
-            _debounceTimer.Stop()
-            RemoveHandler _debounceTimer.Tick, AddressOf OnDebounceTimerTick
-            _debounceTimer = Nothing
+        If DebounceTimer IsNot Nothing Then
+            DebounceTimer.Stop()
+            DebounceTimer = Nothing
+        End If
+
+        If StatusCheckTimer IsNot Nothing Then
+            StatusCheckTimer.Stop()
+            StatusCheckTimer = Nothing
         End If
     End Sub
 

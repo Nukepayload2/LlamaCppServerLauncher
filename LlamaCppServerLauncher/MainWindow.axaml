@@ -50,7 +50,8 @@
                         x:Name="ClearFiltersButton"
                         Content="清除筛选"
                         Width="100"
-                        VerticalAlignment="Center"/>
+                        VerticalAlignment="Center"
+                        Command="{Binding ClearFiltersCommand}"/>
             </Grid>
         </Border>
         
@@ -96,14 +97,16 @@
                             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
                                 <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ServerPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <TextBox Grid.Column="1" Text="{Binding Settings.ServerPath}" Margin="0,0,10,0"/>
-                                <Button Grid.Column="2" x:Name="BrowseServerButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
+                                <Button Grid.Column="2" x:Name="BrowseServerButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"
+                                        Command="{Binding BrowseServerCommand}"/>
                             </Grid>
                             
                             <!-- Model Path -->
                             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto" Margin="0,5">
                                 <TextBlock Grid.Column="0" Text="{x:Static res:Resources.ModelPathLabel}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                 <TextBox Grid.Column="1" Text="{Binding Settings.ModelPath}" Margin="0,0,10,0"/>
-                                <Button Grid.Column="2" x:Name="BrowseModelButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"/>
+                                <Button Grid.Column="2" x:Name="BrowseModelButton" Content="{x:Static res:Resources.BrowseButton}" MinWidth="80"
+                                        Command="{Binding BrowseModelCommand}"/>
                             </Grid>
                             
                             <!-- Network Settings -->
@@ -127,9 +130,10 @@
                                     HorizontalAlignment="Left"
                                     MinWidth="180"
                                     Background="#2196F3" 
-                                    Foreground="White"/>
+                                    Foreground="White"
+                                    Command="{Binding UpdateCommandPreviewCommand}"/>
                             
-                            <TextBox x:Name="CommandPreviewTextBox" 
+                            <TextBox Text="{Binding CommandPreview}" 
                                      TextWrapping="Wrap" 
                                      VerticalAlignment="Stretch"
                                      MinHeight="150"
@@ -140,7 +144,8 @@
                             <Button x:Name="CopyCommandButton" 
                                     Content="{x:Static res:Resources.CopyCommandButton}" 
                                     HorizontalAlignment="Right"
-                                    MinWidth="120"/>
+                                    MinWidth="120"
+                                    Command="{Binding CopyCommandCommand}"/>
                         </StackPanel>
                     </Expander>
                     
@@ -170,17 +175,21 @@
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
                 <Button x:Name="StartServerButton" Content="{x:Static res:Resources.StartServerButton}" 
                         Background="#4CAF50" Foreground="White"
-                        MinWidth="120" Height="35"/>
+                        MinWidth="120" Height="35"
+                        Command="{Binding StartServerCommand}"/>
                 <Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}" 
                         Background="#f44336" Foreground="White"
                         IsEnabled="False"
-                        MinWidth="120" Height="35"/>
+                        MinWidth="120" Height="35"
+                        Command="{Binding StopServerCommand}"/>
                 <Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}" 
                         Background="#2196F3" Foreground="White"
-                        MinWidth="120" Height="35"/>
+                        MinWidth="120" Height="35"
+                        Command="{Binding SaveSettingsCommand}"/>
                 <Button x:Name="LoadSettingsButton" Content="{x:Static res:Resources.LoadSettingsButton}" 
                         Background="#FF9800" Foreground="White"
-                        MinWidth="120" Height="35"/>
+                        MinWidth="120" Height="35"
+                        Command="{Binding LoadSettingsCommand}"/>
             </StackPanel>
         </Border>
     </Grid>
