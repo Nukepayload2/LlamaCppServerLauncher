@@ -204,35 +204,35 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--cache-type-k",
-            .Explanation = "Cache type for K | K 缓存类型。KV 缓存中 K 键的数据类型，可选值：f32、f16、bf16、q8_0、q4_0、q4_1、iq4_nl、q5_0、q5_1。影响内存占用和精度，f16 是较好的平衡。",
+            .Explanation = "KV cache data type for K. Allowed values: f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1 (default: f16) (env: LLAMA_ARG_CACHE_TYPE_K) | K 缓存类型。KV 缓存中 K 键的数据类型，可选值：f32、f16、bf16、q8_0、q4_0、q4_1、iq4_nl、q5_0、q5_1。影响内存占用和精度，f16 是较好的平衡。",
             .Category = "kv-cache",
             .Editor = "textbox",
             .DefaultValue = "f16"
         },
         New ServerParameterMetadata With {
             .Argument = "--cache-type-v",
-            .Explanation = "Cache type for V | V 缓存类型。KV 缓存中 V 值的数据类型，可选值与 K 相同。通常与 K 设置相同类型以保持一致性，可根据精度需求选择。",
+            .Explanation = "KV cache data type for V. Allowed values: f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1 (default: f16) (env: LLAMA_ARG_CACHE_TYPE_V) | V 缓存类型。KV 缓存中 V 值的数据类型，可选值与 K 相同。通常与 K 设置相同类型以保持一致性，可根据精度需求选择。",
             .Category = "kv-cache",
             .Editor = "textbox",
             .DefaultValue = "f16"
         },
         New ServerParameterMetadata With {
             .Argument = "--defrag-thold",
-            .Explanation = "Defragmentation threshold | KV 缓存碎片整理阈值。当碎片超过此阈值时触发碎片整理，提高内存利用率。DEPRECATED 参数，可能在未来版本中被移除。",
+            .Explanation = "KV cache defragmentation threshold (DEPRECATED) (env: LLAMA_ARG_DEFRAG_THOLD) | KV 缓存碎片整理阈值。当碎片超过此阈值时触发碎片整理，提高内存利用率。DEPRECATED 参数，可能在未来版本中被移除。",
             .Category = "kv-cache",
             .Editor = "numberupdown",
             .DefaultValue = 0.5
         },
         New ServerParameterMetadata With {
             .Argument = "--kv-unified",
-            .Explanation = "Unified KV cache | 统一 KV 缓存。使用单一统一的 KV 缓冲区存储所有序列的 KV 缓存，而不是为每个序列分别分配。可提高内存效率，但可能在某些场景下影响性能。",
+            .Explanation = "Use single unified KV buffer for the KV cache of all sequences (default: false) [more info](https://github.com/ggml-org/llama.cpp/pull/14363) (env: LLAMA_ARG_KV_SPLIT) | 统一 KV 缓存。使用单一统一的 KV 缓冲区存储所有序列的 KV 缓存，而不是为每个序列分别分配。可提高内存效率，但可能在某些场景下影响性能。",
             .Category = "kv-cache",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--swa-full",
-            .Explanation = "Sliding window attention full | 全尺寸滑动窗口注意力。使用完整大小的 SWA 缓存，提高长上下文处理的性能和内存效率。适用于处理超长文本或需要大量历史上下文的场景。",
+            .Explanation = "Use full-size SWA cache (default: false) [more info](https://github.com/ggml-org/llama.cpp/pull/13194#issuecomment-2868343055) (env: LLAMA_ARG_SWA_FULL) | 全尺寸滑动窗口注意力。使用完整大小的 SWA 缓存，提高长上下文处理的性能和内存效率。适用于处理超长文本或需要大量历史上下文的场景。",
             .Category = "kv-cache",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -476,8 +476,8 @@ Public Class ServerParameterMetadata
             .DefaultValue = 32.0
         },
         New ServerParameterMetadata With {
-            .Argument = "--flash-attn on",
-            .Explanation = "Enable flash attention | 启用 Flash Attention。启用 Flash Attention 优化算法，显著提高注意力计算效率，减少内存使用和计算时间。需要硬件支持，可大幅提升长文本处理性能。",
+            .Argument = "--flash-attn",
+            .Explanation = "Enable Flash Attention (default: disabled) (env: LLAMA_ARG_FLASH_ATTN) | 启用 Flash Attention。启用 Flash Attention 优化算法，显著提高注意力计算效率，减少内存使用和计算时间。需要硬件支持，可大幅提升长文本处理性能。",
             .Category = "hardware",
             .Editor = "checkbox",
             .DefaultValue = False
@@ -687,21 +687,21 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--no-perf",
-            .Explanation = "Disable performance metrics | 禁用性能指标。禁用内部 libllama 性能计时，减少开销但失去性能数据。在不需要性能分析的生产环境中可略微提高性能。",
+            .Explanation = "Disable internal libllama performance timings (default: false) (env: LLAMA_ARG_NO_PERF) | 禁用性能指标。禁用内部 libllama 性能计时，减少开销但失去性能数据。在不需要性能分析的生产环境中可略微提高性能。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = False
         },
         New ServerParameterMetadata With {
             .Argument = "--escape",
-            .Explanation = "Escape special characters | 转义特殊字符。处理转义序列（\n, \r, \t, \', \"", \\）。确保文本输出的正确性和安全性，防止格式问题和注入攻击。",
+            .Explanation = "Process escapes sequences (\n, \r, \t, \', \"", \\) (default: true) | 转义特殊字符。处理转义序列（\n, \r, \t, \', \"", \\）。确保文本输出的正确性和安全性，防止格式问题和注入攻击。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = True
         },
         New ServerParameterMetadata With {
             .Argument = "--verbose-prompt",
-            .Explanation = "Verbose prompt | 详细提示。在生成之前打印详细的提示信息，显示实际发送给模型的完整提示内容。用于调试和验证提示构建的正确性。",
+            .Explanation = "Print a verbose prompt before generation (default: false) | 详细提示。在生成之前打印详细的提示信息，显示实际发送给模型的完整提示内容。用于调试和验证提示构建的正确性。",
             .Category = "logging",
             .Editor = "checkbox",
             .DefaultValue = False
