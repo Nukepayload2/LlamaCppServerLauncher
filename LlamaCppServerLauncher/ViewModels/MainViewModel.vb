@@ -481,7 +481,7 @@ Class MainViewModel
             Await File.WriteAllTextAsync(filePath, json, cancellationToken)
 
             cancellationToken.ThrowIfCancellationRequested()
-            Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, My.Resources.SuccessTitle, My.Application.MainWindow)
+            ' 成功保存时不显示弹窗
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
