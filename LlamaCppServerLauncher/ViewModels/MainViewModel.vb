@@ -324,7 +324,7 @@ Class MainViewModel
     Private Async Function StartServerAsync(cancellationToken As CancellationToken) As Task
         cancellationToken.ThrowIfCancellationRequested()
         If ServerRunning Then
-            Await MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning", My.Application.MainWindow)
+            Await MsgBoxAsync(My.Resources.ServerAlreadyRunning, MsgBoxButtons.Ok, My.Resources.WarningTitle, My.Application.MainWindow)
             Return
         End If
 
@@ -332,7 +332,7 @@ Class MainViewModel
         Dim serverPathParam = Settings.ServerParameterByName("--server-path")
         Dim serverPath As String = If(serverPathParam?.Value.StringValue, "")
         If String.IsNullOrEmpty(serverPath) OrElse Not File.Exists(serverPath) Then
-            Await MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            Await MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
             Return
         End If
 
@@ -340,7 +340,7 @@ Class MainViewModel
         Dim modelPathParam = Settings.ServerParameterByName("--model")
         Dim modelPath As String = If(modelPathParam?.Value.StringValue, "")
         If String.IsNullOrEmpty(modelPath) OrElse Not File.Exists(modelPath) Then
-            Await MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            Await MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
             Return
         End If
 
@@ -367,8 +367,8 @@ Class MainViewModel
                 ServerRunning = True
 
                 ' 启动输出读取任务
-                _outputTask = ReadOutputStream(_serverProcess.StandardOutput, "stdout")
-                _errorTask = ReadOutputStream(_serverProcess.StandardError, "stderr")
+                _outputTask = ReadOutputStream(_serverProcess.StandardOutput, My.Resources.StdoutPrefix)
+                _errorTask = ReadOutputStream(_serverProcess.StandardError, My.Resources.StderrPrefix)
 
                 ' 启动状态检查定时器
                 StatusCheckTimer.IsEnabled = True
@@ -379,7 +379,7 @@ Class MainViewModel
 
         cancellationToken.ThrowIfCancellationRequested()
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await MsgBoxAsync($"Failed to start server: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            Await MsgBoxAsync(String.Format(My.Resources.FailedToStartServer, errorMessage), MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
         End If
     End Function
 
@@ -442,7 +442,7 @@ Class MainViewModel
     End Function
 
     Private Sub HandleStreamError(prefix As String, ex As Exception)
-        Dim errorMessage = $"[{prefix }] Error reading stream: {ex.Message }"
+        Dim errorMessage = String.Format(My.Resources.ErrorReadingStream, prefix, ex.Message)
         Dispatcher.UIThread.InvokeAsync(
             Sub()
                 _serverOutput.Add(errorMessage)
@@ -476,14 +476,14 @@ Class MainViewModel
             Await File.WriteAllTextAsync(configFile, json, cancellationToken)
 
             cancellationToken.ThrowIfCancellationRequested()
-            Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
+            Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, My.Resources.SuccessTitle, My.Application.MainWindow)
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
 
         cancellationToken.ThrowIfCancellationRequested()
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await MsgBoxAsync($"Error saving settings: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            Await MsgBoxAsync(String.Format(My.Resources.ErrorSavingSettings, errorMessage), MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
         End If
     End Function
 
@@ -534,9 +534,9 @@ Class MainViewModel
 
         cancellationToken.ThrowIfCancellationRequested()
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await MsgBoxAsync($"Error loading settings: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            Await MsgBoxAsync(String.Format(My.Resources.ErrorLoadingSettings, errorMessage), MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
         ElseIf Not configFileExists Then
-            Await MsgBoxAsync("No configuration file found. Using default settings.", MsgBoxButtons.Ok, "Info", My.Application.MainWindow)
+            Await MsgBoxAsync(My.Resources.NoConfigFileFound, MsgBoxButtons.Ok, My.Resources.InfoTitle, My.Application.MainWindow)
         End If
     End Function
 
@@ -549,14 +549,14 @@ Class MainViewModel
             Try
                 Await My.Application.MainWindow.Clipboard.SetTextAsync(commandText)
                 cancellationToken.ThrowIfCancellationRequested()
-                Await MsgBoxAsync(My.Resources.CommandCopied, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
+                Await MsgBoxAsync(My.Resources.CommandCopied, MsgBoxButtons.Ok, My.Resources.SuccessTitle, My.Application.MainWindow)
             Catch ex As Exception
                 errorMessage = ex.Message
             End Try
 
             cancellationToken.ThrowIfCancellationRequested()
             If Not String.IsNullOrEmpty(errorMessage) Then
-                Await MsgBoxAsync($"Failed to copy command: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+                Await MsgBoxAsync(String.Format(My.Resources.FailedToCopyCommand, errorMessage), MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
             End If
         End If
     End Function
@@ -590,7 +590,7 @@ Class MainViewModel
 
         cancellationToken.ThrowIfCancellationRequested()
         If Not String.IsNullOrEmpty(errorMessage) Then
-            Await MsgBoxAsync($"Failed to open browser: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
+            Await MsgBoxAsync(String.Format(My.Resources.FailedToOpenBrowser, errorMessage), MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
         End If
     End Function
 

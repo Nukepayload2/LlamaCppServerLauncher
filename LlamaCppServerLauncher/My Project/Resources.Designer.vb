@@ -241,6 +241,15 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 [{0}] Error reading stream: {1} 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ErrorReadingStream() As String
+            Get
+                Return ResourceManager.GetString("ErrorReadingStream", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 Error saving settings: {0} 的本地化字符串。
         '''</summary>
         Public ReadOnly Property ErrorSavingSettings() As String
@@ -255,6 +264,42 @@ Namespace My.Resources
         Public ReadOnly Property ErrorServerPathRequired() As String
             Get
                 Return ResourceManager.GetString("ErrorServerPathRequired", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Error 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ErrorTitle() As String
+            Get
+                Return ResourceManager.GetString("ErrorTitle", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Failed to copy command: {0} 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property FailedToCopyCommand() As String
+            Get
+                Return ResourceManager.GetString("FailedToCopyCommand", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Failed to open browser: {0} 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property FailedToOpenBrowser() As String
+            Get
+                Return ResourceManager.GetString("FailedToOpenBrowser", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Failed to start server: {0} 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property FailedToStartServer() As String
+            Get
+                Return ResourceManager.GetString("FailedToStartServer", resourceCulture)
             End Get
         End Property
         
@@ -300,6 +345,15 @@ Namespace My.Resources
         Public ReadOnly Property HostLabel() As String
             Get
                 Return ResourceManager.GetString("HostLabel", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Info 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property InfoTitle() As String
+            Get
+                Return ResourceManager.GetString("InfoTitle", resourceCulture)
             End Get
         End Property
         
@@ -439,6 +493,15 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 No configuration file found. Using default settings. 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property NoConfigFileFound() As String
+            Get
+                Return ResourceManager.GetString("NoConfigFileFound", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 Disable KV offload 的本地化字符串。
         '''</summary>
         Public ReadOnly Property NoKVOffloadCheckBox() As String
@@ -565,6 +628,15 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 Server is already running! 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ServerAlreadyRunning() As String
+            Get
+                Return ResourceManager.GetString("ServerAlreadyRunning", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 [info] Server manually stopped 的本地化字符串。
         '''</summary>
         Public ReadOnly Property ServerManuallyStopped() As String
@@ -664,11 +736,38 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 stderr 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property StderrPrefix() As String
+            Get
+                Return ResourceManager.GetString("StderrPrefix", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 stdout 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property StdoutPrefix() As String
+            Get
+                Return ResourceManager.GetString("StdoutPrefix", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 Stop Server 的本地化字符串。
         '''</summary>
         Public ReadOnly Property StopServerButton() As String
             Get
                 Return ResourceManager.GetString("StopServerButton", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Success 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property SuccessTitle() As String
+            Get
+                Return ResourceManager.GetString("SuccessTitle", resourceCulture)
             End Get
         End Property
         
@@ -741,6 +840,15 @@ Namespace My.Resources
         Public ReadOnly Property VerboseCheckBox() As String
             Get
                 Return ResourceManager.GetString("VerboseCheckBox", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Warning 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property WarningTitle() As String
+            Get
+                Return ResourceManager.GetString("WarningTitle", resourceCulture)
             End Get
         End Property
     End Module

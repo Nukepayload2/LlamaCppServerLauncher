@@ -306,4 +306,42 @@
   <data name="ServerManuallyStopped" xml:space="preserve">
     <value>[info] Server manually stopped</value>
   </data>
+  
+  <!-- Error and Status Messages -->
+  <data name="ServerAlreadyRunning" xml:space="preserve">
+    <value>Server is already running!</value>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="SuccessTitle" xml:space="preserve">
+    <value>Success</value>
+  </data>
+  <data name="InfoTitle" xml:space="preserve">
+    <value>Info</value>
+  </data>
+  <data name="FailedToStartServer" xml:space="preserve">
+    <value>Failed to start server: {0}</value>
+  </data>
+  <data name="ErrorReadingStream" xml:space="preserve">
+    <value>[{0}] Error reading stream: {1}</value>
+  </data>
+  <data name="NoConfigFileFound" xml:space="preserve">
+    <value>No configuration file found. Using default settings.</value>
+  </data>
+  <data name="FailedToCopyCommand" xml:space="preserve">
+    <value>Failed to copy command: {0}</value>
+  </data>
+  <data name="FailedToOpenBrowser" xml:space="preserve">
+    <value>Failed to open browser: {0}</value>
+  </data>
+  <data name="StdoutPrefix" xml:space="preserve">
+    <value>stdout</value>
+  </data>
+  <data name="StderrPrefix" xml:space="preserve">
+    <value>stderr</value>
+  </data>
 </root>

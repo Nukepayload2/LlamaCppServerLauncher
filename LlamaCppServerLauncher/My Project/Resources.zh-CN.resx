@@ -308,4 +308,42 @@
   <data name="ServerManuallyStopped" xml:space="preserve">
     <value>[info] 服务器已手动停止</value>
   </data>
+  
+  <!-- Error and Status Messages -->
+  <data name="ServerAlreadyRunning" xml:space="preserve">
+    <value>服务器已在运行中！</value>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>警告</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>错误</value>
+  </data>
+  <data name="SuccessTitle" xml:space="preserve">
+    <value>成功</value>
+  </data>
+  <data name="InfoTitle" xml:space="preserve">
+    <value>信息</value>
+  </data>
+  <data name="FailedToStartServer" xml:space="preserve">
+    <value>启动服务器失败：{0}</value>
+  </data>
+  <data name="ErrorReadingStream" xml:space="preserve">
+    <value>[{0}] 读取流错误：{1}</value>
+  </data>
+  <data name="NoConfigFileFound" xml:space="preserve">
+    <value>未找到配置文件。使用默认设置。</value>
+  </data>
+  <data name="FailedToCopyCommand" xml:space="preserve">
+    <value>复制命令失败：{0}</value>
+  </data>
+  <data name="FailedToOpenBrowser" xml:space="preserve">
+    <value>打开浏览器失败：{0}</value>
+  </data>
+  <data name="StdoutPrefix" xml:space="preserve">
+    <value>stdout</value>
+  </data>
+  <data name="StderrPrefix" xml:space="preserve">
+    <value>stderr</value>
+  </data>
 </root>
