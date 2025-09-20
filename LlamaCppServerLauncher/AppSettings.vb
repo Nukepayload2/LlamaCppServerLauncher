@@ -10,8 +10,7 @@ Public Class AppSettings
     End Function
 
     Public Sub ResetToDefault()
-        ServerParameters.Clear()
-        ServerParameters.InitializeFromMetadata()
+        ServerParameters.ReloadFromMetadata()
         _ServerParameterByName = ServerParameters.ToDictionary(Function(it) it.Argument, Function(it) it)
     End Sub
 

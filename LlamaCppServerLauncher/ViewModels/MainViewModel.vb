@@ -25,8 +25,8 @@ Public Class MainViewModel
 
     ' Windows API declarations
     Private Declare Function GenerateConsoleCtrlEvent Lib "kernel32" (
-        ByVal dwCtrlEvent As Integer,
-        ByVal dwProcessGroupId As Integer
+        dwCtrlEvent As Integer,
+        dwProcessGroupId As Integer
     ) As Boolean
 
     Private _settings As AppSettings = AppSettings.WithServerParameters
@@ -184,12 +184,17 @@ Public Class MainViewModel
         ' 为所有参数订阅属性变化事件
         SubscribeToParameterChanges()
         ' 初始化命令预览
-        CommandPreview = UpdateCommandPreview()
+        LoadLastSettings()
     End Sub
 
 #End Region
 
 #Region " Public Methods "
+
+    Private Async Sub LoadLastSettings()
+        Await LoadSettingsAsync(Nothing)
+        CommandPreview = UpdateCommandPreview()
+    End Sub
 
     Public Sub ClearFilters()
         FilterText = ""
@@ -474,7 +479,6 @@ Public Class MainViewModel
                 LoadSettingsSync()
 
                 cancellationToken.ThrowIfCancellationRequested()
-                Await MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
             End If
         Catch ex As Exception
             errorMessage = ex.Message

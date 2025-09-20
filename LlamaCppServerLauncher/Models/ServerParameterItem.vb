@@ -54,8 +54,11 @@ Public Class ServerParameterItem
         Me.Value = value
     End Sub
 
-    Private Sub SetDefaultValue(defaultValue As Object)
-        If defaultValue Is Nothing Then Return
+    Public Sub SetDefaultValue(defaultValue As Object)
+        If defaultValue Is Nothing Then
+            Value.Clear()
+            Return
+        End If
 
         Select Case defaultValue.GetType()
             Case GetType(Boolean)
