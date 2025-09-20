@@ -9,157 +9,151 @@
         x:Class="LlamaCppServerLauncher.MainWindow"
         x:DataType="local:MainViewModel"
         Title="{x:Static res:Resources.AppTitle}"
-        Width="1200" Height="800"
+        Width="1200" Height="800" FontFamily="Microsoft YaHei UI"
         MinWidth="800" MinHeight="600">
-    
-    <Window.Resources>
-        <converters:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
-        <converters:BooleanToStatusConverter x:Key="BooleanToStatusConverter" />
-    </Window.Resources>
-    
-    <Grid RowDefinitions="Auto,*,Auto">
-        <!-- Header with Search -->
-        <Border Grid.Row="0" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="10">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto">
-                <!-- Search Box -->
-                <TextBox Grid.Column="0" 
-                         x:Name="SearchTextBox" 
-                         Watermark="搜索参数名、说明、类别... (支持中英文搜索)"
-                         Text="{Binding FilterText, Mode=TwoWay}"
-                         VerticalAlignment="Center"
-                         Height="35"/>
-                
-                <!-- Category Filter -->
-                <ComboBox Grid.Column="1" 
-                          x:Name="CategoryComboBox" 
-                          Width="150"
-                          ItemsSource="{Binding AvailableCategories}"
-                          SelectedItem="{Binding SelectedCategory}"
-                          PlaceholderText="所有分类"
-                          VerticalAlignment="Center"/>
-                
-                <!-- Show Modified Only -->
-                <CheckBox Grid.Column="2"
-                          x:Name="ShowModifiedOnlyCheckBox"
-                          Content="仅显示已修改参数"
-                          IsChecked="{Binding ShowModifiedOnly}"
-                          VerticalAlignment="Center"/>
-                
-                <!-- Clear Filters Button -->
-                <Button Grid.Column="3"
-                        x:Name="ClearFiltersButton"
-                        Content="清除筛选"
-                        Width="100"
-                        VerticalAlignment="Center"
-                        Command="{Binding ClearFiltersCommand}"/>
-            </Grid>
-        </Border>
-        
-        <!-- Main Content Area -->
-        <Grid Grid.Row="1" ColumnDefinitions="*,350" Margin="10">
-            <!-- Left Panel - Parameter List (Auto width) -->
-            <Border Grid.Column="0" BorderBrush="#ddd" BorderThickness="1" CornerRadius="4">
-                <Grid RowDefinitions="Auto,*">
-                    <!-- Parameter List Header -->
-                    <Grid Grid.Row="0" Margin="10,10,10,5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        
-                        <TextBlock Grid.Column="0" 
-                                   Text="参数列表" 
-                                   FontWeight="Bold" 
-                                   FontSize="14"/>
-                        
-                        <TextBlock Grid.Column="1"
-                                   Text="{Binding ParameterCountText}"
-                                   Foreground="Gray"
-                                   FontSize="12"
-                                   VerticalAlignment="Center"/>
-                    </Grid>
-                    
-                    <!-- Parameter List -->
-                    <ScrollViewer Grid.Row="1" Margin="10,0,10,10">
-                        <ItemsControl ItemsSource="{Binding FilteredParameters}"
-                                      ItemTemplate="{StaticResource ParameterItemTemplate}"/>
-                    </ScrollViewer>
-                </Grid>
-            </Border>
-            
-            <!-- Right Panel - Main Settings (Fixed Width) -->
-            <ScrollViewer Grid.Column="1" Margin="10,0,0,0">
-                <StackPanel Margin="10" Spacing="10">
-                                        
-                    <!-- Command Preview -->
-                    <Expander Header="命令预览" IsExpanded="True" HorizontalAlignment="Stretch">
-                        <StackPanel Margin="10,5" Spacing="10">
-                            <Button x:Name="UpdateCommandPreviewButton" 
-                                    Content="更新命令预览" 
-                                    HorizontalAlignment="Left"
-                                    MinWidth="180"
-                                    Background="#2196F3" 
-                                    Foreground="White"
-                                    Command="{Binding UpdateCommandPreviewCommand}"/>
-                            
-                            <TextBox Text="{Binding CommandPreview}" 
-                                     TextWrapping="Wrap" 
-                                     VerticalAlignment="Stretch"
-                                     MinHeight="150"
-                                     IsReadOnly="True"
-                                     FontFamily="Consolas, monospace"
-                                     Background="#f8f8f8"/>
-                            
-                            <Button x:Name="CopyCommandButton" 
-                                    Content="{x:Static res:Resources.CopyCommandButton}" 
-                                    HorizontalAlignment="Right"
-                                    MinWidth="120"
-                                    Command="{Binding CopyCommandCommand}"/>
-                        </StackPanel>
-                    </Expander>
-                    
-                    <!-- Statistics -->
-                    <Expander Header="参数统计" IsExpanded="True" HorizontalAlignment="Stretch">
-                        <StackPanel Margin="10,5" Spacing="5">
-                            <Grid ColumnDefinitions="Auto,*">
-                                <TextBlock Grid.Column="0" Text="总参数数量：" Margin="0,2"/>
-                                <TextBlock Grid.Column="1" Text="{Binding TotalParameters}" Margin="0,2"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="Auto,*">
-                                <TextBlock Grid.Column="0" Text="已修改参数：" Margin="0,2"/>
-                                <TextBlock Grid.Column="1" Text="{Binding ModifiedParameters}" Margin="0,2" Foreground="Green"/>
-                            </Grid>
-                            <Grid ColumnDefinitions="Auto,*">
-                                <TextBlock Grid.Column="0" Text="默认参数：" Margin="0,2"/>
-                                <TextBlock Grid.Column="1" Text="{Binding DefaultParameters}" Margin="0,2" Foreground="Gray"/>
-                            </Grid>
-                        </StackPanel>
-                    </Expander>
-                </StackPanel>
-            </ScrollViewer>
-        </Grid>
-        
-        <!-- Footer with Controls -->
-        <Border Grid.Row="2" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,1,0,0" Padding="10">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
-                <Button x:Name="StartServerButton" Content="{x:Static res:Resources.StartServerButton}" 
-                        Background="#4CAF50" Foreground="White"
-                        MinWidth="120" Height="35"
-                        Command="{Binding StartServerCommand}"/>
-                <Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}" 
-                        Background="#f44336" Foreground="White"
-                        IsEnabled="False"
-                        MinWidth="120" Height="35"
-                        Command="{Binding StopServerCommand}"/>
-                <Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}" 
-                        Background="#2196F3" Foreground="White"
-                        MinWidth="120" Height="35"
-                        Command="{Binding SaveSettingsCommand}"/>
-                <Button x:Name="LoadSettingsButton" Content="{x:Static res:Resources.LoadSettingsButton}" 
-                        Background="#FF9800" Foreground="White"
-                        MinWidth="120" Height="35"
-                        Command="{Binding LoadSettingsCommand}"/>
-            </StackPanel>
-        </Border>
-    </Grid>
+
+  <Window.Resources>
+	<converters:BooleanToBrushConverter x:Key="BooleanToBrushConverter" />
+	<converters:BooleanToStatusConverter x:Key="BooleanToStatusConverter" />
+  </Window.Resources>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+	<!-- Header with Search -->
+	<Border Grid.Row="0" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,0,0,1" Padding="10">
+	  <Grid ColumnDefinitions="Auto,*,Auto,Auto" Margin="2">
+		<!-- Category Filter -->
+		<ComboBox Grid.Column="0"
+				  x:Name="CategoryComboBox"
+				  Margin="2"
+				  ItemsSource="{Binding AvailableCategories}"
+				  SelectedItem="{Binding SelectedCategory}"
+				  PlaceholderText="所有分类"
+				  VerticalAlignment="Center"/>
+
+		<!-- Show Modified Only -->
+		<CheckBox Grid.Column="3" Margin="2"
+				  x:Name="ShowModifiedOnlyCheckBox"
+				  Content="仅显示已修改参数"
+				  IsChecked="{Binding ShowModifiedOnly}"
+				  VerticalAlignment="Center"/>
+
+		<!-- Search Box -->
+		<TextBox Grid.Column="1" Margin="2"
+				 x:Name="SearchTextBox"
+				 Watermark="搜索参数名、说明、类别... (支持中英文搜索)"
+				 Text="{Binding FilterText, Mode=TwoWay}"
+				 VerticalAlignment="Center"
+				/>
+
+		<!-- Clear Filters Button -->
+		<Button Grid.Column="2" Margin="2"
+				x:Name="ClearFiltersButton"
+				Content="清除筛选"
+				VerticalAlignment="Center"
+				Command="{Binding ClearFiltersCommand}"/>
+
+	  </Grid>
+	</Border>
+
+	<!-- Main Content Area -->
+	<Grid Grid.Row="1" ColumnDefinitions="*,350" Margin="10">
+	  <!-- Left Panel - Parameter List (Auto width) -->
+	  <Border Grid.Column="0" BorderBrush="#ddd" BorderThickness="1" CornerRadius="4">
+		<Grid RowDefinitions="Auto,*">
+		  <!-- Parameter List Header -->
+		  <Grid Grid.Row="0" Margin="10,10,10,5">
+			<Grid.ColumnDefinitions>
+			  <ColumnDefinition Width="*"/>
+			  <ColumnDefinition Width="Auto"/>
+			</Grid.ColumnDefinitions>
+
+			<TextBlock Grid.Column="0"
+					   Text="参数列表"
+					   FontWeight="Bold"
+					   FontSize="14"/>
+
+			<TextBlock Grid.Column="1"
+					   Text="{Binding ParameterCountText}"
+					   Foreground="Gray"
+					   FontSize="12"
+					   VerticalAlignment="Center"/>
+		  </Grid>
+
+		  <!-- Parameter List -->
+		  <ScrollViewer Grid.Row="1" Margin="10,0,10,10">
+			<ItemsControl ItemsSource="{Binding FilteredParameters}"
+						  ItemTemplate="{StaticResource ParameterItemTemplate}"/>
+		  </ScrollViewer>
+		</Grid>
+	  </Border>
+
+	  <!-- Right Panel - Main Settings (Fixed Width) -->
+	  <ScrollViewer Grid.Column="1" Margin="10,0,0,0">
+		<StackPanel Margin="10" Spacing="10">
+
+		  <!-- Command Preview -->
+		  <Expander Header="命令预览" IsExpanded="True" HorizontalAlignment="Stretch">
+			<StackPanel Margin="10,5" Spacing="10">
+			  <Button x:Name="UpdateCommandPreviewButton"
+					  Content="更新命令预览"
+					  HorizontalAlignment="Left"
+					  Background="#2196F3"
+					  Foreground="White"
+					  Command="{Binding UpdateCommandPreviewCommand}"/>
+
+			  <TextBox Text="{Binding CommandPreview}"
+					   TextWrapping="Wrap"
+					   VerticalAlignment="Stretch"
+					   MinHeight="150"
+					   IsReadOnly="True"
+					   FontFamily="Consolas, monospace"
+					   Background="#f8f8f8"/>
+
+			  <Button x:Name="CopyCommandButton"
+					  Content="{x:Static res:Resources.CopyCommandButton}"
+					  HorizontalAlignment="Right"
+					  Command="{Binding CopyCommandCommand}"/>
+			</StackPanel>
+		  </Expander>
+
+		  <!-- Statistics -->
+		  <Expander Header="参数统计" IsExpanded="True" HorizontalAlignment="Stretch">
+			<StackPanel Margin="10,5" Spacing="5">
+			  <Grid ColumnDefinitions="Auto,*">
+				<TextBlock Grid.Column="0" Text="总参数数量：" Margin="0,2"/>
+				<TextBlock Grid.Column="1" Text="{Binding TotalParameters}" Margin="0,2"/>
+			  </Grid>
+			  <Grid ColumnDefinitions="Auto,*">
+				<TextBlock Grid.Column="0" Text="已修改参数：" Margin="0,2"/>
+				<TextBlock Grid.Column="1" Text="{Binding ModifiedParameters}" Margin="0,2" Foreground="Green"/>
+			  </Grid>
+			  <Grid ColumnDefinitions="Auto,*">
+				<TextBlock Grid.Column="0" Text="默认参数：" Margin="0,2"/>
+				<TextBlock Grid.Column="1" Text="{Binding DefaultParameters}" Margin="0,2" Foreground="Gray"/>
+			  </Grid>
+			</StackPanel>
+		  </Expander>
+		</StackPanel>
+	  </ScrollViewer>
+	</Grid>
+
+	<!-- Footer with Controls -->
+	<Border Grid.Row="2" Background="#f0f0f0" BorderBrush="#ddd" BorderThickness="0,1,0,0" Padding="10">
+	  <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="10">
+		<Button x:Name="StartServerButton" Content="{x:Static res:Resources.StartServerButton}"
+				Background="#4CAF50" Foreground="White"
+				Command="{Binding StartServerCommand}"/>
+		<Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}"
+				Background="#f44336" Foreground="White"
+				IsEnabled="False"
+				Command="{Binding StopServerCommand}"/>
+		<Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}"
+				Background="#2196F3" Foreground="White"
+				Command="{Binding SaveSettingsCommand}"/>
+		<Button x:Name="LoadSettingsButton" Content="{x:Static res:Resources.LoadSettingsButton}"
+				Background="#FF9800" Foreground="White"
+				Command="{Binding LoadSettingsCommand}"/>
+	  </StackPanel>
+	</Border>
+  </Grid>
 </Window>

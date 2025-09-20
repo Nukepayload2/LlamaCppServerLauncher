@@ -129,13 +129,15 @@
 			<TextBlock Text="{Binding Metadata.Category}"
 					   FontSize="10" TextWrapping="Wrap"
 					   Foreground="Gray"
+					   FontFamily="Cascadia Code,Consolas,monospace"
 					   Margin="4,0,0,0" />
 		  </StackPanel>
 		  
 		  <TextBlock Grid.Column="1"
 					 Margin="0,0,4,0"
 					 Text="{Binding Argument}"
-					 FontWeight="Bold"
+				     FontWeight="Bold"
+					 FontFamily="Cascadia Code,Consolas,monospace"
 					 FontSize="14" />
 		  
 		  <Button Grid.Column="2"
