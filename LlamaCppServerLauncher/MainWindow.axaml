@@ -81,8 +81,14 @@
 
 		  <!-- Parameter List -->
 		  <ScrollViewer Grid.Row="1" Margin="8,0,8,8">
-			<ItemsRepeater ItemsSource="{Binding FilteredParameters}"
-						   ItemTemplate="{StaticResource ParameterItemTemplate}"/>
+			<ItemsControl ItemsSource="{Binding FilteredParameters}"
+						  ItemTemplate="{StaticResource ParameterItemTemplate}">
+			  <ItemsControl.ItemsPanel>
+				<ItemsPanelTemplate>
+				  <VirtualizingStackPanel/>
+				</ItemsPanelTemplate>
+			  </ItemsControl.ItemsPanel>
+			</ItemsControl>
 		  </ScrollViewer>
 		</Grid>
 	  </Border>
