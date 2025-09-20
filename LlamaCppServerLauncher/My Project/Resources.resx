@@ -213,6 +213,12 @@
   <data name="LoadSettingsButton" xml:space="preserve">
     <value>Load Settings</value>
   </data>
+  <data name="SaveAsSettingsButton" xml:space="preserve">
+    <value>Save As Settings</value>
+  </data>
+  <data name="OpenSettingsFileButton" xml:space="preserve">
+    <value>Open Settings File</value>
+  </data>
   
   <!-- Language Selection -->
   <data name="LanguageLabel" xml:space="preserve">
@@ -343,5 +349,16 @@
   </data>
   <data name="StderrPrefix" xml:space="preserve">
     <value>stderr</value>
+  </data>
+  
+  <!-- File Dialog Strings -->
+  <data name="SaveDialogTitle" xml:space="preserve">
+    <value>Save Settings File</value>
+  </data>
+  <data name="OpenDialogTitle" xml:space="preserve">
+    <value>Open Settings File</value>
+  </data>
+  <data name="SettingsFileFilter" xml:space="preserve">
+    <value>Settings Files (*.json)|*.json|All Files (*.*)|*.*</value>
   </data>
 </root>

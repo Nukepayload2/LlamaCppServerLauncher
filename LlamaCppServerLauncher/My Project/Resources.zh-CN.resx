@@ -213,6 +213,12 @@
   <data name="LoadSettingsButton" xml:space="preserve">
     <value>加载设置</value>
   </data>
+  <data name="SaveAsSettingsButton" xml:space="preserve">
+    <value>另存为设置</value>
+  </data>
+  <data name="OpenSettingsFileButton" xml:space="preserve">
+    <value>打开设置文件</value>
+  </data>
   
   <!-- Language Selection -->
   <data name="LanguageLabel" xml:space="preserve">
@@ -345,5 +351,16 @@
   </data>
   <data name="StderrPrefix" xml:space="preserve">
     <value>stderr</value>
+  </data>
+  
+  <!-- File Dialog Strings -->
+  <data name="SaveDialogTitle" xml:space="preserve">
+    <value>保存设置文件</value>
+  </data>
+  <data name="OpenDialogTitle" xml:space="preserve">
+    <value>打开设置文件</value>
+  </data>
+  <data name="SettingsFileFilter" xml:space="preserve">
+    <value>设置文件 (*.json)|*.json|所有文件 (*.*)|*.*</value>
   </data>
 </root>

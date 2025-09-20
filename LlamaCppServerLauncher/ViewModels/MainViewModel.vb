@@ -219,6 +219,8 @@ Class MainViewModel
 
     Public ReadOnly Property SaveSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) SaveSettingsAsync(cancellationToken))
     Public ReadOnly Property LoadSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) LoadSettingsAsync(cancellationToken))
+    Public ReadOnly Property SaveAsSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) SaveAsSettingsAsync(cancellationToken))
+    Public ReadOnly Property OpenSettingsFileCommand As ICommand = New RelayCommand(Function(param, cancellationToken) OpenSettingsFileAsync(cancellationToken))
     Public ReadOnly Property CopyCommandCommand As ICommand = New RelayCommand(Function(param, cancellationToken) CopyCommandToClipboardAsync(cancellationToken))
 
 #End Region
@@ -451,6 +453,10 @@ Class MainViewModel
     End Sub
 
     Private Async Function SaveSettingsAsync(cancellationToken As CancellationToken) As Task
+        Await SaveSettingsAsync(Path.Combine(AppContext.BaseDirectory, "serverconfig.json"), cancellationToken)
+    End Function
+
+    Private Async Function SaveSettingsAsync(filePath As String, cancellationToken As CancellationToken) As Task
         cancellationToken.ThrowIfCancellationRequested()
         Dim errorMessage As String = ""
         Try
@@ -472,8 +478,7 @@ Class MainViewModel
                 .WriteIndented = True,
                 .DefaultIgnoreCondition = Serialization.JsonIgnoreCondition.WhenWritingNull
             })
-            Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
-            Await File.WriteAllTextAsync(configFile, json, cancellationToken)
+            Await File.WriteAllTextAsync(filePath, json, cancellationToken)
 
             cancellationToken.ThrowIfCancellationRequested()
             Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, My.Resources.SuccessTitle, My.Application.MainWindow)
@@ -488,15 +493,18 @@ Class MainViewModel
     End Function
 
     Private Async Function LoadSettingsAsync(cancellationToken As CancellationToken) As Task
+        Await LoadSettingsAsync(Path.Combine(AppContext.BaseDirectory, "serverconfig.json"), cancellationToken)
+    End Function
+
+    Private Async Function LoadSettingsAsync(filePath As String, cancellationToken As CancellationToken) As Task
         cancellationToken.ThrowIfCancellationRequested()
         Dim errorMessage As String = ""
         Dim configFileExists As Boolean = False
 
         Try
-            Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
-            configFileExists = File.Exists(configFile)
+            configFileExists = File.Exists(filePath)
             If configFileExists Then
-                Dim json As String = Await File.ReadAllTextAsync(configFile, cancellationToken)
+                Dim json As String = Await File.ReadAllTextAsync(filePath, cancellationToken)
                 Dim loadedSettings = JsonSerializer.Deserialize(Of AppSettings.IoModel)(json)
 
                 ' 先重置当前所有参数到默认值
@@ -537,6 +545,75 @@ Class MainViewModel
             Await MsgBoxAsync(String.Format(My.Resources.ErrorLoadingSettings, errorMessage), MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
         ElseIf Not configFileExists Then
             Await MsgBoxAsync(My.Resources.NoConfigFileFound, MsgBoxButtons.Ok, My.Resources.InfoTitle, My.Application.MainWindow)
+        End If
+    End Function
+
+    Private Async Function SaveAsSettingsAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
+        Dim errorMessage As String = ""
+        
+        Try
+            Dim storageProvider = My.Application.MainWindow.StorageProvider
+            If storageProvider IsNot Nothing Then
+                Dim filePicker As New FilePickerSaveOptions With {
+                    .Title = My.Resources.SaveDialogTitle,
+                    .FileTypeChoices = New List(Of FilePickerFileType) From {
+                        New FilePickerFileType("JSON") With {
+                            .Patterns = New List(Of String) From {"*.json"}
+                        }
+                    },
+                    .SuggestedFileName = "server-settings.json",
+                    .ShowOverwritePrompt = True
+                }
+                
+                Dim result = Await storageProvider.SaveFilePickerAsync(filePicker)
+                If result IsNot Nothing Then
+                    Await SaveSettingsAsync(result.Path.LocalPath, cancellationToken)
+                End If
+            Else
+                errorMessage = "Storage provider not available"
+            End If
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+        
+        cancellationToken.ThrowIfCancellationRequested()
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync(String.Format(My.Resources.ErrorSavingSettings, errorMessage), MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
+        End If
+    End Function
+
+    Private Async Function OpenSettingsFileAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
+        Dim errorMessage As String = ""
+        
+        Try
+            Dim storageProvider = My.Application.MainWindow.StorageProvider
+            If storageProvider IsNot Nothing Then
+                Dim filePicker As New FilePickerOpenOptions With {
+                    .Title = My.Resources.OpenDialogTitle,
+                    .FileTypeFilter = New List(Of FilePickerFileType) From {
+                        New FilePickerFileType("JSON") With {
+                            .Patterns = New List(Of String) From {"*.json"}
+                        }
+                    },
+                    .AllowMultiple = False
+                }
+                
+                Dim results = Await storageProvider.OpenFilePickerAsync(filePicker)
+                If results IsNot Nothing AndAlso results.Count > 0 Then
+                    Await LoadSettingsAsync(results(0).Path.LocalPath, cancellationToken)
+                End If
+            Else
+                errorMessage = "Storage provider not available"
+            End If
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+        
+        cancellationToken.ThrowIfCancellationRequested()
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync(String.Format(My.Resources.ErrorLoadingSettings, errorMessage), MsgBoxButtons.Ok, My.Resources.ErrorTitle, My.Application.MainWindow)
         End If
     End Function
 

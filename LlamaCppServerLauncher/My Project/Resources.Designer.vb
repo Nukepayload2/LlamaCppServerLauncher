@@ -538,6 +538,24 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 Open Settings File 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property OpenDialogTitle() As String
+            Get
+                Return ResourceManager.GetString("OpenDialogTitle", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Open Settings File 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property OpenSettingsFileButton() As String
+            Get
+                Return ResourceManager.GetString("OpenSettingsFileButton", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 Showing {0} / {1} parameters 的本地化字符串。
         '''</summary>
         Public ReadOnly Property ParameterCountText() As String
@@ -606,6 +624,24 @@ Namespace My.Resources
         Public ReadOnly Property SamplingSettingsTabHeader() As String
             Get
                 Return ResourceManager.GetString("SamplingSettingsTabHeader", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Save As Settings 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property SaveAsSettingsButton() As String
+            Get
+                Return ResourceManager.GetString("SaveAsSettingsButton", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Save Settings File 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property SaveDialogTitle() As String
+            Get
+                Return ResourceManager.GetString("SaveDialogTitle", resourceCulture)
             End Get
         End Property
         
@@ -687,6 +723,15 @@ Namespace My.Resources
         Public ReadOnly Property ServerStatusStopped() As String
             Get
                 Return ResourceManager.GetString("ServerStatusStopped", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Settings Files (*.json)|*.json|All Files (*.*)|*.* 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property SettingsFileFilter() As String
+            Get
+                Return ResourceManager.GetString("SettingsFileFilter", resourceCulture)
             End Get
         End Property
         
