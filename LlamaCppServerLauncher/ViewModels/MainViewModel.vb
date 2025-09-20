@@ -3,6 +3,7 @@ Imports System.Linq
 Imports System.Text
 Imports System.Text.Json
 Imports System.IO
+Imports System.Threading
 Imports System.Threading.Tasks
 Imports Avalonia.Threading
 Imports Avalonia.Platform.Storage
@@ -149,15 +150,15 @@ Public Class MainViewModel
 
 #Region " Commands "
 
-    Public ReadOnly Property UpdateCommandPreviewCommand As ICommand = New RelayCommand(AddressOf UpdateCommandPreviewAsync)
+    Public ReadOnly Property UpdateCommandPreviewCommand As ICommand = New RelayCommand(Function(param, cancellationToken) UpdateCommandPreviewAsync(cancellationToken))
     Public ReadOnly Property ClearFiltersCommand As ICommand = New RelayCommand(AddressOf ClearFilters)
-    Public ReadOnly Property BrowseServerCommand As ICommand = New RelayCommand(AddressOf BrowseForServerAsync)
-    Public ReadOnly Property BrowseModelCommand As ICommand = New RelayCommand(AddressOf BrowseForModelAsync)
-    Public ReadOnly Property StartServerCommand As ICommand = New RelayCommand(AddressOf StartServerAsync)
+    Public ReadOnly Property BrowseServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForServerAsync(cancellationToken))
+    Public ReadOnly Property BrowseModelCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForModelAsync(cancellationToken))
+    Public ReadOnly Property StartServerCommand As ICommand = New RelayCommand(Function(param, cancellationToken) StartServerAsync(cancellationToken))
     Public ReadOnly Property StopServerCommand As ICommand = New RelayCommand(AddressOf StopServer)
-    Public ReadOnly Property SaveSettingsCommand As ICommand = New RelayCommand(AddressOf SaveSettingsAsync)
-    Public ReadOnly Property LoadSettingsCommand As ICommand = New RelayCommand(AddressOf LoadSettingsAsync)
-    Public ReadOnly Property CopyCommandCommand As ICommand = New RelayCommand(AddressOf CopyCommandToClipboardAsync)
+    Public ReadOnly Property SaveSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) SaveSettingsAsync(cancellationToken))
+    Public ReadOnly Property LoadSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) LoadSettingsAsync(cancellationToken))
+    Public ReadOnly Property CopyCommandCommand As ICommand = New RelayCommand(Function(param, cancellationToken) CopyCommandToClipboardAsync(cancellationToken))
 
 #End Region
 
@@ -242,13 +243,15 @@ Public Class MainViewModel
 
 #Region " Command Methods "
 
-    Private Async Sub UpdateCommandPreviewAsync()
+    Private Async Function UpdateCommandPreviewAsync(cancellationToken As CancellationToken) As Task
         ' 手动触发命令预览更新
+        cancellationToken.ThrowIfCancellationRequested()
         UpdateCommandPreview()
         Await Task.CompletedTask
-    End Sub
+    End Function
 
-    Private Async Sub BrowseForServerAsync()
+    Private Async Function BrowseForServerAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
         Dim storageProvider = My.Application.MainWindow.StorageProvider
         If storageProvider IsNot Nothing Then
             Dim files = Await storageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
@@ -261,13 +264,15 @@ Public Class MainViewModel
                 }
             })
 
+            cancellationToken.ThrowIfCancellationRequested()
             If files.Count > 0 Then
                 Settings.ServerPath = files(0).Path.LocalPath
             End If
         End If
-    End Sub
+    End Function
 
-    Private Async Sub BrowseForModelAsync()
+    Private Async Function BrowseForModelAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
         Dim storageProvider = My.Application.MainWindow.StorageProvider
         If storageProvider IsNot Nothing Then
             Dim files = Await storageProvider.OpenFilePickerAsync(New FilePickerOpenOptions With {
@@ -280,23 +285,27 @@ Public Class MainViewModel
                 }
             })
 
+            cancellationToken.ThrowIfCancellationRequested()
             If files.Count > 0 Then
                 Settings.ModelPath = files(0).Path.LocalPath
             End If
         End If
-    End Sub
+    End Function
 
-    Private Async Sub StartServerAsync()
+    Private Async Function StartServerAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
         If _serverRunning Then
             Await MsgBoxAsync("Server is already running!", MsgBoxButtons.Ok, "Warning", My.Application.MainWindow)
             Return
         End If
 
+        cancellationToken.ThrowIfCancellationRequested()
         If String.IsNullOrEmpty(Settings.ServerPath) OrElse Not File.Exists(Settings.ServerPath) Then
             Await MsgBoxAsync(My.Resources.ErrorServerPathRequired, MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
             Return
         End If
 
+        cancellationToken.ThrowIfCancellationRequested()
         If String.IsNullOrEmpty(Settings.ModelPath) OrElse Not File.Exists(Settings.ModelPath) Then
             Await MsgBoxAsync(My.Resources.ErrorModelPathRequired, MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
             Return
@@ -304,6 +313,7 @@ Public Class MainViewModel
 
         Dim errorMessage As String = ""
         Try
+            cancellationToken.ThrowIfCancellationRequested()
             Dim args As String = UpdateCommandPreview()
             Dim startInfo As New ProcessStartInfo(Settings.ServerPath, args) With {
                 .UseShellExecute = True,
@@ -320,10 +330,11 @@ Public Class MainViewModel
             errorMessage = ex.Message
         End Try
 
+        cancellationToken.ThrowIfCancellationRequested()
         If Not String.IsNullOrEmpty(errorMessage) Then
             Await MsgBoxAsync($"Failed to start server: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
         End If
-    End Sub
+    End Function
 
     Private Sub StopServer()
         If Not _serverRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
@@ -350,7 +361,8 @@ Public Class MainViewModel
         End If
     End Sub
 
-    Private Async Sub SaveSettingsAsync()
+    Private Async Function SaveSettingsAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
         Dim errorMessage As String = ""
         Try
             ' 创建一个新的AppSettings，只保存有值的参数
@@ -372,19 +384,22 @@ Public Class MainViewModel
                 .DefaultIgnoreCondition = Serialization.JsonIgnoreCondition.WhenWritingNull
             })
             Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
-            Await File.WriteAllTextAsync(configFile, json)
+            Await File.WriteAllTextAsync(configFile, json, cancellationToken)
 
+            cancellationToken.ThrowIfCancellationRequested()
             Await MsgBoxAsync(My.Resources.SettingsSaved, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
 
+        cancellationToken.ThrowIfCancellationRequested()
         If Not String.IsNullOrEmpty(errorMessage) Then
             Await MsgBoxAsync($"Error saving settings: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
         End If
-    End Sub
+    End Function
 
-    Private Async Sub LoadSettingsAsync()
+    Private Async Function LoadSettingsAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
         Dim errorMessage As String = ""
         Dim configFileExists As Boolean = False
 
@@ -392,7 +407,7 @@ Public Class MainViewModel
             Dim configFile As String = Path.Combine(AppContext.BaseDirectory, "serverconfig.json")
             configFileExists = File.Exists(configFile)
             If configFileExists Then
-                Dim json As String = Await File.ReadAllTextAsync(configFile)
+                Dim json As String = Await File.ReadAllTextAsync(configFile, cancellationToken)
                 Dim loadedSettings = JsonSerializer.Deserialize(Of AppSettings.IoModel)(json)
 
                 ' 先重置当前所有参数到默认值
@@ -430,35 +445,40 @@ Public Class MainViewModel
                 ' 触发UI更新
                 LoadSettingsSync()
 
+                cancellationToken.ThrowIfCancellationRequested()
                 Await MsgBoxAsync(My.Resources.SettingsLoaded, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
             End If
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
 
+        cancellationToken.ThrowIfCancellationRequested()
         If Not String.IsNullOrEmpty(errorMessage) Then
             Await MsgBoxAsync($"Error loading settings: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
         ElseIf Not configFileExists Then
             Await MsgBoxAsync("No configuration file found. Using default settings.", MsgBoxButtons.Ok, "Info", My.Application.MainWindow)
         End If
-    End Sub
+    End Function
 
-    Private Async Sub CopyCommandToClipboardAsync()
+    Private Async Function CopyCommandToClipboardAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
         Dim commandText = UpdateCommandPreview()
         If Not String.IsNullOrEmpty(commandText) Then
             Dim errorMessage As String = ""
             Try
                 Await My.Application.MainWindow.Clipboard.SetTextAsync(commandText)
+                cancellationToken.ThrowIfCancellationRequested()
                 Await MsgBoxAsync(My.Resources.CommandCopied, MsgBoxButtons.Ok, "Success", My.Application.MainWindow)
             Catch ex As Exception
                 errorMessage = ex.Message
             End Try
 
+            cancellationToken.ThrowIfCancellationRequested()
             If Not String.IsNullOrEmpty(errorMessage) Then
                 Await MsgBoxAsync($"Failed to copy command: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
             End If
         End If
-    End Sub
+    End Function
 
 #End Region
 
