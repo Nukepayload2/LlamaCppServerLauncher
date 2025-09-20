@@ -123,7 +123,7 @@
 					  Command="{Binding ClearOutputCommand}"/>
 			  
 			  <ListBox ItemsSource="{Binding ServerOutput}"
-					   Height="200"
+					   Height="200" x:Name="LstServerOutput"
 					   FontFamily="Consolas, monospace"
 					   Background="#f8f8f8"
 					   BorderBrush="#ddd"

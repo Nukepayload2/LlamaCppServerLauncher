@@ -14,7 +14,7 @@ Imports LlamaCppServerLauncher.Helpers
 Imports System.Runtime.InteropServices
 Imports System.Collections.ObjectModel
 
-Public Class MainViewModel
+Class MainViewModel
     Inherits ObservableBase
     Implements IDisposable
 
@@ -193,6 +193,7 @@ Public Class MainViewModel
     Private ReadOnly _stopServerCommand As New RelayCommand(Function(param, cancellationToken) StopServer(cancellationToken), Function(param) ServerRunning)
     Private ReadOnly _clearOutputCommand As New RelayCommand(AddressOf ClearOutput)
     Private ReadOnly _openBrowserCommand As New RelayCommand(Function(param, cancellationToken) OpenBrowserAsync(cancellationToken), Function(param) ServerRunning)
+    Private ReadOnly _serverLogView As IServerLogView
 
     Public ReadOnly Property StartServerCommand As ICommand
         Get
@@ -228,7 +229,7 @@ Public Class MainViewModel
 
 #Region " Constructor "
 
-    Public Sub New()
+    Public Sub New(serverLogView As IServerLogView)
         LoadSettingsSync()
         InitializeDebounceTimer()
         InitializeStatusCheckTimer()
@@ -236,6 +237,7 @@ Public Class MainViewModel
         SubscribeToParameterChanges()
         ' 初始化命令预览
         LoadLastSettings()
+        _serverLogView = serverLogView
     End Sub
 
 #End Region
@@ -477,9 +479,11 @@ Public Class MainViewModel
                 line = Await stream.ReadLineAsync()
                 If line IsNot Nothing Then
                     Dim outputLine = String.Format("[{0}] {1}", prefix, line)
-                    Await Dispatcher.UIThread.InvokeAsync(Sub()
-                                                              _serverOutput.Add(outputLine)
-                                                          End Sub)
+                    Await Dispatcher.UIThread.InvokeAsync(
+                        Sub()
+                            _serverOutput.Add(outputLine)
+                            _serverLogView.ScrollServerLogToEnd()
+                        End Sub)
                 End If
             Loop While line IsNot Nothing
         Catch ex As Exception
@@ -488,10 +492,12 @@ Public Class MainViewModel
     End Function
 
     Private Sub HandleStreamError(prefix As String, ex As Exception)
-        Dim errorMessage = String.Format("[{0}] Error reading stream: {1}", prefix, ex.Message)
-        Dispatcher.UIThread.InvokeAsync(Sub()
-                                            _serverOutput.Add(errorMessage)
-                                        End Sub)
+        Dim errorMessage = $"[{prefix }] Error reading stream: {ex.Message }"
+        Dispatcher.UIThread.InvokeAsync(
+            Sub()
+                _serverOutput.Add(errorMessage)
+                _serverLogView.ScrollServerLogToEnd()
+            End Sub)
     End Sub
 
 
