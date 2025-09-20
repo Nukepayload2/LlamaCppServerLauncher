@@ -88,6 +88,7 @@
 	  </Border>
 
 	  <!-- Right Panel - Main Settings (Fixed Width) -->
+	  <GridSplitter HorizontalAlignment="Right" Width="4"/>
 	  <ScrollViewer Grid.Column="1">
 		<StackPanel Margin="8,0,0,0" Spacing="8">
 
