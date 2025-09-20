@@ -22,42 +22,42 @@ Public Class ServerParameterMetadata
         },
         New ServerParameterMetadata With {
             .Argument = "--threads",
-            .Explanation = "Number of threads to use | 使用的线程数量。指定模型推理过程中使用的 CPU 线程数，直接影响推理速度和 CPU 使用率。建议设置为 CPU 逻辑核心数。默认为 -1 表示自动检测。",
+            .Explanation = "Number of threads to use during generation (default: -1) (env: LLAMA_ARG_THREADS) | 生成过程中使用的线程数。指定模型推理过程中使用的 CPU 线程数，直接影响推理速度和 CPU 使用率。建议设置为 CPU 逻辑核心数。默认为 -1 表示自动检测。",
             .Category = "common",
             .Editor = "numberupdown",
             .DefaultValue = 4
         },
         New ServerParameterMetadata With {
             .Argument = "--ctx-size",
-            .Explanation = "Context size | 上下文窗口大小。指定提示词上下文的最大 token 数量，影响模型能处理的输入长度。更大的上下文需要更多内存。默认为 4096，0 表示从模型加载。",
+            .Explanation = "Size of the prompt context (default: 4096, 0 = loaded from model) (env: LLAMA_ARG_CTX_SIZE) | 上下文窗口大小。指定提示词上下文的最大 token 数量，影响模型能处理的输入长度。更大的上下文需要更多内存。默认为 4096，0 表示从模型加载。",
             .Category = "common",
             .Editor = "numberupdown",
             .DefaultValue = 4096
         },
         New ServerParameterMetadata With {
             .Argument = "--n-predict",
-            .Explanation = "Number of tokens to predict | 预测的 token 数量。控制每次生成输出的最大 token 数，防止无限生成。-1 表示无限制。适用于聊天、代码生成等任务。",
+            .Explanation = "Number of tokens to predict (default: -1, -1 = infinity) (env: LLAMA_ARG_N_PREDICT) | 预测的 token 数量。控制每次生成输出的最大 token 数，防止无限生成。-1 表示无限制。适用于聊天、代码生成等任务。",
             .Category = "common",
             .Editor = "numberupdown",
             .DefaultValue = -1
         },
         New ServerParameterMetadata With {
             .Argument = "--batch-size",
-            .Explanation = "Batch size for processing | 批处理大小。逻辑最大批处理大小，影响同时处理的请求数量。较大的批处理可提高吞吐量但增加内存使用。适用于多用户并发场景。",
+            .Explanation = "Logical maximum batch size (default: 2048) (env: LLAMA_ARG_BATCH) | 逻辑最大批处理大小。影响同时处理的请求数量。较大的批处理可提高吞吐量但增加内存使用。适用于多用户并发场景。",
             .Category = "common",
             .Editor = "numberupdown",
             .DefaultValue = 2048
         },
         New ServerParameterMetadata With {
             .Argument = "--ubatch-size",
-            .Explanation = "Micro batch size | 微批处理大小。物理最大批处理大小，实际处理时的最小单位。较小的微批处理可提高内存效率，但可能略微降低性能。",
+            .Explanation = "Physical maximum batch size (default: 512) (env: LLAMA_ARG_UBATCH) | 物理最大批处理大小。实际处理时的最小单位。较小的微批处理可提高内存效率，但可能略微降低性能。",
             .Category = "common",
             .Editor = "numberupdown",
             .DefaultValue = 512
         },
         New ServerParameterMetadata With {
             .Argument = "--threads-batch",
-            .Explanation = "Threads for batch processing | 批处理线程数。专门用于批处理和提示词处理的线程数，通常与生成线程分开设置。默认与 --threads 相同。",
+            .Explanation = "Number of threads to use during batch and prompt processing (default: same as --threads) | 批处理和提示词处理期间使用的线程数，专门用于批处理和提示词处理的线程数，通常与生成线程分开设置。默认与 --threads 相同。",
             .Category = "common",
             .Editor = "numberupdown",
             .DefaultValue = -1
