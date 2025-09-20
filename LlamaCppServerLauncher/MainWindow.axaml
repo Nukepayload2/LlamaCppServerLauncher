@@ -27,20 +27,20 @@
 				  Margin="4"
 				  ItemsSource="{Binding AvailableCategories}"
 				  SelectedItem="{Binding SelectedCategory}"
-				  PlaceholderText="所有分类"
+				  PlaceholderText="{x:Static res:Resources.AllCategoriesLabel}"
 				  VerticalAlignment="Center"/>
 
 		<!-- Show Modified Only -->
 		<CheckBox Grid.Column="3" Margin="2"
 				  x:Name="ShowModifiedOnlyCheckBox"
-				  Content="仅显示已修改参数"
+				  Content="{x:Static res:Resources.ShowModifiedOnlyLabel}"
 				  IsChecked="{Binding ShowModifiedOnly}"
 				  VerticalAlignment="Center"/>
 
 		<!-- Search Box -->
 		<TextBox Grid.Column="1" Margin="2"
 				 x:Name="SearchTextBox"
-				 Watermark="搜索参数名、说明、类别... (支持中英文搜索)"
+				 Watermark="{x:Static res:Resources.SearchWatermark}"
 				 Text="{Binding FilterText, Mode=TwoWay}"
 				 VerticalAlignment="Center"
 				/>
@@ -48,7 +48,7 @@
 		<!-- Clear Filters Button -->
 		<Button Grid.Column="2" Margin="2"
 				x:Name="ClearFiltersButton"
-				Content="清除筛选"
+				Content="{x:Static res:Resources.ClearFiltersButton}"
 				VerticalAlignment="Center"
 				Command="{Binding ClearFiltersCommand}"/>
 
@@ -68,7 +68,7 @@
 			</Grid.ColumnDefinitions>
 
 			<TextBlock Grid.Column="0"
-					   Text="参数列表"
+					   Text="{x:Static res:Resources.ParameterListHeader}"
 					   FontWeight="Bold"
 					   FontSize="14"/>
 
@@ -93,10 +93,10 @@
 		<StackPanel Margin="8,0,0,0" Spacing="8">
 
 		  <!-- Command Preview -->
-		  <Expander Header="命令预览" IsExpanded="True" HorizontalAlignment="Stretch">
+		  <Expander Header="{x:Static res:Resources.CommandPreviewTabHeader}" IsExpanded="True" HorizontalAlignment="Stretch">
 			<StackPanel Margin="8,4" Spacing="8">
 			  <Button x:Name="UpdateCommandPreviewButton"
-					  Content="更新命令预览"
+					  Content="{x:Static res:Resources.UpdateCommandPreviewButton}"
 					  HorizontalAlignment="Left"
 					  Command="{Binding UpdateCommandPreviewCommand}"/>
 
@@ -116,10 +116,10 @@
 		  </Expander>
 
 		  <!-- Server Output -->
-		  <Expander Header="服务器输出" IsExpanded="True" HorizontalAlignment="Stretch">
+		  <Expander Header="{x:Static res:Resources.ServerOutputHeader}" IsExpanded="True" HorizontalAlignment="Stretch">
 			<StackPanel Margin="8,4" Spacing="8">
 			  <Button x:Name="ClearOutputButton"
-					  Content="清空输出"
+					  Content="{x:Static res:Resources.ClearOutputButton}"
 					  HorizontalAlignment="Left"
 					  Command="{Binding ClearOutputCommand}"/>
 			  
@@ -143,18 +143,18 @@
 		  </Expander>
 
 		  <!-- Statistics -->
-		  <Expander Header="参数统计" IsExpanded="True" HorizontalAlignment="Stretch">
+		  <Expander Header="{x:Static res:Resources.ParameterStatisticsHeader}" IsExpanded="True" HorizontalAlignment="Stretch">
 			<StackPanel Margin="8,4" Spacing="4">
 			  <Grid ColumnDefinitions="Auto,*">
-				<TextBlock Grid.Column="0" Text="总参数数量：" Margin="0,2"/>
+				<TextBlock Grid.Column="0" Text="{x:Static res:Resources.TotalParametersLabel}" Margin="0,2"/>
 				<TextBlock Grid.Column="1" Text="{Binding TotalParameters}" Margin="0,2"/>
 			  </Grid>
 			  <Grid ColumnDefinitions="Auto,*">
-				<TextBlock Grid.Column="0" Text="已修改参数：" Margin="0,2"/>
+				<TextBlock Grid.Column="0" Text="{x:Static res:Resources.ModifiedParametersLabel}" Margin="0,2"/>
 				<TextBlock Grid.Column="1" Text="{Binding ModifiedParameters}" Margin="0,2" Foreground="Green"/>
 			  </Grid>
 			  <Grid ColumnDefinitions="Auto,*">
-				<TextBlock Grid.Column="0" Text="默认参数：" Margin="0,2"/>
+				<TextBlock Grid.Column="0" Text="{x:Static res:Resources.DefaultParametersLabel}" Margin="0,2"/>
 				<TextBlock Grid.Column="1" Text="{Binding DefaultParameters}" Margin="0,2" Foreground="Gray"/>
 			  </Grid>
 			</StackPanel>
@@ -172,7 +172,7 @@
 		<Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}"
 				Background="#f44336" Foreground="White"
 				Command="{Binding StopServerCommand}"/>
-		<Button x:Name="OpenBrowserButton" Content="打开浏览器"
+		<Button x:Name="OpenBrowserButton" Content="{x:Static res:Resources.OpenBrowserButton}"
 				Background="#2196F3" Foreground="White"
 				Command="{Binding OpenBrowserCommand}"/>
 		<Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}"

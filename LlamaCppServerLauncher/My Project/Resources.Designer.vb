@@ -79,6 +79,24 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 All Categories 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property AllCategories() As String
+            Get
+                Return ResourceManager.GetString("AllCategories", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 All Categories 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property AllCategoriesLabel() As String
+            Get
+                Return ResourceManager.GetString("AllCategoriesLabel", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 LLaMA.cpp HTTP Server Launcher 的本地化字符串。
         '''</summary>
         Public ReadOnly Property AppTitle() As String
@@ -124,6 +142,33 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 Clear 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ClearButton() As String
+            Get
+                Return ResourceManager.GetString("ClearButton", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Clear Filters 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ClearFiltersButton() As String
+            Get
+                Return ResourceManager.GetString("ClearFiltersButton", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Clear Output 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ClearOutputButton() As String
+            Get
+                Return ResourceManager.GetString("ClearOutputButton", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 Command copied to clipboard 的本地化字符串。
         '''</summary>
         Public ReadOnly Property CommandCopied() As String
@@ -165,6 +210,15 @@ Namespace My.Resources
         Public ReadOnly Property CpuThreadManagementExpander() As String
             Get
                 Return ResourceManager.GetString("CpuThreadManagementExpander", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Default Parameters: 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property DefaultParametersLabel() As String
+            Get
+                Return ResourceManager.GetString("DefaultParametersLabel", resourceCulture)
             End Get
         End Property
         
@@ -367,6 +421,15 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 Modified Parameters: 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ModifiedParametersLabel() As String
+            Get
+                Return ResourceManager.GetString("ModifiedParametersLabel", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 Network Settings 的本地化字符串。
         '''</summary>
         Public ReadOnly Property NetworkSettingsExpander() As String
@@ -399,6 +462,42 @@ Namespace My.Resources
         Public ReadOnly Property NoRepackCheckBox() As String
             Get
                 Return ResourceManager.GetString("NoRepackCheckBox", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Open Browser 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property OpenBrowserButton() As String
+            Get
+                Return ResourceManager.GetString("OpenBrowserButton", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Showing {0} / {1} parameters 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ParameterCountText() As String
+            Get
+                Return ResourceManager.GetString("ParameterCountText", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Parameter List 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ParameterListHeader() As String
+            Get
+                Return ResourceManager.GetString("ParameterListHeader", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Parameter Statistics 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ParameterStatisticsHeader() As String
+            Get
+                Return ResourceManager.GetString("ParameterStatisticsHeader", resourceCulture)
             End Get
         End Property
         
@@ -457,6 +556,33 @@ Namespace My.Resources
         End Property
         
         '''<summary>
+        '''  查找类似 Search parameter names, descriptions, categories... (supports Chinese and English) 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property SearchWatermark() As String
+            Get
+                Return ResourceManager.GetString("SearchWatermark", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 [info] Server manually stopped 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ServerManuallyStopped() As String
+            Get
+                Return ResourceManager.GetString("ServerManuallyStopped", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Server Output 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ServerOutputHeader() As String
+            Get
+                Return ResourceManager.GetString("ServerOutputHeader", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
         '''  查找类似 Server Path: 的本地化字符串。
         '''</summary>
         Public ReadOnly Property ServerPathLabel() As String
@@ -507,6 +633,15 @@ Namespace My.Resources
         Public ReadOnly Property SettingsSaved() As String
             Get
                 Return ResourceManager.GetString("SettingsSaved", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Show modified parameters only 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property ShowModifiedOnlyLabel() As String
+            Get
+                Return ResourceManager.GetString("ShowModifiedOnlyLabel", resourceCulture)
             End Get
         End Property
         
@@ -579,6 +714,24 @@ Namespace My.Resources
         Public ReadOnly Property TopPLabel() As String
             Get
                 Return ResourceManager.GetString("TopPLabel", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Total Parameters: 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property TotalParametersLabel() As String
+            Get
+                Return ResourceManager.GetString("TotalParametersLabel", resourceCulture)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  查找类似 Update Command Preview 的本地化字符串。
+        '''</summary>
+        Public ReadOnly Property UpdateCommandPreviewButton() As String
+            Get
+                Return ResourceManager.GetString("UpdateCommandPreviewButton", resourceCulture)
             End Get
         End Property
         

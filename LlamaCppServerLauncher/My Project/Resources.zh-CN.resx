@@ -77,6 +77,9 @@
   <data name="CommandPreviewTabHeader" xml:space="preserve">
     <value>命令预览</value>
   </data>
+  <data name="ServerOutputHeader" xml:space="preserve">
+    <value>服务器输出</value>
+  </data>
   
   <!-- Basic Settings -->
   <data name="ServerPathLabel" xml:space="preserve">
@@ -252,5 +255,57 @@
   </data>
   <data name="CommandCopied" xml:space="preserve">
     <value>命令已复制到剪贴板</value>
+  </data>
+  
+  <!-- UI Labels and Headers -->
+  <data name="AllCategoriesLabel" xml:space="preserve">
+    <value>所有分类</value>
+  </data>
+  <data name="ShowModifiedOnlyLabel" xml:space="preserve">
+    <value>仅显示已修改参数</value>
+  </data>
+  <data name="SearchWatermark" xml:space="preserve">
+    <value>搜索参数名、说明、类别... (支持中英文搜索)</value>
+  </data>
+  <data name="ClearFiltersButton" xml:space="preserve">
+    <value>清除筛选</value>
+  </data>
+  <data name="ParameterListHeader" xml:space="preserve">
+    <value>参数列表</value>
+  </data>
+  <data name="UpdateCommandPreviewButton" xml:space="preserve">
+    <value>更新命令预览</value>
+  </data>
+  <data name="ClearOutputButton" xml:space="preserve">
+    <value>清空输出</value>
+  </data>
+  <data name="ParameterStatisticsHeader" xml:space="preserve">
+    <value>参数统计</value>
+  </data>
+  <data name="TotalParametersLabel" xml:space="preserve">
+    <value>总参数数量：</value>
+  </data>
+  <data name="ModifiedParametersLabel" xml:space="preserve">
+    <value>已修改参数：</value>
+  </data>
+  <data name="DefaultParametersLabel" xml:space="preserve">
+    <value>默认参数：</value>
+  </data>
+  <data name="OpenBrowserButton" xml:space="preserve">
+    <value>打开浏览器</value>
+  </data>
+  <data name="ClearButton" xml:space="preserve">
+    <value>清除</value>
+  </data>
+  
+  <!-- ViewModel Messages -->
+  <data name="AllCategories" xml:space="preserve">
+    <value>所有分类</value>
+  </data>
+  <data name="ParameterCountText" xml:space="preserve">
+    <value>显示 {0} / {1} 个参数</value>
+  </data>
+  <data name="ServerManuallyStopped" xml:space="preserve">
+    <value>[info] 服务器已手动停止</value>
   </data>
 </root>

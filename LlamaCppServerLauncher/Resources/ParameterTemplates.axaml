@@ -1,6 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="using:LlamaCppServerLauncher">
+                    xmlns:local="using:LlamaCppServerLauncher"
+                    xmlns:res="clr-namespace:LlamaCppServerLauncher.My.Resources">
 
   <!-- Boolean Parameter Template (Checkbox) -->
   <DataTemplate x:Key="BooleanParameterTemplate" DataType="local:ServerParameterItem">
@@ -70,7 +71,7 @@
 				 IsReadOnly="True"
 				 VerticalAlignment="Center" />
 		<Button Grid.Column="1"
-				Content="Browse..."
+				Content="{x:Static res:Resources.BrowseButton}"
 				MinWidth="80"
 				Margin="5,0,0,0"
 				Command="{Binding BrowseFilePathCommand}" />
@@ -94,7 +95,7 @@
 				 IsReadOnly="True"
 				 VerticalAlignment="Center" />
 		<Button Grid.Column="1"
-				Content="Browse..."
+				Content="{x:Static res:Resources.BrowseButton}"
 				MinWidth="80"
 				Margin="5,0,0,0"
 				Command="{Binding BrowseDirectoryCommand}" />
@@ -141,7 +142,7 @@
 					 FontSize="14" />
 		  
 		  <Button Grid.Column="2"
-				  Content="Clear"
+				  Content="{x:Static res:Resources.ClearButton}"
 				  Classes="clear-button"
 				  Command="{Binding ClearValueCommand}"
 				  IsVisible="{Binding HasLocalValue}" />

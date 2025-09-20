@@ -77,6 +77,9 @@
   <data name="CommandPreviewTabHeader" xml:space="preserve">
     <value>Command Preview</value>
   </data>
+  <data name="ServerOutputHeader" xml:space="preserve">
+    <value>Server Output</value>
+  </data>
   
   <!-- Basic Settings -->
   <data name="ServerPathLabel" xml:space="preserve">
@@ -252,5 +255,55 @@
   </data>
   <data name="CommandCopied" xml:space="preserve">
     <value>Command copied to clipboard</value>
+  </data>
+  <data name="AllCategoriesLabel" xml:space="preserve">
+    <value>All Categories</value>
+  </data>
+  <data name="ShowModifiedOnlyLabel" xml:space="preserve">
+    <value>Show modified parameters only</value>
+  </data>
+  <data name="SearchWatermark" xml:space="preserve">
+    <value>Search parameter names, descriptions, categories... (supports Chinese and English)</value>
+  </data>
+  <data name="ClearFiltersButton" xml:space="preserve">
+    <value>Clear Filters</value>
+  </data>
+  <data name="ParameterListHeader" xml:space="preserve">
+    <value>Parameter List</value>
+  </data>
+  <data name="UpdateCommandPreviewButton" xml:space="preserve">
+    <value>Update Command Preview</value>
+  </data>
+  <data name="ClearOutputButton" xml:space="preserve">
+    <value>Clear Output</value>
+  </data>
+  <data name="ParameterStatisticsHeader" xml:space="preserve">
+    <value>Parameter Statistics</value>
+  </data>
+  <data name="TotalParametersLabel" xml:space="preserve">
+    <value>Total Parameters:</value>
+  </data>
+  <data name="ModifiedParametersLabel" xml:space="preserve">
+    <value>Modified Parameters:</value>
+  </data>
+  <data name="DefaultParametersLabel" xml:space="preserve">
+    <value>Default Parameters:</value>
+  </data>
+  <data name="OpenBrowserButton" xml:space="preserve">
+    <value>Open Browser</value>
+  </data>
+  <data name="ClearButton" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  
+  <!-- ViewModel Messages -->
+  <data name="AllCategories" xml:space="preserve">
+    <value>All Categories</value>
+  </data>
+  <data name="ParameterCountText" xml:space="preserve">
+    <value>Showing {0} / {1} parameters</value>
+  </data>
+  <data name="ServerManuallyStopped" xml:space="preserve">
+    <value>[info] Server manually stopped</value>
   </data>
 </root>
