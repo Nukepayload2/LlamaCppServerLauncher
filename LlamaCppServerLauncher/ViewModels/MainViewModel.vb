@@ -12,6 +12,7 @@ Imports System.Windows.Input
 Imports System.Diagnostics
 Imports LlamaCppServerLauncher.Helpers
 Imports System.Runtime.InteropServices
+Imports System.Collections.ObjectModel
 
 Public Class MainViewModel
     Inherits ObservableBase
@@ -48,6 +49,11 @@ Public Class MainViewModel
     Private WithEvents StatusCheckTimer As New DispatcherTimer With {
         .Interval = TimeSpan.FromSeconds(1)
     }
+
+    ' 服务器输出相关字段
+    Private ReadOnly _serverOutput As New ObservableCollection(Of String)
+    Private _outputTask As Task
+    Private _errorTask As Task
 
     ' 命令预览字段
     Private _commandPreview As String = ""
@@ -171,6 +177,12 @@ Public Class MainViewModel
         End Set
     End Property
 
+    Public ReadOnly Property ServerOutput As ObservableCollection(Of String)
+        Get
+            Return _serverOutput
+        End Get
+    End Property
+
 #Region " Commands "
 
     Public ReadOnly Property UpdateCommandPreviewCommand As ICommand = New RelayCommand(Function(param, cancellationToken) UpdateCommandPreviewAsync(cancellationToken))
@@ -179,6 +191,8 @@ Public Class MainViewModel
     Public ReadOnly Property BrowseModelCommand As ICommand = New RelayCommand(Function(param, cancellationToken) BrowseForModelAsync(cancellationToken))
     Private ReadOnly _startServerCommand As New RelayCommand(Function(param, cancellationToken) StartServerAsync(cancellationToken), Function(param) Not ServerRunning)
     Private ReadOnly _stopServerCommand As New RelayCommand(Function(param, cancellationToken) StopServer(cancellationToken), Function(param) ServerRunning)
+    Private ReadOnly _clearOutputCommand As New RelayCommand(AddressOf ClearOutput)
+    Private ReadOnly _openBrowserCommand As New RelayCommand(Function(param, cancellationToken) OpenBrowserAsync(cancellationToken), Function(param) ServerRunning)
 
     Public ReadOnly Property StartServerCommand As ICommand
         Get
@@ -191,6 +205,19 @@ Public Class MainViewModel
             Return _stopServerCommand
         End Get
     End Property
+
+    Public ReadOnly Property ClearOutputCommand As ICommand
+        Get
+            Return _clearOutputCommand
+        End Get
+    End Property
+
+    Public ReadOnly Property OpenBrowserCommand As ICommand
+        Get
+            Return _openBrowserCommand
+        End Get
+    End Property
+
     Public ReadOnly Property SaveSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) SaveSettingsAsync(cancellationToken))
     Public ReadOnly Property LoadSettingsCommand As ICommand = New RelayCommand(Function(param, cancellationToken) LoadSettingsAsync(cancellationToken))
     Public ReadOnly Property CopyCommandCommand As ICommand = New RelayCommand(Function(param, cancellationToken) CopyCommandToClipboardAsync(cancellationToken))
@@ -230,6 +257,7 @@ Public Class MainViewModel
         ' 触发服务器控制命令的 CanExecuteChanged 事件
         _startServerCommand.RaiseCanExecuteChanged()
         _stopServerCommand.RaiseCanExecuteChanged()
+        _openBrowserCommand.RaiseCanExecuteChanged()
     End Sub
 
     Private Sub SubscribeToParameterChanges()
@@ -369,14 +397,30 @@ Public Class MainViewModel
             cancellationToken.ThrowIfCancellationRequested()
             Dim args As String = UpdateCommandPreview()
             Dim startInfo As New ProcessStartInfo(serverPath, args) With {
-                .WindowStyle = ProcessWindowStyle.Normal
+                .UseShellExecute = False,
+                .RedirectStandardOutput = True,
+                .RedirectStandardError = True,
+                .CreateNoWindow = True
             }
 
-            _serverProcess = Process.Start(startInfo)
-            ServerRunning = True
+            ' 清空之前的输出
+            _serverOutput.Clear()
 
-            ' 启动状态检查定时器
-            StatusCheckTimer.IsEnabled = True
+            _serverProcess = New Process With {
+                .StartInfo = startInfo
+            }
+
+            ' 启动进程
+            If _serverProcess.Start() Then
+                ServerRunning = True
+
+                ' 启动输出读取任务
+                _outputTask = ReadOutputStream(_serverProcess.StandardOutput, "stdout")
+                _errorTask = ReadOutputStream(_serverProcess.StandardError, "stderr")
+
+                ' 启动状态检查定时器
+                StatusCheckTimer.IsEnabled = True
+            End If
         Catch ex As Exception
             errorMessage = ex.Message
         End Try
@@ -420,8 +464,36 @@ Public Class MainViewModel
             _serverProcess = Nothing
             ' 停止状态检查定时器
             StatusCheckTimer.IsEnabled = False
+
+            ' 添加服务器已停止的消息
+            _serverOutput.Add("[info] 服务器已手动停止")
         End Try
     End Function
+
+    Private Async Function ReadOutputStream(stream As StreamReader, prefix As String) As Task
+        Try
+            Dim line As String
+            Do
+                line = Await stream.ReadLineAsync()
+                If line IsNot Nothing Then
+                    Dim outputLine = String.Format("[{0}] {1}", prefix, line)
+                    Await Dispatcher.UIThread.InvokeAsync(Sub()
+                                                              _serverOutput.Add(outputLine)
+                                                          End Sub)
+                End If
+            Loop While line IsNot Nothing
+        Catch ex As Exception
+            HandleStreamError(prefix, ex)
+        End Try
+    End Function
+
+    Private Sub HandleStreamError(prefix As String, ex As Exception)
+        Dim errorMessage = String.Format("[{0}] Error reading stream: {1}", prefix, ex.Message)
+        Dispatcher.UIThread.InvokeAsync(Sub()
+                                            _serverOutput.Add(errorMessage)
+                                        End Sub)
+    End Sub
+
 
     Private Sub CheckServerStatus() Handles StatusCheckTimer.Tick
         If Not ServerRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
@@ -539,6 +611,39 @@ Public Class MainViewModel
             If Not String.IsNullOrEmpty(errorMessage) Then
                 Await MsgBoxAsync($"Failed to copy command: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
             End If
+        End If
+    End Function
+
+    Private Sub ClearOutput()
+        _serverOutput.Clear()
+    End Sub
+
+    Private Async Function OpenBrowserAsync(cancellationToken As CancellationToken) As Task
+        cancellationToken.ThrowIfCancellationRequested()
+
+        ' 获取端口配置
+        Dim portParam = Settings.ServerParameterByName("--port")
+        Dim port As Integer = 8080 ' 默认端口
+
+        If portParam?.Value.DoubleValue.HasValue Then
+            port = CInt(portParam.Value.DoubleValue.Value)
+        End If
+
+        Dim errorMessage As String = ""
+        Try
+            Dim url As String = $"http://localhost:{port}"
+            Dim psi As New ProcessStartInfo With {
+                .FileName = url,
+                .UseShellExecute = True
+            }
+            Process.Start(psi)
+        Catch ex As Exception
+            errorMessage = ex.Message
+        End Try
+
+        cancellationToken.ThrowIfCancellationRequested()
+        If Not String.IsNullOrEmpty(errorMessage) Then
+            Await MsgBoxAsync($"Failed to open browser: {errorMessage}", MsgBoxButtons.Ok, "Error", My.Application.MainWindow)
         End If
     End Function
 

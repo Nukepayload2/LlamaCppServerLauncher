@@ -114,6 +114,33 @@
 			</StackPanel>
 		  </Expander>
 
+		  <!-- Server Output -->
+		  <Expander Header="服务器输出" IsExpanded="True" HorizontalAlignment="Stretch">
+			<StackPanel Margin="8,4" Spacing="8">
+			  <Button x:Name="ClearOutputButton"
+					  Content="清空输出"
+					  HorizontalAlignment="Left"
+					  Command="{Binding ClearOutputCommand}"/>
+			  
+			  <ListBox ItemsSource="{Binding ServerOutput}"
+					   Height="200"
+					   FontFamily="Consolas, monospace"
+					   Background="#f8f8f8"
+					   BorderBrush="#ddd"
+					   BorderThickness="1"
+					   ScrollViewer.HorizontalScrollBarVisibility="Auto"
+					   ScrollViewer.VerticalScrollBarVisibility="Auto">
+				<ListBox.ItemTemplate>
+				  <DataTemplate>
+					<TextBlock Text="{Binding}" 
+							   TextWrapping="Wrap"
+							   FontSize="11"/>
+				  </DataTemplate>
+				</ListBox.ItemTemplate>
+			  </ListBox>
+			</StackPanel>
+		  </Expander>
+
 		  <!-- Statistics -->
 		  <Expander Header="参数统计" IsExpanded="True" HorizontalAlignment="Stretch">
 			<StackPanel Margin="8,4" Spacing="4">
@@ -144,6 +171,9 @@
 		<Button x:Name="StopServerButton" Content="{x:Static res:Resources.StopServerButton}"
 				Background="#f44336" Foreground="White"
 				Command="{Binding StopServerCommand}"/>
+		<Button x:Name="OpenBrowserButton" Content="打开浏览器"
+				Background="#2196F3" Foreground="White"
+				Command="{Binding OpenBrowserCommand}"/>
 		<Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}"
 				Command="{Binding SaveSettingsCommand}"/>
 		<Button x:Name="LoadSettingsButton" Content="{x:Static res:Resources.LoadSettingsButton}"
