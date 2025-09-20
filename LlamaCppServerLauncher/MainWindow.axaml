@@ -97,8 +97,6 @@
 			  <Button x:Name="UpdateCommandPreviewButton"
 					  Content="更新命令预览"
 					  HorizontalAlignment="Left"
-					  Background="#2196F3"
-					  Foreground="White"
 					  Command="{Binding UpdateCommandPreviewCommand}"/>
 
 			  <TextBox Text="{Binding CommandPreview}"
@@ -148,10 +146,8 @@
 				IsEnabled="False"
 				Command="{Binding StopServerCommand}"/>
 		<Button x:Name="SaveSettingsButton" Content="{x:Static res:Resources.SaveSettingsButton}"
-				Background="#2196F3" Foreground="White"
 				Command="{Binding SaveSettingsCommand}"/>
 		<Button x:Name="LoadSettingsButton" Content="{x:Static res:Resources.LoadSettingsButton}"
-				Background="#FF9800" Foreground="White"
 				Command="{Binding LoadSettingsCommand}"/>
 	  </StackPanel>
 	</Border>

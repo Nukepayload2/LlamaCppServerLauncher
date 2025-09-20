@@ -11,12 +11,23 @@ Imports Avalonia.Controls
 Imports System.Windows.Input
 Imports System.Diagnostics
 Imports LlamaCppServerLauncher.Helpers
+Imports System.Runtime.InteropServices
 
 Public Class MainViewModel
     Inherits ObservableBase
     Implements IDisposable
 
-#Region " Fields "
+#Region " Fields and Constants "
+
+    ' Console event constants
+    Private Const CTRL_C_EVENT As Integer = 0
+    Private Const CTRL_BREAK_EVENT As Integer = 1
+
+    ' Windows API declarations
+    Private Declare Function GenerateConsoleCtrlEvent Lib "kernel32" (
+        ByVal dwCtrlEvent As Integer,
+        ByVal dwProcessGroupId As Integer
+    ) As Boolean
 
     Private _settings As AppSettings = AppSettings.WithServerParameters
     Private _filterText As String = ""
@@ -348,13 +359,31 @@ Public Class MainViewModel
         End If
     End Function
 
-    Private Sub StopServer()
+    Private Async Function StopServer() As Task
         If Not _serverRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
             Return
         End If
 
         Try
-            _serverProcess.Kill()
+            ' Send graceful shutdown signal using CTRL_C_EVENT
+            Dim result = GenerateConsoleCtrlEvent(CTRL_C_EVENT, _serverProcess.SessionId)
+
+            If result Then
+                ' Wait up to 3 seconds for graceful shutdown
+                Dim timeout As New CancellationTokenSource
+                timeout.CancelAfter(3000)
+                Try
+                    Await _serverProcess.WaitForExitAsync(timeout.Token)
+                Catch ex As OperationCanceledException When ex.CancellationToken = timeout.Token
+                    ' If process is still running, force kill it
+                    If Not _serverProcess.HasExited Then
+                        _serverProcess.Kill()
+                    End If
+                End Try
+            Else
+                ' If sending event failed, force kill immediately
+                _serverProcess.Kill()
+            End If
         Catch
             ' Ignore kill errors
         Finally
@@ -363,7 +392,7 @@ Public Class MainViewModel
             ' 停止状态检查定时器
             StatusCheckTimer.IsEnabled = False
         End Try
-    End Sub
+    End Function
 
     Private Sub CheckServerStatus() Handles StatusCheckTimer.Tick
         If Not _serverRunning OrElse _serverProcess Is Nothing OrElse _serverProcess.HasExited Then
